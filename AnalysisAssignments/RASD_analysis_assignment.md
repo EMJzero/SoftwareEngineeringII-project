@@ -13,7 +13,7 @@ The provided RASD document presented for the A.Y. 2021-2022 Software Engineering
 
 ## Scope
 - Does not contain an identification of the product as per a brief description of it, while it somewhat defines the application’s domain.
-- Good identification of the geograohical area that the system should cover and of the possible limitations of the systems due to such restriction.
+- Good identification of the geographical area that the system should cover and of the possible limitations of the systems due to such restriction.
 ### World Phenomena
 - WP1 might be incomplete, since it might need to include all chores the farmers have to do to sustain their activity.
 - WP3, more precision and specificity may be advised in regards to "incidents", since it doesn't seem to include meteorological events.
@@ -34,17 +34,17 @@ For instance we suggest removing the following sentences:
 
 ## User characteristics
 - Unregistered farmer might still be considered as a user, since it has to interact with the Login functions of the system. Hence Unregistered farmer might be an unnecessary User.
-- Rather than mentioning the different type of users for the first time in this section, we would have found it more coherent to alteast identify them immediately before or after discussing the scenarios, using this sections only to go into more details. 
+- Rather than mentioning the different type of users for the first time in this section, we would have found it more coherent to at least identify them immediately before or after discussing the scenarios, using this sections only to go into more details. 
 
 ## Domain Assumptions
-- D4 and D5 would have been clearer if Agronomists were previously considered atleast in minimal part, although not part of the project for a team of 2.  
+- D4 and D5 would have been clearer if Agronomists were previously considered at least in minimal part, although not part of the project for a team of 2.  
 - D8 regarding policy makers accounts can be more specific as to how this account with privileges is granted and authorized, furthermore since we are talking about a different user type mentioning "privileges" is rather inappropriate unless the hierarchy of privileges within the system has already been well define, which has not. Hence D8 should have just cited the different account type for policy makers being granted through proper means, not mentioning privileges.
 - D7 and D9 are heavy assumptions that are not required. The system to be should be perfectly able to operate even if some provided data is incorrect or if some farmers do not provide their data, even more the eventuality of handling such cases should be considered in the system's behaviour, such as, for example, notifying a farmer to remind him to insert its data every month or year. 
 
 ## Requirements
 ### User Interfaces
 - Should have been a better description of what "ease of use" means in the current context.
-- The above can be said as well aboud the term "user-friendly".
+- The above can be said as well about the term "user-friendly".
 ### Functional Requirements
 - In R13 We think there is an error in the usage of the word “authenticate”. “Verify” would have been much more appropriate.
 - In R15 through R18 “author” is not specified to be an instance of farmer.
@@ -62,7 +62,7 @@ For instance we suggest removing the following sentences:
 - Both the user's hardware and the system provider's hardware should have been taken into consideration. Given the requirement to allow even old devices to be able to use the system, imposing complete compatibility with old Web Browsers (Ex: Chromium v28) might have been usefull.
 ### Software System Attributes
 #### Reliability
-- Discussing the eventual multi-instance deployment of the system should have been discussed in the design constraints, its of no use if casually mentioned here without a proper justification. Furthermore the described "parallel system" used as a backup is not an effective way of sustaining the previously cited 100k concurrent users. Since digressing into RIA deployment architectures is pointless in a RASD document, the whole topic should have been handled via a simple "the infrastructure upon which the website will be deployed will need to be chosen for reliability as well".
+- Discussing the eventual multi-instance deployment of the system should have been discussed in the design constraints, it's of no use if casually mentioned here without a proper justification. Furthermore the described "parallel system" used as a backup is not an effective way of sustaining the previously cited 100k concurrent users. Since digressing into RIA deployment architectures is pointless in a RASD document, the whole topic should have been handled via a simple "the infrastructure upon which the website will be deployed will need to be chosen for reliability as well".
 #### Availability
 - The phrasing in the first paragraph is not entirely correct.
 - A proper justification for the "99%" uptime specified should have been provided.
