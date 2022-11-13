@@ -1,0 +1,57 @@
+G (strictly for eMSPs):
+- show users the available charging stations
+- allow users to book charging time slots
+- allow users to monitor and manage (includes paying) the charging process
+
+G (strictly for CPMSs):
+- render available location and status of charging stations
+- allow charge management of a connected vehicle
+- allow energy source management
+
+G (general):
+- allow multiple eMSPs to interact with multiple CPMSs each and vice vers
+- allow CPOs to interact with multiple DSOs each and vice vers
+(in the two above maybe is worth to specify "interact" more clearly)
+
+Machine: eMSPs + CPMSs
+World: Users + EV (electric vehicles) + CS (charging stations) + DSOs + CPOs
+
+WP:
+- electric vehicles arrive at and physically attach to CSs (charging stations)
+- CSs are owned by CPOs and connected to their CPMSs
+- the state of the batteries (if any are present) in each CSs changes depending on in loco energy usage and production
+- DSOs set a price and mix of sources for the electricity they provide
+
+SP:
+- eMSPs (machine controlled) show the available charging stations and their informations (maybe specify which info?) to users (world observed)
+- users (world controlled) book charging stations via eMSPs (machine observed)
+- users (world controlled) start their vehicle's charging process via eMSPs (machine observed)
+- eMSPs (machine controlled) notify users when at the complition of their vehicle's charging process (world observed)
+- users (wordl controlled) pay for the charging service through the eMSPs (machine observed)
+- CPMSs (machine controlled) make available location and external status information regarding their managed CSs (world observed)
+- CPMSs (machine controlled) make a CS (world observed) start charging a vehicle according to its specifications
+- charging processes at CSs (world controlled) are monitored by the relative CPMSs (machine observed) (maybe controller and observer are swapped?)
+- CPMSs (machine controlled) fetch price information from DSOs (world observed)
+- CPOs (world controlled) decide from which DSO to acquire electricity and how to manage batteries using CPMSs (machine observed) (Is a WP?) (May be divided in 2)
+- CPOs (world controlled) set the cost of charging and set special offers in their CPMSs (machine observed) (Is a WP?)
+- 
+
+Scenarios:
+- user looking for charging stations (Actors: user, eMSP [1], CPMSs [1..n])
+- user registering or logging in (Actors: user, eMSP)
+- user booking a charge (Actors: user, eMSP, CPMS [only to provide CS info, or to store the reservation itself? see ideas below])
+- user managing a charge (start, monitor and pay) (Actors: user, eMSP, CPSM)
+- CPMS or CPO gathers informations on energy prices and mix of sources
+- CPMS or CPO chooses energy sources and battery usage policy
+
+R:
+-
+
+Ideas:
+- make users see the charging stations locations even without login
+- users must register to book a charge
+- users must register with at least one nameplate associated to them during registration, during this step the vehicle's specifications must also be provided to automatically filter for the right connector type during booking and to instruct CS on how to handle that vehicle
+- vehicles are identified by their nameplate
+
+- are we working assuming we have 1 eMSP and multiple CPMSs? Because if its true than the booking database can just be kept on the eMSP side, however if there were multiple eMSPs (reasonable in the real world) the CPMSs then MUST as well keep track of reservations, and their API must offer a function to retrieve and make reservations, since otherwise multiple eMSPs could book the same slot to a different client each...
+	=> eMall is the only eMSP we assume exists, or shall we consider the real world?
