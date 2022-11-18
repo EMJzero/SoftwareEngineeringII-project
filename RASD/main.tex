@@ -256,6 +256,7 @@ NOTE: should one pay before or after charging? Or should one pay while booking? 
 -CPO (‘s human operators) wants informations on DSOs’ energy prices and mix of sources (Actors: CPO, CPMS, DSOs [1..n]):
 The CPO Xcorp, or better its employees with authorizes access to its CPMS, wants informations regarding the energy market to evaluate his choice of DSO. To this end Xcorp uses its CPMS’s functionality to gather such informations from all the DSOs known to it, hence the CPMS proceeds to recover the informations from the various DSOs and once it has finished it presents the result to Xcorp.
 
+%SPLIT INTO TWO, one superseded by the CPO, one by the CPMS (automated)
 -CPO (‘s human operators) or CPMS chooses energy sources and battery usage policies (Actors: CPO [optional], CPMS):
 The CPO Xcorp might want to change which DSO supplies its CS to improve on the energy mix provided to its clients or to reduce energy costs, hence Xcorp has already acquired energy prices and mixes data via its CPMS and requests the CPMS to change its provide to newly a chosen DSO.
 Alternatively Xcorp can program its CPMS to decide itself which DSO to use at a given time given adequate parameters to operate the choice.
@@ -267,6 +268,20 @@ Together with the DSO, Xcorp might also want to change the policy with which it 
 \subsubsection{State Diagrams}
 
 \subsection{Product Functions}
+
+!!THE MOST IMPORTANT REQUIREMENTS!!
+
+(- showing CSs (prices etc)
+- booking charge
+- terminating charge
+- notifying charge completion
+- paying)
+
+(- CS status
+- start charging vehicle
+- monitor charging process (to determine a full charge)
+- swap DSO for a CS
+- change CS batteries behaviour)
 
 \subsection{User Characteristics}
 
@@ -286,7 +301,7 @@ Together with the DSO, Xcorp might also want to change the policy with which it 
         \hline
         D1 & To change the sockets of a CS, the whole CS needs to be replaced \\
         \hline
-        D2 & ... \\
+        D2 & The DSO association can be controlled on a per-CS basis and there is enough information provided by the DSOs to the CPMS to allow the latter to set a price for a charge at a CS and keep it constant during the whole process, while preventing that a DSO's price change causes a loss \\
         \hline
     \end{tabularx}
     \label{tab:domain_assumptions}
