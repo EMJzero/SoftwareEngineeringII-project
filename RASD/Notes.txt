@@ -55,3 +55,6 @@ Ideas:
 
 - are we working assuming we have 1 eMSP and multiple CPMSs? Because if its true than the booking database can just be kept on the eMSP side, however if there were multiple eMSPs (reasonable in the real world) the CPMSs then MUST as well keep track of reservations, and their API must offer a function to retrieve and make reservations, since otherwise multiple eMSPs could book the same slot to a different client each...
 	=> eMall is the only eMSP we assume exists, or shall we consider the real world?
+
+Goal: quello che deve succedere (sistema visto ai morsetti)
+Requirement: come il goal è soddisfatto dal STB

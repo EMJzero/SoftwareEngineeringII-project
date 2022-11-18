@@ -4,9 +4,13 @@
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage[inkscapeformat=pdf]{svg}
 \usepackage{placeins}
+\usepackage{tabularx}
+\usepackage{float}
+
+\usepackage[margin=2cm]{geometry}
 
 \title{%
-  RASD \\
+  \textbf{RASD} \\
   \large Software Engineering Project \\ A.Y. 2022-2023}
 
 \author{Marco Ronzani, Alessandro Sassi}
@@ -20,5 +24,314 @@
 \tableofcontents
 
 \section{Introduction}
+
+\subsection{Purpose}
+
+Description of the System To Be:
+It is composed of the eMSP and one or more CPMSs ... description
+=> CPMS non va condiserato come actor perchè parte del STB
+
+Actor: User, DSO, CPO
+
+Consideration:
+CPMSs are not necessarily part of eMall, they might be entirely separated and can be reasonably assumed to exist independently.
+
+A CS has associated a DSO (one exactly at every instant) and is "plugged" thanks to it in the electric grid. The management of batteries is also handled per-CS.
+
+The user is charged a price that is exactly the energy he used times the original price he booked the CS for, hence eventual changes operated by the CPMS during the process that alter the cost of electricity do not affect the user's charge, simply the difference kept or given by the CPO/CPMS.
+
+Machine: eMSPs + CPMSs
+World: Users + CS (charging stations) + Sockets + DSOs + CPOs
+
+\subsubsection{Goals}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.7\hsize}X|}
+        \hline
+        \textbf{Goal} & \textbf{Description} \\
+        \hline
+        G1 & Allow Users to see the list of available Charging Stations \\
+        \hline
+        G2 & Allow Users to see the cost of a charge \\
+        \hline
+        G3 & Allow Users to book charging time slots \\
+        \hline
+        G4 & Allow Users to monitor, manage and pay for the ongoing charging session \\
+        \hline
+        G5 & Allow Charge Point Operators to manage the provider each Charging Station uses to source energy \\
+        \hline
+    \end{tabularx}
+    \label{tab:goals}
+\end{table}
+
+\subsection{Definitions, Acronyms and Abbreviations}
+
+\subsubsection{Definitions}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.7\hsize}X|}
+        \hline
+        \textbf{Term} & \textbf{Definition} \\
+        \hline
+        Charging Session & The process in which a User performs a charge of their vehicle. \\
+        \hline
+    \end{tabularx}
+    \label{tab:definitions}
+\end{table}
+
+\subsubsection{Acronyms}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.7\hsize}X|}
+        \hline
+        \textbf{Acronym} & \textbf{Full Name} \\
+        \hline
+        eMall & Electric Mobility for All \\
+        \hline
+        eMSP & Electric Mobility Service Provider \\
+        \hline
+        CPO & Charging Point Operator \\
+        \hline
+        CPMS & Charge Point Management System \\
+        \hline
+        CS & Charging Station \\
+        \hline
+        DSO & Distribution System Operator \\
+        \hline
+        STB & System-To-Be \\
+        \hline
+    \end{tabularx}
+    \label{tab:acronyms}
+\end{table}
+
+\subsection{Scope}
+
+This RASD document takes into consideration the requirements and specifications of the eMSP platform “eMall”, together with its interaction with one or more CPMSs. The stakeholders considered are the End Users who interact with the “eMall” platform, CPOs owning the respective CSs and CPMSs, and DSOs offering their services to the aforementioned parties.
+
+\subsubsection{World Phenomena}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.7\hsize}X|}
+        \hline
+        \textbf{Phenomena} & \textbf{Description} \\
+        \hline
+        WP1 & Electric vehicles connect to a CS socket \\
+        \hline
+        WP2 & CPOs add/remove available CSs \\
+        \hline
+        %DOMAIN ASSUMPTION: If you change sockets you change tho whole CS!
+        WP3 & CPOs add/remove batteries from existing CSs \\
+        \hline
+        WP4 & CPOs decide the policy with which to assign DSOs to CSs \\
+        \hline
+        WP5 & DSOs set the price and/or the mix of sources for the electricity they provide \\
+        \hline
+    \end{tabularx}
+    \label{tab:world_phenomena}
+\end{table}
+
+\subsubsection{Shared Phenomena}
+
+In order to represent more clearly whether a phenomenon is world or machine controlled or observed, we define a list of acronyms used only for the scope of the Shared Phenomena definition. These acronyms will also be reported in the Shared Phenomena table, so that for each entry the controller/observer party can easily be identified. 
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.7\hsize}X|}
+        \hline
+        \textbf{Type} & \textbf{Explanation} \\
+        \hline
+        MO & Machine Observed Phenomenon, the STB takes notice of the event \\
+        \hline
+        MC & Machine Controlled Phenomenon, the STB causes the event \\
+        \hline
+        WO & World Controlled Phenomenon, an/some external agent(s) notices the event \\
+        \hline
+        WC & World Controlled Phenomenon, an/some external agent(s) causes the event \\
+        \hline
+    \end{tabularx}
+    \label{tab:shared_phenomena_header}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.4\hsize}X|}
+        \hline
+        \textbf{Phenomena} & \textbf{Type} & \textbf{Description} \\
+        \hline
+        SP1 & WC MO & The User views the available charging stations and their information \\
+        \hline
+        SP2 & WC MO & Users book a charging session to a CS \\
+        \hline
+        SP3 & WC MO & Users start their vehicle's charging session on a CS \\
+        \hline
+        SP4 & MC WO & The eMSP notifies users of the completion of their vehicle's charging session \\
+        \hline
+        SP5 & WC MO & Users prematurely terminate their ongoing charging session \\
+        \hline
+        SP6 & WC MO & Users pay for the finished charging session \\
+        \hline
+        %Since CPOs need those to manually manage CSs!!
+        SP7 & MC WO & CPMSs publish the location and external status information regarding their managed CSs \\
+        \hline
+        %There are two energy prices, the one the DSOs charge the CPOs for and the one the CPOs charge the Users for!
+        SP8 & WC MO & CPOs update the DSO associated to a CS (this determines how much a CPO is charged for the electricity a CS provides) \\
+        \hline
+        SP9 & WC MO & CPOs update the "user-charged" energy price and set special offers for a CS \\
+        \hline
+        SP10 & WC MO & CPOs perform an addition/removal of CSs \\
+        \hline
+        SP11 & WC MO & CPOs update batteries information and batteries usage policies for their CSs \\
+        \hline
+    \end{tabularx}
+    \label{tab:shared_phenomena}
+\end{table}
+
+\subsection{Revision History}
+
+\subsection{Reference Documents}
+
+\subsection{Document Structure}
+
+\section{Overall Description}
+
+\subsection{Product Perspective}
+
+\subsubsection{Scenarios}
+
+-user looking for charging stations (Actors: user, eMSP, CPMSs [1..n]):
+A person, Bob, needs to know the location and/or pricing of CSs in a certain are of his interest. To obtain such data, Bob has reached the eMall services and has selected the charging stations map options. Now Bob can search for CSs and is presented with multiple filters to control:
+•his area of interest
+•charge price ranges
+•connector types available
+•charging speeds available
+By manipulating the filters Bob can restrict or widen the scope of his search. Results of the search are displayed in respect of the filters and Bob can see the details of every result such as:
+•location
+•price
+•offers
+•booking schedule
+•available connectors
+•available charging speeds
+
+-new user registration (Actors: user, eMSP):
+A person, Bob, who discovered eMall has decided to register into the platform to use its charge booking and charge management system. To this end Bob reaches the eMall services and chooses to “sign up”, after that Bob fills in the relevant informations and his eMall account is created. Now Bob can proceed to login.
+
+-user login (Actors: user, eMSP):
+An already registered user, Bob, reaches the eMall services and intends to either book a charging spot or to manage a currently ongoing charge booked to his name, hence Bob chooses to “login” and enters its credentials. Assuming Bob inserted valid credentials he now has a valid session within the eMall services. If Bob failed in setting valid credentials he can try again.
+
+-user booking a charge (Actors: user, eMSP, CPMSs [1..n]):
+A user Bob has already performed the login and now intends to book a charge. Bob first performs a search for the CS to reserve for his charge (see “user looking for charging stations” scenario) and once he finds a suitable and available one chooses “book charge” for that station. Bob is then presented with the choice for the time slot for his charge and once he chooses his reservation is completed.
+
+-user managing a charge / user performing a charge (start, monitor and pay) (Actors: user, eMSP, CPSM):
+The user Bob has previously booked a charge at a certain CS for a certain time slot. Bob shows up at the CS during his reserved time slot and proceeds to connect his vehicle properly. Once the vehicle is connected Bob reaches the eMall services to start the charging process. One process is started Bob has the option to interrupt it at any time, otherwise the charging procedure automatically halts as the CS noticed the vehicle’s battery to be full and notifying Bob as that happens, either way Bob is then presented by eMall with the total cost of his charge and a payment module which Bob must fill to not get arrested and spend the rest of his miserable life in prison for stealing electrons…
+NOTE: should one pay before or after charging? Or should one pay while booking? The text does not specify…
+
+-CPO (‘s human operators) wants informations on DSOs’ energy prices and mix of sources (Actors: CPO, CPMS, DSOs [1..n]):
+The CPO Xcorp, or better its employees with authorizes access to its CPMS, wants informations regarding the energy market to evaluate his choice of DSO. To this end Xcorp uses its CPMS’s functionality to gather such informations from all the DSOs known to it, hence the CPMS proceeds to recover the informations from the various DSOs and once it has finished it presents the result to Xcorp.
+
+-CPO (‘s human operators) or CPMS chooses energy sources and battery usage policies (Actors: CPO [optional], CPMS):
+The CPO Xcorp might want to change which DSO supplies its CS to improve on the energy mix provided to its clients or to reduce energy costs, hence Xcorp has already acquired energy prices and mixes data via its CPMS and requests the CPMS to change its provide to newly a chosen DSO.
+Alternatively Xcorp can program its CPMS to decide itself which DSO to use at a given time given adequate parameters to operate the choice.
+(Maybe on a different scenario)
+Together with the DSO, Xcorp might also want to change the policy with which it manages the batteries different CS might have, Xcorp can configure this as well through the CPMS, that then relays the policy to the different CSs. An automatic battery management policy decision procedure can also be automated within the CPMS of Xcorp desires so and appropriately provides the CPMS with the parameters to perform the task.
+
+\subsubsection{Class Diagram}
+
+\subsubsection{State Diagrams}
+
+\subsection{Product Functions}
+
+\subsection{User Characteristics}
+
+\subsection{Assumptions, Dependencies and Constraints}
+
+\subsubsection{Domain Assumption}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.7\hsize}X|}
+        \hline
+        \textbf{Assumption} & \textbf{Description} \\
+        \hline
+        D1 & To change the sockets of a CS, the whole CS needs to be replaced \\
+        \hline
+        D2 & ... \\
+        \hline
+    \end{tabularx}
+    \label{tab:domain_assumptions}
+\end{table}
+
+\section{Specific Requirements}
+
+\subsection{External Interface Requirements}
+
+\subsubsection{User Interfaces}
+
+\subsubsection{Hardware Interfaces}
+
+\subsubsection{Software Interfaces}
+
+\subsubsection{Communication Interfaces}
+
+\subsection{Functional Requirements}
+
+\subsection{Performance Requirements}
+
+\subsection{Design Constraints}
+
+\subsubsection{Standards compliance}
+
+\subsubsection{Hardware limitations}
+
+\subsubsection{Any other constraint}
+
+\subsection{Software System Attributes}
+
+\subsubsection{Reliability}
+
+\subsubsection{Availability}
+
+\subsubsection{Security}
+
+\subsubsection{Maintainability}
+
+\subsubsection{Portability}
+
+\section{Formal Analysis Using Alloy}
+
+\section{Effort Spent}
+
+\section{References}
 
 \end{document}
