@@ -328,10 +328,11 @@ Those following are representations of the most important interactions that invo
     \item [1. Unregistered User] \hfill \\
         A User which just accesses the list of available CS without being able to book charges, he has the option to register and become a \textit{Logged In User} at any time.
     \item [2. Logged In User] \hfill \\
-        A User with a register account within eMall which has logged in via its credentials, he see the CS list and can book charges and manage his ongoing charging sessions.
+        A User with a registered account within eMall which has logged in via his credentials, he can still access the CSs list and can also book charge. With his bookings he can then manage his charging sessions one he arrives at the CS.
     \item [3. CPO] \hfill \\
-        By CPO at large we mean a company whose employees have access to the company's CPMS, hence the actual human beings interacting with the STB will be employees with credentials that allow them to login withing the CPMS. The tasks an employee might perform are acquiring DSOs' information, assigning a DSO to a CS owned by his company, changing the battery management policy for any CS controlled by the CPMS or adding/updating CS managed by the CPMS. \\
-        The reason for CPOs being identified as a users instead of their employees is that the decisions justifying the operations performed by the employees cannot be taken by the employees, and are more identifiable as a decision of the companies as a whole.
+        By CPO at large we mean a company whose employees have access to the company's CPMS, hence the actual human beings interacting with the STB will be CPO employees with credentials that allow them to authenticate with the CPMS. The tasks an employee might perform are acquiring DSOs' information, assigning a DSO to a CS owned by his company, changing the battery management policy for any CS controlled by the CPMS or adding/updating CS managed by the CPMS. \\
+        The reason for CPOs being identified as a users instead of their employees is that the decisions justifying the operations performed by the employees cannot be taken by the employees, they are just the executors, decisions are taken by their superiors, hence we can view of the entire company as a user to avoid being too specific about who takes which decision and who interacts with the STB. \\
+        Furthermore a CPO is likely to use its information system to interface with the CPMS, hence identifying the company as a user also prevents distintions between direct CPMS access or access via the information system.
 \end{description}
 
 \subsection{Assumptions, Dependencies and Constraints}
@@ -415,13 +416,49 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
 
 \subsubsection{Mapping on goals}
 
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\hsize=0.4\hsize}X|>{\hsize=1\hsize}X|>{\hsize=1.6\hsize}X|}
+        \hline
+        \textbf{Goal} & \textbf{Domain assumption} & \textbf{Requirement} \\
+        \hline
+        G0 & D0 & R0 \\
+        \hline
+        ... & ... & ... \\
+        \hline
+    \end{tabularx}
+    \label{tab:requirements}
+\end{table}
+
 \subsubsection{Use cases}
+
+1 to 1 with scenarios?
 
 \subsubsection{Use case diagrams}
 
 \subsubsection{Sequence diagrams}
 
 \subsubsection{Mapping on requirements}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\hsize=1.2\hsize}X|>{\hsize=0.8\hsize}X|}
+        \hline
+        \textbf{Use case} & \textbf{Requirements} \\
+        \hline
+        ... & ... \\
+        \hline
+    \end{tabularx}
+    \label{tab:requirements}
+\end{table}
 
 \subsection{Performance Requirements}
 
