@@ -162,6 +162,8 @@ This RASD document takes into consideration the requirements and specifications 
         \hline
         WP5 & DSOs set the price and/or the mix of sources for the electricity they provide \\
         \hline
+        WP6 & CPOs pay DSOs for the consumed electricity \\
+        \hline
     \end{tabularx}
     \label{tab:world_phenomena}
 \end{table}
@@ -226,6 +228,8 @@ In order to represent more clearly whether a phenomenon is world or machine cont
         \hline
         SP11 & WC MO & CPOs update batteries information and batteries usage policies for their CSs \\
         \hline
+        SP12 & MC WO & The eMSP transfers the amount due to CPOs for performed charges \\
+        \hline
     \end{tabularx}
     \label{tab:shared_phenomena}
 \end{table}
@@ -255,42 +259,44 @@ In order to represent more clearly whether a phenomenon is world or machine cont
 
 \begin{description}
     \item [1. User looking for charging stations] \hfill \\
-        \textit{Actors: user, eMSP, CPMSs [1..n]} \\
-        A person, Bob, needs to know the location and/or pricing of CSs in a certain are of his interest. To obtain such data, Bob has reached the eMall services and has selected the charging stations map options. Now Bob can search for CSs and is presented with multiple filters to control:
-        •his area of interest
-        •charge price ranges
-        •connector types available
-        •charging speeds available
+        \textit{Actors: user} \\
+        A person, Bob, needs to know the location and/or pricing of CSs in a certain are of his interest. To obtain such data, Bob has reached the eMall services and has selected the charging stations map options. Now Bob can search for CSs and is presented with multiple filters to control: \\
+        \begin{itemize}
+            \item His area of interest
+            \item Charge price ranges
+            \item Connector types available
+            \item Charging speeds available
+        \end{itemize}
         By manipulating the filters Bob can restrict or widen the scope of his search. Results of the search are displayed in respect of the filters and Bob can see the details of every result such as:
-        •location
-        •price
-        •offers
-        •booking schedule
-        •available connectors
-        •available charging speeds
+        \begin{itemize}
+            \item Location
+            \item Price
+            \item Offers
+            \item Booking schedule
+            \item Available connectors
+            \item Available charging speeds
+        \end{itemize}
     \item [2. New user registration] \hfill \\
-        \textit{Actors: user, eMSP} \\
-        A person, Bob, who discovered eMall has decided to register into the platform to use its charge booking and charge management system. To this end Bob reaches the eMall services and chooses to “sign up”, after that Bob fills in the relevant informations and his eMall account is created. Now Bob can proceed to login.
+        \textit{Actors: user} \\
+        A person, Bob, who discovered eMall has decided to register into the platform to use its charge booking and charge management system. To this end Bob reaches the eMall services and chooses to “sign up”, after that Bob fills in the relevant information and his eMall account is created. Now Bob can proceed to login.
     \item [3. User login] \hfill \\
-        \textit{Actors: user, eMSP} \\
+        \textit{Actors: user} \\
         An already registered user, Bob, reaches the eMall services and intends to either book a charging spot or to manage a currently ongoing charge booked to his name, hence Bob chooses to “login” and enters its credentials. Assuming Bob inserted valid credentials he now has a valid session within the eMall services. If Bob failed in setting valid credentials he can try again.
     \item [4. User booking a charge] \hfill \\
-        \textit{Actors: user, eMSP, CPMSs [1..n]} \\
+        \textit{Actors: user} \\
         A user Bob has already performed the login and now intends to book a charge. Bob first performs a search for the CS to reserve for his charge (see “user looking for charging stations” scenario) and once he finds a suitable and available one chooses “book charge” for that station. Bob is then presented with the choice for the time slot for his charge and once he chooses his reservation is completed.
     \item [5. User managing a charge / user performing a charge (start, monitor and pay)] \hfill \\
-        \textit{Actors: user, eMSP, CPSM} \\
-        The user Bob has previously booked a charge at a certain CS for a certain time slot. Bob shows up at the CS during his reserved time slot and proceeds to connect his vehicle properly. Once the vehicle is connected Bob reaches the eMall services to start the charging process. One process is started Bob has the option to interrupt it at any time, otherwise the charging procedure automatically halts as the CS noticed the vehicle’s battery to be full and notifying Bob as that happens, either way Bob is then presented by eMall with the total cost of his charge and a payment module which Bob must fill to not get arrested and spend the rest of his miserable life in prison for stealing electrons…
-        NOTE: should one pay before or after charging? Or should one pay while booking? The text does not specify…
-    \item [6. CPO (‘s human operators) wants information on DSOs’ energy prices and mix of sources] \hfill \\
-        \textit{Actors: CPO, CPMS, DSOs [1..n]} \\
-        The CPO Xcorp, or better its employees with authorizes access to its CPMS, wants informations regarding the energy market to evaluate his choice of DSO. To this end Xcorp uses its CPMS’s functionality to gather such informations from all the DSOs known to it, hence the CPMS proceeds to recover the informations from the various DSOs and once it has finished it presents the result to Xcorp.
-    \item [7. CPO (‘s human operators) or CPMS chooses energy sources and battery usage policies] \hfill \\
-        \textit{Actors: CPO [optional], CPMS} \\
-        %SPLIT INTO TWO, one superseded by the CPO, one by the CPMS (automated)
-        The CPO Xcorp might want to change which DSO supplies its CS to improve on the energy mix provided to its clients or to reduce energy costs, hence Xcorp has already acquired energy prices and mixes data via its CPMS and requests the CPMS to change its provide to newly a chosen DSO.
-        Alternatively Xcorp can program its CPMS to decide itself which DSO to use at a given time given adequate parameters to operate the choice.
-        (Maybe on a different scenario)
-        Together with the DSO, Xcorp might also want to change the policy with which it manages the batteries different CS might have, Xcorp can configure this as well through the CPMS, that then relays the policy to the different CSs. An automatic battery management policy decision procedure can also be automated within the CPMS of Xcorp desires so and appropriately provides the CPMS with the parameters to perform the task.
+        \textit{Actors: user} \\
+        The user Bob has previously booked a charge at a certain CS for a certain time slot. Bob shows up at the CS during his reserved time slot and proceeds to connect his vehicle properly. Once the vehicle is connected Bob reaches the eMall services to start the charging process. After the process is started Bob has the option to interrupt it at any time, otherwise the charging procedure automatically halts as the CS noticed the vehicle’s battery to be full and notifying Bob as that happens, either way Bob is then presented by eMall with the total cost of his charge and a payment module which Bob must fill to complete the payment process.
+    \item [6. CPO wants information on DSOs’ energy prices and mix of sources] \hfill \\
+        \textit{Actors: CPO} \\
+        The CPO Xcorp, or better its employee Mary which authorizes herself with Xcorp's CPMS, wants all information regarding the energy market to evaluate their choice of a DSO. To do this Xcorp uses its CPMS’s functionality to gather such information from all the DSOs known to it, hence the CPMS proceeds to recover this information from the various DSOs and once it has finished it presents the result to Xcorp.
+    \item [7. CPO chooses energy sources and battery usage policies for a CS] \hfill \\
+        \textit{Actors: CPO} \\
+        The CPO Xcorp might want to change which DSO supplies its different CSs and how the CSs manage their batteries, if they have any, in order to offer better prices, to cut its expenses or take advantage of better energy mixes provided by other DSO. To this end Xcorp instructs one of its employees, Mary, to authenticates with Xcorp's CPMS. Afterwards Mary selects the CS(s) which will be subject to changes and can choose to assign that CS(s) a new DSO among those the CPMS is aware of or to change the battery usage policy for that CS(s).
+    \item [8. CPO toggles the CPMS automatic mode] \hfill \\
+        \textit{Actors: CPO} \\
+        A CPO employee, Mary, in charge of administering the CPMS system wants to change its operating mode from Manual to Automatic. To do this, she logs in to the CPMS and toggles “Automatic Mode" on. Once the system has finished changing the operating mode, she loses control over manual overrides, and is prompted to enable "Manual Mode" again in order to change those settings. After completing the action, Mary successfully logs out of the system. \hfill \\
 \end{description}
 
 \subsubsection{Class Diagram}
@@ -326,11 +332,11 @@ Those following are representations of the most important interactions that invo
 
 \begin{description}
     \item [1. Unregistered User] \hfill \\
-        A User which just accesses the list of available CS without being able to book charges, he has the option to register and become a \textit{Logged In User} at any time.
-    \item [2. Logged In User] \hfill \\
-        A User with a registered account within eMall which has logged in via his credentials, he can still access the CSs list and can also book charge. With his bookings he can then manage his charging sessions one he arrives at the CS.
+        A User which just accesses the list of available CS without being able to book charges, he has the option to register and become a \textit{Logged-In User} at any time.
+    \item [2. Logged-In User] \hfill \\
+        A User with a registered account within eMall which has logged in via their credentials, can still access the CSs list and can also book charge. With their bookings he can then manage their charging sessions one he arrives at the CS.
     \item [3. CPO] \hfill \\
-        By CPO at large we mean a company whose employees have access to the company's CPMS, hence the actual human beings interacting with the STB will be CPO employees with credentials that allow them to authenticate with the CPMS. The tasks an employee might perform are acquiring DSOs' information, assigning a DSO to a CS owned by his company, changing the battery management policy for any CS controlled by the CPMS or adding/updating CS managed by the CPMS. \\
+        By CPO at large we mean a company whose employees have access to the company's CPMS, hence the actual human beings interacting with the STB will be CPO employees with credentials that allow them to authenticate with the CPMS. The tasks an employee might perform are acquiring DSOs' information, assigning a DSO to a CS owned by their company, changing the battery management policy for any CS controlled by the CPMS or adding/updating CS managed by the CPMS. \\
         The reason for CPOs being identified as a users instead of their employees is that the decisions justifying the operations performed by the employees cannot be taken by the employees, they are just the executors, decisions are taken by their superiors, hence we can view of the entire company as a user to avoid being too specific about who takes which decision and who interacts with the STB. \\
         Furthermore a CPO is likely to use its information system to interface with the CPMS, hence identifying the company as a user also prevents distintions between direct CPMS access or access via the information system.
 \end{description}
@@ -351,7 +357,21 @@ Those following are representations of the most important interactions that invo
         \hline
         D1 & To change the sockets of a CS, the whole CS needs to be replaced \\
         \hline
-        D2 & The DSO association can be controlled on a per-CS basis and there is enough information provided by the DSOs to the CPMS to allow the latter to set a price for a charge at a CS and keep it constant during the whole process, while preventing that a DSO's price change causes a loss \\
+        D2 & The only way to charge at a CS is by booking it via the eMSP \\
+        \hline
+        D3 & Each socket of a CS is free at any given time unless it's booked for that time slot \\
+        \hline
+        D4 & The only user using a socket of a CS during a given time slot is the one who booked said socket \\
+        \hline
+        D5 & A DSO's energy price is constant for all the locations where said DSO serves electricity \\
+        \hline
+        D6 & A DSO's energy mix is constant for all the locations where said DSO serves electricity \\
+        \hline
+        D7 & The DSO association can be controlled on a per-CS basis and there is enough information provided by the DSOs to the CPMS to allow the latter to set a price for a charge at a CS and keep it constant during the whole process, while preventing that a DSO's price change causes a loss \\
+        \hline
+        D8 & CPOs pay DSOs for the used electricity via methods outside the scope of this document (Ex: direct bank transfer) \\
+        \hline
+        D9 & CSs are aware of whether a vehicle is connected or not, and if it is connected they know its charging state \\
         \hline
     \end{tabularx}
     \label{tab:domain_assumptions}
@@ -363,9 +383,9 @@ Those following are representations of the most important interactions that invo
 
 \subsubsection{User Interfaces}
 
-The interface eMall will use is a website, through it Users will have available all \hyperref[subsec:prodfunctions]{product functions} on both desktop and mobile devices. \\
+The interface eMall will use is a web app, through which its Users will have available all \hyperref[subsec:prodfunctions]{product functions}. Such web app will need to be usable both on desktop and mobile devices, since a mobile device is what users will most likely have available to them while at the CS. \\
 \\
-CPMSs on the other hand will offer their functionality to CPOs via a web API, it will be up to CPOs to integrate such API in their Information Systems, resulting in a user interface for the employees.
+Similarly, CPMSs will offer their functionality to CPOs via a web portal, here there is no need to support anything other than a desktop device, since CPMSs are intended to be managed by employees in a company environment.
 
 \subsubsection{Hardware Interfaces}
 
@@ -374,15 +394,26 @@ Users will require a device equipped with a web browser and an internet connecti
 CSs will need to be equipped with adequate hardware to monitor each socket and control circuitry for their batteries, if there are any connected to them. Furthermore CSs need to communicate with their respective CPMSs, hence a small computer within each CS capable of collecting sockets and battery(ies) data and interface with the internet (via 4G or a wired connection) is necessary.
 
 \subsubsection{Software Interfaces}
+%The information exchanged between different SW (external?) entities
 
-None?
+Map service and payment system...
 
 \subsubsection{Communication Interfaces}
+%The medium over which information is exchanged
 
-The main functionalities of the STB require cooperation of multiple components sometimes owned by different parties and not deployed on machines in the same local network, hence their interaction occur via adequate web APIs. The interactions requiring such interfaces are the following:
+% CPMS - eMSP
+% CPMS - CSs
+% CPMS - DSO
+% eMSP - payment (user pays the eMSP for a charge)
+% ci deve essere anche un modo per l'eMSP di pagare il CPO...
+
+
+The main functionalities of the STB require cooperation of multiple components sometimes owned by different parties and not deployed on machines in the same local network, hence their interaction occurs via adequate web APIs. The interactions requiring such interfaces are the following:
 
 \begin{description}
     \item [1. eMSP acquiring CS information from CPMSs] \hfill \\
+        Pew Pew Bla Bla...
+    \item [1. eMSP performing payment via external provider] \hfill \\
         Pew Pew Bla Bla...
     \item [1. eMSP monitoring a charge and managing a charge through a CPMS] \hfill \\
         Pew Pew Bla Bla...
@@ -408,8 +439,49 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
         \hline
         \textbf{Id} & \textbf{Requirement} \\
         \hline
-        R1 & ... \\
+        R1 & The eMSP shall allow a registered user to login \\
         \hline
+        R1 & The eMSP shall allow an unregistered user to register on the platform \\
+        \hline
+        %Maybe specialize for each error
+        R1 & The eMSP should report to the user any errors that arise \\
+        \hline
+        R1 & The eMSP should report to the user any successful action performed \\
+        \hline
+        R1 & The eMSP shall allow a logged-in user to view charging stations nearby \\
+        \hline
+        R1 & The eMSP shall allow a logged-in user to know the cost of a charge at a CS \\
+        \hline
+        R1 & The eMSP shall allow a logged-in user to know about ongoing special offers present at a CS \\
+        \hline
+        R1 & The eMSP shall allow a logged-in user to book a charge at a free socket of a CS for a given time slot \\
+        \hline
+        R1 & The eMSP shall allow a logged-in user to cancel any of its booked charges \\
+        \hline  
+        R1 & The eMSP shall not allow a user to book a charge at a socket of a CS which has already been booked for the chosen time slot \\
+        %IMPLIES ONLY A CHARGE ONGOING AT ANY GIVEN TIME
+        \hline
+        R1 & The eMSP shall not allow a user to book multiple charges with overlapping time slots \\
+        \hline
+        R1 & The eMSP shall allow a logged-in user to start the charging process for one of their booked charges \\
+        \hline
+        R1 & The eMSP shall not allow a user without a booking to start the charging process \\
+        \hline
+        R1 & The eMSP shall not allow a user to start the charging process as long as the socket is vacant \\
+        \hline
+        R1 & The eMSP should notify a logged-in user when their ongoing charging processes is complete \\
+        \hline
+        R1 & The eMSP should notify a logged-in user when their ongoing charging process is terminated due to the expiration of its booked time slot \\
+        \hline
+        R1 & The eMSP shall allow a logged-in user to terminate their charging process earlier \\
+        \hline
+        R1 & The eMSP shall allow a logged-in user to pay for charging process as soon as it finishes \\
+        \hline
+        R1 & The eMSP shall charge a user for a fee if they do not start a charge during their booking's time slot \\
+        \hline
+        R1 & The eMSP shall be able to offer its functionalities to multiple users at once \\
+        \hline
+        % The eMSP shall be able to pay CPOs for the amount due for charges performed through them since the last payment
     \end{tabularx}
     \label{tab:requirements}
 \end{table}
@@ -435,6 +507,7 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
 \end{table}
 
 \subsubsection{Use cases}
+%MAYBE BEFORE REQUIREMENTS
 
 1 to 1 with scenarios?
 
@@ -477,6 +550,8 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
 \subsubsection{Availability}
 
 \subsubsection{Security}
+
+Prevent an asshole to create 1 trillion accounts and occupy all of a city worth of CS, hence require credit card info on registration!
 
 \subsubsection{Maintainability}
 
