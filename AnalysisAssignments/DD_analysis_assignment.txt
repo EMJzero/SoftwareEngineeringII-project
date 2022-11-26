@@ -1,0 +1,18 @@
+In Figure 2 (Page 7) the "External APIs" connector should have been connected to an external component to represent the external system. In the same figure there are also missing ports for "External APIs" and "Admin CLI".
+
+In the sequence diagrams (Figure 4 onwards) any self-loop on a component shows a split in the lifeline of the component, such gaps should not be present and the lifelines should all be continous through self-loops.
+Lifelines should be interrupted and resumed only across different requests.
+
+The 3-tier architecture is thougthfully described and the distributed presentation client-server pattern is appropriately mapped on top.
+
+----------------
+
+The UI designs are easy to understand, intuitive and in general well done.
+
+Variants of the UI design for mobile devices would have been appreciated to show how the website could have looked on such devices.
+
+----------------
+
+Since they mentioned unit tests, there is no test of the ClientApplication alone before the final Integration step.
+
+The bottom up approach is rich of details and coherently described, both in the implementation part and the testing one.

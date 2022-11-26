@@ -8,6 +8,8 @@
 \usepackage{float}
 \usepackage{setspace}
 \usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{parskip}
 
 \usepackage[margin=2cm]{geometry}
 
@@ -28,6 +30,7 @@
 \singlespacing
 
 \section{Introduction}
+\label{section:introduction}
 
 \subsection{Purpose}
 
@@ -98,6 +101,10 @@ This document will discuss goals and requirements that regard the system necessa
         Charging Station & Device with a connection to the electric grid which brakes out power to one or more socket(s) for vehicles. Monitoring of each socket's status. \\
         \hline
         Charging Session & The process in which a User performs a charge of their vehicle. \\
+        \hline
+        Charging Station External Status & Number of charging sockets available, their type such as slow/fast/rapid, their cost, and, if all sockets of a certain type are occupied, the estimated amount of time until the first socket of that type is freed. \\
+        \hline
+        Charging Station Internal Status & Amount of energy available in the batteries, if any, number of vehicles being charged and, for each charging vehicle, amount of power absorbed and time left to the end of the charge. \\
         \hline
         Energy Source & Method of energy production that results in a known fraction of the energy supplied to an endpoint in the electric grip. \\
         \hline
@@ -250,7 +257,22 @@ In order to represent more clearly whether a phenomenon is world or machine cont
 
 \subsection{Document Structure}
 
+This document is based on the \textit{ISO/IEC/IEEE 29148:2011(E)} document and adheres to the requirements analysis procedures of \textit{ISO/IEC 12207}. The document is divided into the following six sections. \\
+\\
+The \hyperref[section:introduction]{\textbf{introduction}} informally introduces the scope and purpose of the STB this document analyses, following up such description with a formal elicitation of goals and phenomena that together provide a characterization of the world around the STB and what will the STB bring to such environment. In this section useful information to read the document is provided as well, such as acronyms, the document's revision history and other referenced documents. \\
+\\
+The \hyperref[section:overallDescription]{\textbf{overall description}} follows with detailed modelling of the world around the STB and the scenarion in which the system will be interacting with all the different external users. This section identifies and describes the uses of the system and the functions the STB will offer, as well as posing the needed domain assumptions to supplement the current model. \\
+\\
+The \hyperref[section:specificRequirements]{\textbf{specific requirements}} section focuses on functional and non functional requirements, starting from the interfaces of the system towards external entities and other system elements, following with a formal elicitation of functional requirements and their contextualization with goals and domain assumptions. Finally design constraints and software system attributes are described in this section to complement requirements. \\
+\\
+Follows the \hyperref[section:alloy]{\textbf{formal analysis using Alloy}} which presents the Alloy code related to the described model and the results provided by its usage. \\
+\\
+The \hyperref[section:effort]{\textbf{effort spent}} section presents data regarding the amount of time each team member invested in the creation of this document. \\
+\\
+Finally \hyperref[section:references]{\textbf{references}} are reported.
+
 \section{Overall Description}
+\label{section:overallDescription}
 
 \subsection{Product Perspective}
 
@@ -258,9 +280,16 @@ In order to represent more clearly whether a phenomenon is world or machine cont
 \label{subsubsec:scenarios}
 
 \begin{description}
-    \item [1. User looking for charging stations] \hfill \\
-        \textit{Actors: user} \\
-        A person, Bob, needs to know the location and/or pricing of CSs in a certain are of his interest. To obtain such data, Bob has reached the eMall services and has selected the charging stations map options. Now Bob can search for CSs and is presented with multiple filters to control: \\
+    \item [1. New user registration] \hfill \\
+        \textit{Actors: Unregistered User} \\
+        A person, Bob, who discovered eMall has decided to register into the platform to use its charge booking and charge management system. To this end Bob reaches the eMall services and chooses to “sign up”, after that Bob fills in the relevant information and his eMall account is created. Now Bob can proceed to login.
+    \item [2. User login] \hfill \\
+        \textit{Actors: Registered User} \\
+        An already registered user, Bob, reaches the eMall services and intends to either book a charging spot or to manage a currently ongoing charge booked to his name, hence Bob chooses to “login” and enters its credentials. Assuming Bob inserted valid credentials he now has a valid session within the eMall services. If Bob failed in setting valid credentials he can try again.
+    \item [3. User looking for charging stations] \hfill \\
+        \label{scenario:lookingForCS}
+        \textit{Actors: Logged-in User} \\
+        A person, Bob, needs to know the location and/or pricing of CSs in a certain are of his interest. To obtain such data, Bob has reached the eMall services and has selected the charging stations “search” options. Now Bob can search for CSs and is presented with multiple filters to control:
         \begin{itemize}
             \item His area of interest
             \item Charge price ranges
@@ -276,27 +305,27 @@ In order to represent more clearly whether a phenomenon is world or machine cont
             \item Available connectors
             \item Available charging speeds
         \end{itemize}
-    \item [2. New user registration] \hfill \\
-        \textit{Actors: user} \\
-        A person, Bob, who discovered eMall has decided to register into the platform to use its charge booking and charge management system. To this end Bob reaches the eMall services and chooses to “sign up”, after that Bob fills in the relevant information and his eMall account is created. Now Bob can proceed to login.
-    \item [3. User login] \hfill \\
-        \textit{Actors: user} \\
-        An already registered user, Bob, reaches the eMall services and intends to either book a charging spot or to manage a currently ongoing charge booked to his name, hence Bob chooses to “login” and enters its credentials. Assuming Bob inserted valid credentials he now has a valid session within the eMall services. If Bob failed in setting valid credentials he can try again.
     \item [4. User booking a charge] \hfill \\
-        \textit{Actors: user} \\
+        \textit{Actors: Logged-in User} \\
         A user Bob has already performed the login and now intends to book a charge. Bob first performs a search for the CS to reserve for his charge (see “user looking for charging stations” scenario) and once he finds a suitable and available one chooses “book charge” for that station. Bob is then presented with the choice for the time slot for his charge and once he chooses his reservation is completed.
-    \item [5. User managing a charge / user performing a charge (start, monitor and pay)] \hfill \\
-        \textit{Actors: user} \\
-        The user Bob has previously booked a charge at a certain CS for a certain time slot. Bob shows up at the CS during his reserved time slot and proceeds to connect his vehicle properly. Once the vehicle is connected Bob reaches the eMall services to start the charging process. After the process is started Bob has the option to interrupt it at any time, otherwise the charging procedure automatically halts as the CS noticed the vehicle’s battery to be full and notifying Bob as that happens, either way Bob is then presented by eMall with the total cost of his charge and a payment module which Bob must fill to complete the payment process.
-    \item [6. CPO wants information on DSOs’ energy prices and mix of sources] \hfill \\
+    \item [5. User deleting one of his bookings] \hfill \\
+        \textit{Actors: Logged-in User} \\
+        A user Bob has already performed the login and recently made a few bookings on eMall. However on second thought Bob realized he could not make it in time for one of his bookings and now intends to delete it. To this end Bob selects the option to view his meetings' list on eMall and selects the meeting he desires to remove, he chooses the delete option the meeting list is updated with the deleted meeting now missing, confirming that eMall discarded it.
+    \item [6. User managing a charge / User performing a charge (start, monitor and pay)] \hfill \\
+        \textit{Actors: Logged-in User} \\
+        The user Bob has previously booked a charge at a certain CS for a certain time slot. Bob shows up at the CS during his reserved time slot and proceeds to connect his vehicle properly. Once the vehicle is connected Bob reaches the eMall services to start the charging process. After the process is started Bob has the option to interrupt it at any time, otherwise the charging procedure automatically halts as the CS noticed the vehicle’s battery being full or the booked time slot expires. Bob is notified by eMall as soon as the charging procedure ends. Immediately after completing a charge, Bob is then presented by eMall with the total cost of his charge and is automatically charged for the service on the payment method he inserted while registering.
+    \item [7. User does not show up for a booked charge] \hfill \\
+        \textit{Actors: Registered User} \\
+        The user Bob has previously booked a charge at a certain CS for a certain time slot. However Bob forgot about the booking and did not show up to the booked CS during the time slot for the charge, hence he is notified by eMall after the time slot expires and is charged a fee from eMall. Obviously had Bob deleted the meeting beforehand he would have avoided the fee.
+    \item [8. CPO wants information on DSOs’ energy prices and mix of sources] \hfill \\
         \textit{Actors: CPO} \\
         The CPO Xcorp, or better its employee Mary which authorizes herself with Xcorp's CPMS, wants all information regarding the energy market to evaluate their choice of a DSO. To do this Xcorp uses its CPMS’s functionality to gather such information from all the DSOs known to it, hence the CPMS proceeds to recover this information from the various DSOs and once it has finished it presents the result to Xcorp.
-    \item [7. CPO chooses energy sources and battery usage policies for a CS] \hfill \\
+    \item [9. CPO chooses energy sources and battery usage policies for a CS] \hfill \\
         \textit{Actors: CPO} \\
         The CPO Xcorp might want to change which DSO supplies its different CSs and how the CSs manage their batteries, if they have any, in order to offer better prices, to cut its expenses or take advantage of better energy mixes provided by other DSO. To this end Xcorp instructs one of its employees, Mary, to authenticates with Xcorp's CPMS. Afterwards Mary selects the CS(s) which will be subject to changes and can choose to assign that CS(s) a new DSO among those the CPMS is aware of or to change the battery usage policy for that CS(s).
-    \item [8. CPO toggles the CPMS automatic mode] \hfill \\
+    \item [10. CPO toggles the CPMS automatic mode] \hfill \\
         \textit{Actors: CPO} \\
-        A CPO employee, Mary, in charge of administering the CPMS system wants to change its operating mode from Manual to Automatic. To do this, she logs in to the CPMS and toggles “Automatic Mode" on. Once the system has finished changing the operating mode, she loses control over manual overrides, and is prompted to enable "Manual Mode" again in order to change those settings. After completing the action, Mary successfully logs out of the system. \hfill \\
+        A CPO employee, Mary, in charge of administering the CPMS system wants to change its operating mode from “Manual” to “Automatic”. To do this, she logs in to the CPMS and toggles “Automatic Mode” on. Once the system has finished changing the operating mode, she loses control over manual overrides, and is prompted to enable “Manual Mode” again in order to change those settings. After completing the action, Mary successfully logs out of the system. \hfill \\
 \end{description}
 
 \subsubsection{Class Diagram}
@@ -314,7 +343,44 @@ Those following are representations of the most important interactions that invo
 \subsection{Product Functions}
 \label{subsec:prodfunctions}
 
-!!THE MOST IMPORTANT REQUIREMENTS!!
+\subsubsection{User registration}
+
+eMall will allow Users to register an account. A User will register by entering:
+\begin{itemize}
+    \item A desired UserName
+    \item Their email address
+    \item A password
+    \item A payment method
+\end{itemize}
+Given those data the account will be created and will be available to the User. This functionality will allow only one account to be bound to a specific email address.
+
+\subsubsection{Search for CSs}
+\label{subsubsection:searchForCS}
+
+Users with an account will be able to search for CSs, multiple selectors will be available to narrow or widen the scope of the search, hence allowing Users to find the best result for their needs. Available filters will be:
+\begin{itemize}
+    \item Geographical area of interest
+    \item Charge price ranges
+    \item Connector types available
+    \item Charging speeds available
+\end{itemize}
+Users will be able to select a specific CS, consequently seeing the already booked time slots for it and further details as:
+\begin{itemize}
+    \item Location
+    \item Price
+    \item Offers
+    \item Booking schedule
+    \item Available connectors
+    \item Available charging speeds
+\end{itemize}
+
+\subsubsection{Book a charge at a CS}
+
+From the list of results for the \hyperref[subsubsection:searchForCS]{\textbf{search for a CS}} a User will be able to book a charge at a CS, they will be able to select a specific socket and time slot among the available ones for the CS and reserve it for themselves. During their booked time slot they will then have to show up at the CS with their vehicle to perform the charge.
+
+\subsubsection{Perform a charge at a CS}
+
+When the User show up at a CS during the time slot the booked it for and they connect to the booked socket they will be able to log into eMall, reach their bookings and start the charging process for the one they are currently connected for. Once the charging process is going, the User will be able to interrupt it through eMall at any time, otherwise the charge will terminate after the vehicle is fully charger or the time slot expires, notifying the User. After the completion of a charge the User will be charged by eMall for the service.
 
 (- showing CSs (prices etc)
 - booking charge
@@ -333,6 +399,8 @@ Those following are representations of the most important interactions that invo
 \begin{description}
     \item [1. Unregistered User] \hfill \\
         A User which just accesses the list of available CS without being able to book charges, he has the option to register and become a \textit{Logged-In User} at any time.
+    \item [2. Registered User] \hfill \\
+        A User with a registered account within eMall which has yet to login-in with their credentials.
     \item [2. Logged-In User] \hfill \\
         A User with a registered account within eMall which has logged in via their credentials, can still access the CSs list and can also book charge. With their bookings he can then manage their charging sessions one he arrives at the CS.
     \item [3. CPO] \hfill \\
@@ -363,21 +431,24 @@ Those following are representations of the most important interactions that invo
         \hline
         D4 & The only user using a socket of a CS during a given time slot is the one who booked said socket \\
         \hline
-        D5 & A DSO's energy price is constant for all the locations where said DSO serves electricity \\
+        D4 & No vehicle is ever disconnected from a socket unless no charging process is in progress \\
         \hline
-        D6 & A DSO's energy mix is constant for all the locations where said DSO serves electricity \\
+        D6 & A DSO's energy price is constant for all the locations where said DSO serves electricity \\
         \hline
-        D7 & The DSO association can be controlled on a per-CS basis and there is enough information provided by the DSOs to the CPMS to allow the latter to set a price for a charge at a CS and keep it constant during the whole process, while preventing that a DSO's price change causes a loss \\
+        D7 & A DSO's energy mix is constant for all the locations where said DSO serves electricity \\
         \hline
-        D8 & CPOs pay DSOs for the used electricity via methods outside the scope of this document (Ex: direct bank transfer) \\
+        D8 & The DSO association can be controlled on a per-CS basis and there is enough information provided by the DSOs to the CPMS to allow the latter to set a price for a charge at a CS and keep it constant during the whole process, while preventing that a DSO's price change causes a loss \\
         \hline
-        D9 & CSs are aware of whether a vehicle is connected or not, and if it is connected they know its charging state \\
+        D9 & CPOs pay DSOs for the used electricity via methods outside the scope of this document (Ex: direct bank transfer) \\
+        \hline
+        D10 & CSs are aware of whether a vehicle is connected or not, and if it is connected they know its charging state \\
         \hline
     \end{tabularx}
     \label{tab:domain_assumptions}
 \end{table}
 
 \section{Specific Requirements}
+\label{section:specificRequirements}
 
 \subsection{External Interface Requirements}
 
@@ -406,6 +477,8 @@ Map service and payment system...
 % CPMS - DSO
 % eMSP - payment (user pays the eMSP for a charge)
 % ci deve essere anche un modo per l'eMSP di pagare il CPO...
+
+ADD: interface for the CS that automatically connect to the CPMS on their own!
 
 
 The main functionalities of the STB require cooperation of multiple components sometimes owned by different parties and not deployed on machines in the same local network, hence their interaction occurs via adequate web APIs. The interactions requiring such interfaces are the following:
@@ -441,49 +514,108 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
         \hline
         R1 & The eMSP shall allow a registered user to login \\
         \hline
-        R1 & The eMSP shall allow an unregistered user to register on the platform \\
+        R2 & The eMSP shall allow an unregistered user to register on the platform \\
         \hline
         %Maybe specialize for each error
-        R1 & The eMSP should report to the user any errors that arise \\
+        %Maybe errors -> invalid input
+        R3 & The eMSP should report to the user when they sent invalid input data through a form \\
         \hline
-        R1 & The eMSP should report to the user any successful action performed \\
+        R4 & The eMSP should report to the user when they attempted to perform an unauthorized action \\
         \hline
-        R1 & The eMSP shall allow a logged-in user to view charging stations nearby \\
+        R5 & The eMSP should report to the user when the platform encountered an error while processing the action \\
         \hline
-        R1 & The eMSP shall allow a logged-in user to know the cost of a charge at a CS \\
+        R6 & The eMSP should report to the user any successful action performed \\
         \hline
-        R1 & The eMSP shall allow a logged-in user to know about ongoing special offers present at a CS \\
+        R7 & The eMSP shall allow a logged-in user to view charging stations nearby \\
         \hline
-        R1 & The eMSP shall allow a logged-in user to book a charge at a free socket of a CS for a given time slot \\
+        R8 & The eMSP shall allow a logged-in user to know the cost of a charge at a CS \\
         \hline
-        R1 & The eMSP shall allow a logged-in user to cancel any of its booked charges \\
-        \hline  
-        R1 & The eMSP shall not allow a user to book a charge at a socket of a CS which has already been booked for the chosen time slot \\
+        R9 & The eMSP shall allow a logged-in user to know about ongoing special offers present at a CS \\
+        \hline
+        R10 & The eMSP shall allow a logged-in user to book a charge at a free socket of a CS for a given time slot \\
+        \hline
+        R11 & The eMSP shall allow a logged-in user to cancel any of its booked charges \\
+        \hline 
+    \end{tabularx}
+    \label{tab:requirements}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.1\hsize}X|>{\hsize=1.9\hsize}X|}
+        \hline
+        \textbf{Id} & \textbf{Requirement} \\
+        \hline 
+        R12 & The eMSP shall not allow a user to book a charge at a socket of a CS which has already been booked for the chosen time slot \\
         %IMPLIES ONLY A CHARGE ONGOING AT ANY GIVEN TIME
         \hline
-        R1 & The eMSP shall not allow a user to book multiple charges with overlapping time slots \\
+        R13 & The eMSP shall not allow a user to book multiple charges with overlapping time slots \\
         \hline
-        R1 & The eMSP shall allow a logged-in user to start the charging process for one of their booked charges \\
+        R14 & The eMSP shall allow a logged-in user to start the charging process for one of their booked charges \\
         \hline
-        R1 & The eMSP shall not allow a user without a booking to start the charging process \\
+        R15 & The eMSP shall not allow a user without a booking to start the charging process \\
         \hline
-        R1 & The eMSP shall not allow a user to start the charging process as long as the socket is vacant \\
+        R16 & The eMSP shall not allow a user to start the charging process as long as the socket is vacant \\
         \hline
-        R1 & The eMSP should notify a logged-in user when their ongoing charging processes is complete \\
+        R17 & The eMSP should notify a logged-in user when their ongoing charging processes is complete \\
         \hline
-        R1 & The eMSP should notify a logged-in user when their ongoing charging process is terminated due to the expiration of its booked time slot \\
+        R18 & The eMSP should notify a logged-in user when their ongoing charging process is terminated due to the expiration of its booked time slot \\
         \hline
-        R1 & The eMSP shall allow a logged-in user to terminate their charging process earlier \\
+        R19 & The eMSP shall allow a logged-in user to terminate their charging process earlier \\
         \hline
-        R1 & The eMSP shall allow a logged-in user to pay for charging process as soon as it finishes \\
+        R20 & The eMSP should charge a user for everyone of his charging processes as soon as it finishes \\
         \hline
-        R1 & The eMSP shall charge a user for a fee if they do not start a charge during their booking's time slot \\
+        R21 & The eMSP shall charge a user for a fee if they do not start a charge during their booking's time slot \\
         \hline
-        R1 & The eMSP shall be able to offer its functionalities to multiple users at once \\
+        R22 & The eMSP shall be able to offer its functionalities to multiple users at once \\
+        \hline
+        R23 & The CPMS should be able to acquire location from CSs \\
+        \hline
+        R24 & The CPMS should be able to acquire the internal status from CSs \\
+        \hline
+        R25 & The CPMS should be able to acquire the external status from CSs \\
+        \hline
+        R26 & The CPMS should be able to start charging a vehicle connected to a CS socket \\
+        \hline
+        R27 & The CPMS should be able to monitor the charging process of a vehicle \\
+        \hline
+        R28 & The CPMS should be able to acquire from DSOs their current energy prices \\
+        \hline
+        R29 & The CPMS should be able to acquire from DSOs their energy mix \\
+        \hline
+        R30 & The CPMS shall allow its CPO to assign a DSO to a CS as its energy provider  when operating in “Manual Mode” \\
+        \hline
+        R31 & The CPMS should be able to automatically assign a DSO to a CS as its energy provider when operating in “Automatic Mode” \\
+        \hline
+        %the policy is ONE for the whole CPMS and the CURRENT energy source is one PER-CS!
+        R32 & The CPMS shall allow the CPO to decide the energy source management policies when operating in “Manual Mode” \\
+        \hline
+        R33 & The CPMS should be able to automatically choose the current energy source for a CS according to the given policy when operating in “Automatic Mode” \\
+        \hline
+        R34 & The CPMS shall allow the CPO to choose whether it acts automatically or manually \\
+        \hline
+        R35 & The CPMS shall never take a decision automatically when it is set in “Manual Mode” \\
+        \hline
+        R36 & The CPMS should report to the user when they sent invalid input data \\
+        \hline
+        R37 & The CPMS should report to the user when they attempted to perform an unauthorized action \\
+        \hline
+        R38 & The CPMS should report to the user when the platform encountered an error while processing the action \\
+        \hline
+        % AUTOMATIC PAYMENT TO DSOs?????????
+        R39 & The CPMS should be able to pay DSOs the amount due for the charges performed with its energy \\
+        \hline
+        R40 & The CPMS should be able to set special offers on CSs for a set time interval \\
+        \hline
+        R41 & The CPMS should be able to decide whether to start charging the internal batteries of a CS (if present) \\
         \hline
         % The eMSP shall be able to pay CPOs for the amount due for charges performed through them since the last payment
     \end{tabularx}
-    \label{tab:requirements}
+    \label{tab:requirements-2}
 \end{table}
 
 \subsubsection{Mapping on goals}
@@ -498,18 +630,400 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
         \hline
         \textbf{Goal} & \textbf{Domain assumption} & \textbf{Requirement} \\
         \hline
-        G0 & D0 & R0 \\
+        G1 & D3 & R1, R2, R7, R23, R25 \\ %List
         \hline
-        ... & ... & ... \\
+        G2 & D6, D7, D8 & R1, R2, R8, R9, R28, R29, R30, R31, R32, R33, R40 \\ %Cost
+        \hline
+        G3 & D3 & R1, R2, R7, R10, R11, R12, R13, R21 \\ %Book
+        \hline
+        G4 & D2, D3 & R1, R2, R14, R15, R16, R17, R18, R19, R20, R24, R26, R27 \\ %Monitor
+        \hline
+        G5 & D6, D7, D8 & R30, R31, R32, R33, R34, R35 \\ %Energy Source
         \hline
     \end{tabularx}
-    \label{tab:requirements}
+    \label{tab:requirementsMapping}
 \end{table}
 
 \subsubsection{Use cases}
 %MAYBE BEFORE REQUIREMENTS
 
-1 to 1 with scenarios?
+\begin{description}
+    \item [1. New user registration] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & Unregistered User \\
+            \hline
+            \textbf{Entry condition} & The User does not have an eMall account yet and reached eMall's login page \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The User selects the option to register on eMall
+                    \item The User enters his desired UserName for the platform, his email address, a password and a payment method for his new account
+                    \item The User submits the inserted data to eMall
+                    \item eMall registers the account and the User can now log in with it
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            \textbf{Exit condition} & The User's account has been created \\
+            \hline
+            \textbf{Exceptions} & 
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item The User's inserted data was not complete or did not comply with the requested formats
+                    \item The User's email is already associated to an existing account
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In all those situation an error is presented to the User.
+                \vspace{6pt}
+            \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [2. User login] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & Registered User \\
+            \hline
+            \textbf{Entry condition} & The User already has an eMall account, is not currently logged-in, and reached eMall's login page \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The User selects the option to log in on eMall
+                    \item The User enters his account's email and password
+                    \item The User submits the inserted data to eMall
+                    \item eMall verifies the credential's validity and presents the user with the home page
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            \textbf{Exit condition} & The User logged in on eMall \\
+            \hline
+            \textbf{Exceptions} & 
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item The User's inserted data was not complete or did not comply with the requested formats
+                    \item The User's credentials were not valid for any account
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In all those situation an error is presented to the User.
+                \vspace{6pt}
+            \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [3. User searching and booking a CS] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & Logged-in User \\
+            \hline
+            \textbf{Entry condition} & The User has already logged in and is on eMall's home page \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The User selects the “search” option for CSs  
+                    \item The User is presented with an initial list of CSs (could be empty) and the filters to update the search results \hyperref[scenario:lookingForCS]{\textbf{(filters list here)}}
+                    \item The User can repeat the search to his hearth's contempt by updating the filters
+                    \item The User selects a CS to be shown its details \hyperref[scenario:lookingForCS]{\textbf{(details list here)}}
+                    \item The User chooses to book a charge at the selected CS
+                    \item The User inserts the desired socket and time slot for his booking
+                    \item eMall registers the User's booking and confirms it to the User
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
+            \textbf{Exit condition} & The User booked a charge at a CS \\
+            \hline
+            \textbf{Exceptions} & 
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item The User's inserted values in filters did not comply with accepted formats
+                    \item The User's inserted data was not complete or did not comply with the requested formats
+                    %IMPORTANT: NO TWO BOOKINGS ON THE SAME CS's SOCKET SHOULD EVER OVERLAP
+                    \item The User's selected socket is already occupied for the chosen time slot
+                    %IMPORTANT: NO TWO BOOKINGS OF THE SAME USER SHOULD EVER OVERLAP
+                    \item The User already has another booking that presents an overlapping time slot with the currently selected one
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In all those situation an error is presented to the User.
+                \vspace{6pt}
+            \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [4. User deleting one of his bookings] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & Logged-in User \\
+            \hline
+            \textbf{Entry condition} & The User has already logged in and is on eMall's home page \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The User selects the option to see his bookings' list
+                    \item The User selects the booking they want to delete from the list
+                    \item The User chooses the delete option on the selected meeting
+                    \item eMall deletes the selected booking and confirms it to the User
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            \textbf{Exit condition} & The User logged in on eMall \\
+            \hline
+            %SHALL WE INCLUDE "MEETING NOT FOUND"? Or that's too implementation stuff...
+            \textbf{Exceptions} & No exception can happen during within user case. \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [5. User managing a charge / User performing a charge (start, monitor and pay)] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & Logged-in User \\
+            \hline
+            \textbf{Entry condition} & The User has already logged in and is on eMall's home page, has arrived at a CS during their booked time slot and has connected their vehicle to the booked socket \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The User selects the option to see his bookings' list
+                    \item The User selects the booking made for the current time slot (eMall might highlight it ahead of time)
+                    \item The User is presented with the booking's status and the option to start the charge
+                    \item The User starts the charging session. Once the charge has started the User can interrupt it at any time via the booking's status, otherwise the charge terminates on its own once either the vehicle is charged or the time slot has expired
+                    \item eMall notifies the User once the charge has ended
+                    \item eMall charges the user for the received service through adequate external services, using the User's payment method
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
+            \textbf{Exit condition} & The booking's charge procedure has ended and the payment has succeeded \\
+            \hline
+            \textbf{Exceptions} & 
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item The payment is rejected
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In the above situation eMall retries the payment a given number of times, if it never succeeds eMall notifies the User to change their payment method.
+                \vspace{6pt}
+            \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [6. User does not show up for a booked charge] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & Registered User \\
+            \hline
+            \textbf{Entry condition} & The Registered User had a booking with eMall whose time slot just expired without the User ever starting the charging process \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item eMall detects the the expiration of the breached booking
+                    \item eMall charges the User a fee for the reservation
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
+            \textbf{Exit condition} & The payment of the fee succeeds \\
+            \hline
+            \textbf{Exceptions} & 
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item The payment is rejected
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In the above situation eMall retries the payment a given number of times, if it never succeeds eMall notifies the User to change their payment method.
+                \vspace{6pt}
+            \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [7. CPO wants information on DSOs’ energy prices and mix of sources] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & CPO (employee) \\
+            \hline
+            \textbf{Entry condition} & A CPO employee has authorized access to the company's CPMS and performing this task is part of his job, hence reached the CPMS login page \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The CPO employee authenticates with the CPMS and reaches its home page
+                    \item The CPO employee queries the CPMS for a list of the energy prices and mixes of DSOs know to the system
+                    \item The CPMS contacts the all APIs of known DSOs to get their energy price and energy mix information
+                    \item The CPMS shows the fetched information to the CPO employee
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
+            \textbf{Exit condition} & The CPO employee has the information regarding DSOs energy prices and mixes \\
+            \hline
+            \textbf{Exceptions} & 
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item A DSO API does not answer the CPMS's request
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In the above situation the CPMS retries until a timeout is met, then ignores that DSO.
+                \vspace{6pt}
+            \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [8. CPO chooses energy sources and battery usage policies for a CS] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & CPO (employee) \\
+            \hline
+            \textbf{Entry condition} & A CPO employee has authorized access to the company's CPMS and performing this task is part of his job, hence reached the CPMS login page. The CPMS must be in “Manual Mode”. \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The CPO employee authenticates with the CPMS and reaches its home page
+                    \item The CPO employee requests a list of the CPMS's CS
+                    \item The CPO employee selects a CS and is presented with its details
+                    \item The CPO employee chooses to alter the CS's currently assigned DSO and/or its battery usage policy
+                    \item The CPO employee assigns the CS's DSO and/or its battery usage policy
+                    \item The CPMS communicates the updated configuration to the CS
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
+            \textbf{Exit condition} & The CS's DSO and/or battery usage policy has been updated \\
+            \hline
+            \textbf{Exceptions} & 
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item The DSO and/or battery usage policy inserted by the CPO employee are invalid
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In the above situation the CPMS does not updated the CS and presents an error to its user.
+                \vspace{6pt}
+            \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [9. CPO toggles the CPMS operating mode] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & CPO (employee) \\
+            \hline
+            \textbf{Entry condition} & A CPO employee has authorized access to the company's CPMS and performing this task is part of his job, hence reached the CPMS login page. \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The CPO employee authenticates with the CPMS and reaches its home page
+                    \item The CPO employee toggles the CPMS operating mode from “Manual Mode” to “Automatic Mode” or vice-versa
+                    \item The CPMS applies the change
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
+            \textbf{Exit condition} & The CPMS's operating mode has been toggled w.r.t. its state before the employee's actions \\
+            \hline
+            \textbf{Exceptions} & No exception can happen during within user case. \\
+            \hline
+        \end{tabularx}
+    \end{table}
+\end{description}
 
 \subsubsection{Use case diagrams}
 
@@ -530,7 +1044,7 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
         ... & ... \\
         \hline
     \end{tabularx}
-    \label{tab:requirements}
+    \label{tab:useCasesMapping}
 \end{table}
 
 \subsection{Performance Requirements}
@@ -558,9 +1072,12 @@ Prevent an asshole to create 1 trillion accounts and occupy all of a city worth 
 \subsubsection{Portability}
 
 \section{Formal Analysis Using Alloy}
+\label{section:alloy}
 
 \section{Effort Spent}
+\label{section:effort}
 
 \section{References}
+\label{section:references}
 
 \end{document}
