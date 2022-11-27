@@ -950,20 +950,21 @@ The main functionalities of the STB require cooperation of multiple components s
                 \vspace{0pt}
                 \begin{itemize}[topsep=0pt, leftmargin=*]
                     \item The payment is rejected
+                        \vspace{6pt} \\
+                        In this situation eMall retries the payment a given number of times, if it never succeeds eMall notifies the User to change their payment method.
                 \end{itemize}
                 \vspace{8pt}
                 \end{minipage}
-                In the above situation eMall retries the payment a given number of times, if it never succeeds eMall notifies the User to change their payment method.
                 \vspace{6pt}
                 \begin{minipage}[t]{\hsize}
                 \vspace{0pt}
                 \begin{itemize}[topsep=0pt, leftmargin=*]
                     \item The User did not receive the notification
+                    \vspace{6pt} \\
+                    In this situation eMall send the notification again every predetermined amount of time for a configured number of attempts.
                 \end{itemize}
                 \vspace{8pt}
                 \end{minipage}
-                In the above situation eMall send the notification again every predetermined amount of time for a configured number of attempts.
-                \vspace{6pt}
             \\
             \hline
         \end{tabularx}
@@ -1188,9 +1189,85 @@ Some Bla Bla Bla on how much Alloy s*cks here...
 %\egroup
 
 \begin{ffcode}
-    This is alloy
-    this s*cks
-    I HATE IT WITH MY WHOLE HEART
+    sig Int {}
+    sig Float {}
+    sig String {}
+    sig Date {}
+    sig Location {}
+    
+    abstract sig Bool {}
+    one sig True extends Bool {}
+    one sig False extends Bool {}
+    
+    sig User {
+        userName: one String,
+        email: one String,
+        password: one String,
+        paymentMethod: one String,
+        bookings: set Booking
+    }
+    
+    //Force that a booking of a eMSP is made by a user registered in that eMSP, even tho the eMSP is only one...
+    sig Booking {
+        startDate: one Date,
+        endDate: one Date,
+        isActive: Boolean
+    }
+    
+    //For our interests, it is a singleton
+    one sig eMSP {
+        users: set User,
+        knownCPMSs: some CPMS,
+        bookings: set Booking
+    }
+    
+    //The CS->CPO one-to-one relation can be inferred by going through here
+    sig CPMS {
+        CSs: some CS,
+        knownDSOs: some DSO,
+        CPO: one CPO
+    }
+    
+    sig CS {
+        socketCount: one Int,
+        location: one Location,
+        nominalPrice: one Float,
+        userPrice: one Float,
+        sockets: some Socket,
+        batteries: set Battery,
+        currentDSO: one DSO
+    }
+    
+    sig Socket {
+        connector: one String,
+        maxPower: one Float,
+        currentPower: one Float,
+        free: one Bool,
+        //Maybe is better to move those to the eMSP...
+        bookings: set Booking
+    }
+    
+    sig CPO {
+        name: one String
+    }
+    
+    sig DSO {
+        name: one String,
+        price: one Float,
+        energyMix: one EnergyMix
+    }
+    
+    sig EnergyMix {
+        oilAndGas: Float,
+        ccgt: Float,
+        coal: Float,
+        nuclear: Float,
+        hydroelectric: Float,
+        otherRenewableSources: Float
+    } {
+        this.oilAndGas + this.ccgt + this.coal + this.nuclear + this.hydroelectric + this.otherRenewableSources = 1
+    }
+    
 \end{ffcode}
 
 \section{Effort Spent}
