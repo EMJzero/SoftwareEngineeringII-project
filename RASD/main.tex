@@ -10,8 +10,11 @@
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{parskip}
+\usepackage{ffcode}
 
 \usepackage[margin=2cm]{geometry}
+
+\def\code#1{{\texttt{#1}}}
 
 \title{%
   \textbf{RASD} \\
@@ -70,13 +73,14 @@ This document will discuss goals and requirements that regard the system necessa
         \hline
         G1 & Allow Users to see the list of available Charging Stations \\
         \hline
-        G2 & Allow Users to see the cost of a charge \\
+        G2 & Allow Users to see the cost of a charge and special offers for a Charging Station \\
         \hline
         G3 & Allow Users to book charging time slots \\
         \hline
-        G4 & Allow Users to monitor, manage and pay for the ongoing charging session \\
+        G4 & Allow Users to monitor, manage and pay for their booked charging sessions \\
         \hline
-        G5 & Allow Charge Point Operators to manage the provider each Charging Station uses to source energy \\
+        %G5 & Allow Charge Point Operators to manage the provider each Charging Station uses to source energy \\
+        G5 & Allow Charge Point Operators to manage the energy sources each Charging Station uses \\
         \hline
     \end{tabularx}
     \label{tab:goals}
@@ -108,6 +112,10 @@ This document will discuss goals and requirements that regard the system necessa
         \hline
         Energy Source & Method of energy production that results in a known fraction of the energy supplied to an endpoint in the electric grip. \\
         \hline
+        User-price & Cost of a charge that is shown to the User when they inspect a CS. It is set by the CPO/CPMS on a per-CS basis. \\
+        \hline
+        Nominal-price & Cost of electricity at a CS, depends on the DSO that is currently assigned to that CS. \\
+        \hline
     \end{tabularx}
     \label{tab:definitions}
 \end{table}
@@ -137,6 +145,8 @@ This document will discuss goals and requirements that regard the system necessa
         DSO & Distribution System Operator \\
         \hline
         STB & System-To-Be \\
+        \hline
+        OS & Operating system \\
         \hline
     \end{tabularx}
     \label{tab:acronyms}
@@ -221,7 +231,7 @@ In order to represent more clearly whether a phenomenon is world or machine cont
         \hline
         SP5 & WC MO & Users prematurely terminate their ongoing charging session \\
         \hline
-        SP6 & WC MO & Users pay for the finished charging session \\
+        SP6 & WC MO & Users are charged for their finished charging sessions \\
         \hline
         %Since CPOs need those to manually manage CSs!!
         SP7 & MC WO & CPMSs publish the location and external status information regarding their managed CSs \\
@@ -229,13 +239,13 @@ In order to represent more clearly whether a phenomenon is world or machine cont
         %There are two energy prices, the one the DSOs charge the CPOs for and the one the CPOs charge the Users for!
         SP8 & WC MO & CPOs update the DSO associated to a CS (this determines how much a CPO is charged for the electricity a CS provides) \\
         \hline
-        SP9 & WC MO & CPOs update the "user-charged" energy price and set special offers for a CS \\
+        SP9 & WC MO & CPOs update the user-price of energy and set special offers for a CS \\
         \hline
-        SP10 & WC MO & CPOs perform an addition/removal of CSs \\
+        %SP10 & WC MO & CPOs perform an addition/removal of CSs \\
+        %\hline
+        SP10 & WC MO & CPOs update batteries information and batteries usage policies for their CSs \\
         \hline
-        SP11 & WC MO & CPOs update batteries information and batteries usage policies for their CSs \\
-        \hline
-        SP12 & MC WO & The eMSP transfers the amount due to CPOs for performed charges \\
+        SP11 & MC WO & The eMSP transfers the amount due to CPOs for performed charges \\
         \hline
     \end{tabularx}
     \label{tab:shared_phenomena}
@@ -311,7 +321,7 @@ Finally \hyperref[section:references]{\textbf{references}} are reported.
     \item [5. User deleting one of his bookings] \hfill \\
         \textit{Actors: Logged-in User} \\
         A user Bob has already performed the login and recently made a few bookings on eMall. However on second thought Bob realized he could not make it in time for one of his bookings and now intends to delete it. To this end Bob selects the option to view his meetings' list on eMall and selects the meeting he desires to remove, he chooses the delete option the meeting list is updated with the deleted meeting now missing, confirming that eMall discarded it.
-    \item [6. User managing a charge / User performing a charge (start, monitor and pay)] \hfill \\
+    \item [6. User performing a charging process (start, monitor and pay)] \hfill \\
         \textit{Actors: Logged-in User} \\
         The user Bob has previously booked a charge at a certain CS for a certain time slot. Bob shows up at the CS during his reserved time slot and proceeds to connect his vehicle properly. Once the vehicle is connected Bob reaches the eMall services to start the charging process. After the process is started Bob has the option to interrupt it at any time, otherwise the charging procedure automatically halts as the CS noticed the vehicle’s battery being full or the booked time slot expires. Bob is notified by eMall as soon as the charging procedure ends. Immediately after completing a charge, Bob is then presented by eMall with the total cost of his charge and is automatically charged for the service on the payment method he inserted while registering.
     \item [7. User does not show up for a booked charge] \hfill \\
@@ -382,17 +392,14 @@ From the list of results for the \hyperref[subsubsection:searchForCS]{\textbf{se
 
 When the User show up at a CS during the time slot the booked it for and they connect to the booked socket they will be able to log into eMall, reach their bookings and start the charging process for the one they are currently connected for. Once the charging process is going, the User will be able to interrupt it through eMall at any time, otherwise the charge will terminate after the vehicle is fully charger or the time slot expires, notifying the User. After the completion of a charge the User will be charged by eMall for the service.
 
-(- showing CSs (prices etc)
-- booking charge
-- terminating charge
-- notifying charge completion
-- paying)
+\subsection{Acquire price and energy mix information from DSOs}
 
-(- CS status
-- start charging vehicle
-- monitor charging process (to determine a full charge)
-- swap DSO for a CS
-- change CS batteries behaviour)
+A CPO will be able to ask their CPMS to present them with the information regarding energy prices and mix of energy sources used by the different DSOs known to the system. The CPMS will recover the information from DSOs and return it to the CPO.
+
+\subsubsection{Choose the energy sources and battery usage policies for a CS}
+
+The CPMS will provide its CPO with a list of all CSs handled by the system, from that list the CPO will be able to modify the configuration of each CS independently, specifically they will be able to alter the DSO that is currently supplying that CS and the policy with which that CS used its batteries. \\
+The CPO will as well be able to let the CPMS take those decisions automatically on their behalf.
 
 \subsection{User Characteristics}
 
@@ -423,25 +430,29 @@ When the User show up at a CS during the time slot the booked it for and they co
         \hline
         \textbf{Assumption} & \textbf{Description} \\
         \hline
-        D1 & To change the sockets of a CS, the whole CS needs to be replaced \\
+        %D1 & To change the sockets of a CS, the whole CS needs to be replaced \\
+        D1 & CSs never disconnect from their CPMSs not malfunction in any way as long as they have bookings or are in use \\
         \hline
         D2 & The only way to charge at a CS is by booking it via the eMSP \\
         \hline
-        D3 & Each socket of a CS is free at any given time unless it's booked for that time slot \\
+        D3 & CSs are aware of whether a vehicle is connected or not, and if it is connected they know its charging state \\
         \hline
-        D4 & The only user using a socket of a CS during a given time slot is the one who booked said socket \\
+        D4 & CSs have the information required to reach out to their CPMS and connect to it by themselves, placing themselves under its control \\
         \hline
-        D4 & No vehicle is ever disconnected from a socket unless no charging process is in progress \\
+        D5 & No vehicle is connected to a socket of a CS at any given time unless it's booked for that time slot \\
         \hline
-        D6 & A DSO's energy price is constant for all the locations where said DSO serves electricity \\
+        D6 & The only user using a socket of a CS during a given time slot is the one who booked said socket \\
         \hline
-        D7 & A DSO's energy mix is constant for all the locations where said DSO serves electricity \\
+        D7 & No vehicle is ever disconnected from a socket unless no charging process is in progress \\
         \hline
-        D8 & The DSO association can be controlled on a per-CS basis and there is enough information provided by the DSOs to the CPMS to allow the latter to set a price for a charge at a CS and keep it constant during the whole process, while preventing that a DSO's price change causes a loss \\
+        D8 & A DSO's energy price is constant for all the locations where said DSO serves electricity \\
         \hline
-        D9 & CPOs pay DSOs for the used electricity via methods outside the scope of this document (Ex: direct bank transfer) \\
+        D9 & A DSO's energy mix is constant for all the locations where said DSO serves electricity \\
         \hline
-        D10 & CSs are aware of whether a vehicle is connected or not, and if it is connected they know its charging state \\
+        %D8 & The DSO association can be controlled on a per-CS basis and there is enough information provided by the DSOs to the CPMS to allow the latter to set a price for a charge at a CS and keep it constant during the whole process, while preventing that a DSO's price change causes a loss \\
+        D10 & The user-price of a charge at a CS is kept constant during the whole charging process \\
+        \hline
+        D11 & CPOs pay DSOs for the used electricity via methods outside the scope of this document (Ex: direct bank transfer) \\
         \hline
     \end{tabularx}
     \label{tab:domain_assumptions}
@@ -456,47 +467,49 @@ When the User show up at a CS during the time slot the booked it for and they co
 
 The interface eMall will use is a web app, through which its Users will have available all \hyperref[subsec:prodfunctions]{product functions}. Such web app will need to be usable both on desktop and mobile devices, since a mobile device is what users will most likely have available to them while at the CS. \\
 \\
+MOCHUPS HERE \\
+\\
 Similarly, CPMSs will offer their functionality to CPOs via a web portal, here there is no need to support anything other than a desktop device, since CPMSs are intended to be managed by employees in a company environment.
 
 \subsubsection{Hardware Interfaces}
 
-Users will require a device equipped with a web browser and an internet connection to access the eMall website. \\
+Users will require a device equipped with a web browser and an internet connection to access the eMall website, the hardware architecture of the specific device is irrelevant as long as it runs an OS equipped with a web browser. \\
 \\
-CSs will need to be equipped with adequate hardware to monitor each socket and control circuitry for their batteries, if there are any connected to them. Furthermore CSs need to communicate with their respective CPMSs, hence a small computer within each CS capable of collecting sockets and battery(ies) data and interface with the internet (via 4G or a wired connection) is necessary.
+CPOs will as well only require a device capable of web browsing, although in this case such device is intended to a be a desktop machine since its users will be the employees working at the CPOs from their offices. \\
+\\
+CSs will need to be equipped with adequate hardware to monitor each socket and control circuitry for their batteries, if there are any connected to them. Furthermore CSs need to connect to and communicate with their respective CPMSs, hence a small computer within each CS capable of collecting sockets and battery(ies) data as well as interface with the internet (via 4G or a wired connection) is necessary. \\
+Furthermore this document will assume that a CS is billed for its used electricity via a in loco electricity meter independently monitored by the DSO currently assigned to the CS by the CPMS.
 
 \subsubsection{Software Interfaces}
-%The information exchanged between different SW (external?) entities
+%The information exchanged between different SW entities in the same "location"
 
-Map service and payment system...
+Devices in the end of eMSP users will require an OS equipped with a network stack within which to run a web browser. The same is true on the CPOs side, on their machines there need to be an OS with network capabilities suitable for a web browser. \\
+\\
+%A software dedicated to handling payments is required for the eMSP, in order to allow it to charge users when needed using the payment method details stored by the eMSP. Such software needs to be invokeable by the eMSP at any time. \\
+%\\
+The computer installed on CS will need to have an OS with networking capabilities too, while also having adequate software to collect and process the information coming from the CS's sockets and eventually connected vehicles, as well as to manage eventual batteries connected to the CS.
+
+%Map service and payment system...
 
 \subsubsection{Communication Interfaces}
 %The medium over which information is exchanged
 
-% CPMS - eMSP
-% CPMS - CSs
-% CPMS - DSO
-% eMSP - payment (user pays the eMSP for a charge)
-% ci deve essere anche un modo per l'eMSP di pagare il CPO...
+%ADD: interface for the CS that automatically connect to the CPMS on their own!
 
-ADD: interface for the CS that automatically connect to the CPMS on their own!
-
-
-The main functionalities of the STB require cooperation of multiple components sometimes owned by different parties and not deployed on machines in the same local network, hence their interaction occurs via adequate web APIs. The interactions requiring such interfaces are the following:
+The main functionalities of the STB require cooperation of multiple components sometimes owned by different parties and not deployed on machines in the same local network, hence their interactions occur via adequate web APIs. The interactions requiring such interfaces are the following:
 
 \begin{description}
     \item [1. eMSP acquiring CS information from CPMSs] \hfill \\
-        Pew Pew Bla Bla...
-    \item [1. eMSP performing payment via external provider] \hfill \\
-        Pew Pew Bla Bla...
-    \item [1. eMSP monitoring a charge and managing a charge through a CPMS] \hfill \\
-        Pew Pew Bla Bla...
-    \item [1. CPMS monitoring and controlling its CSs] \hfill \\
-        Pew Pew Bla Bla...
-    \item [1. CPMS acquiring DSOs price and energy mix information] \hfill \\
-        Pew Pew Bla Bla...
+        Whenever a search for CSs, a booking or a charge at a CS is performed via an eMSP, the ladder needs to fetch information regarding one or more CSs from CPMSs first, hence CPMSs need to expose a web API reachable by the eMSP to communicate the details regarding CSs.
+    \item [2. eMSP  managing a charge through a CPMS] \hfill \\
+        When a charging process for a previous booking needs to be starter or terminated by a user via the eMSP, the eMSP has no control over the CS, hence needs to interface with the CPSM to request the latter to start/stop the charging process. Hence the CPMS needs to expose in it web API method for eMSP to start/stop charging procedures that were booked through them.
+    \item [3. eMSP requesting a payment via an external provider] \hfill \\
+        After the completion of a charging process or when a fee is charged to a user, the eMSP needs to use the payment method a user has nound to its account to charge them for the service, hence it needs to interface with an API which will allow the eMSP to have the amount due accredited to himself.
+    \item [4. CPMS monitoring and controlling its CSs] \hfill \\
+        CSs need to know how to reach the CPMS responsible for them over internet, this way whenever a CS is deployed it will automatically find its CPMS, authenticate with it and setup itself under its control. To this end CPMSs need to expose a web API allowing for new CSs to authenticate with them, and CSs need to offer the connect CPMS and endpoint to allow it to manage them.
+    \item [5. CPMS acquiring DSOs price and energy mix information] \hfill \\
+        To allow CPMSs to know their energy prices and mixes, DSO must have an API available via web so that CPMSs can recover such information.
 \end{description}
-
-Its assumed that a CS is billed for its used electricity via a in loco electricity meter monitored by the DSO currently assigned to the CS by the CPMS
 
 \subsection{Functional Requirements}
 
@@ -630,15 +643,15 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
         \hline
         \textbf{Goal} & \textbf{Domain assumption} & \textbf{Requirement} \\
         \hline
-        G1 & D3 & R1, R2, R7, R23, R25 \\ %List
+        G1 & D4 & R1, R2, R7, R23, R25 \\ %List
         \hline
-        G2 & D6, D7, D8 & R1, R2, R8, R9, R28, R29, R30, R31, R32, R33, R40 \\ %Cost
+        G2 & D4, D8, D9, D10 & R1, R2, R8, R9, R28, R29, R30, R31, R32, R33, R40 \\ %Cost
         \hline
-        G3 & D3 & R1, R2, R7, R10, R11, R12, R13, R21 \\ %Book
+        G3 & D1, D2, D4 & R1, R2, R7, R10, R11, R12, R13, R21 \\ %Book
         \hline
-        G4 & D2, D3 & R1, R2, R14, R15, R16, R17, R18, R19, R20, R24, R26, R27 \\ %Monitor
+        G4 & D1, D2, D3, D4, D5, D6, D7, D10 & R1, R2, R14, R15, R16, R17, R18, R19, R20, R24, R26, R27 \\ %Monitor
         \hline
-        G5 & D6, D7, D8 & R30, R31, R32, R33, R34, R35 \\ %Energy Source
+        G5 & D8, D9, D11 & R30, R31, R32, R33, R34, R35 \\ %Energy Source
         \hline
     \end{tabularx}
     \label{tab:requirementsMapping}
@@ -818,7 +831,7 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
         \end{tabularx}
     \end{table}
     
-    \item [5. User managing a charge / User performing a charge (start, monitor and pay)] \hfill \\
+    \item [5. User starting a charging process] \hfill \\
     \begin{table}[H]
         \centering
         %space between text and right/left borders
@@ -836,17 +849,51 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
                 \begin{enumerate}[topsep=0pt, leftmargin=*]
                     \item The User selects the option to see his bookings' list
                     \item The User selects the booking made for the current time slot (eMall might highlight it ahead of time)
-                    \item The User is presented with the booking's status and the option to start the charge
-                    \item The User starts the charging session. Once the charge has started the User can interrupt it at any time via the booking's status, otherwise the charge terminates on its own once either the vehicle is charged or the time slot has expired
-                    \item eMall notifies the User once the charge has ended
-                    \item eMall charges the user for the received service through adequate external services, using the User's payment method
+                    \item The User is presented with the booking's status and the option to start the charging process
+                    \item The User chooses to start the charging process
+                    \item eMall, via the CPMS, makes the CS's socket start to charge the connected vehicle
                 \end{enumerate}
                 \end{minipage}
                 \vspace{6pt}
             \\
             \hline
             %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
-            \textbf{Exit condition} & The booking's charge procedure has ended and the payment has succeeded \\
+            \textbf{Exit condition} & The CS's socket started charging the connected vehicle \\
+            \hline
+            \textbf{Exceptions} & No exception can happen during within user case. \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [6. User interrupting a charging process] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & Logged-in User \\
+            \hline
+            \textbf{Entry condition} & The User has already logged in and is on eMall's home page while his current booking has an ongoing charging process \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The User selects the option to see his bookings' list
+                    \item The User selects the booking made for the current time slot with the active charging process
+                    \item The User is presented with the charging process's status and the option to interrupt it
+                    \item The User chooses to interrupt the charging process
+                    \item eMall, via the CPMS, makes the CS's socket stop the charging of the connected vehicle
+                    \item eMall charges the User for the received service through adequate external services, using the User’s registered payment method
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
+            \textbf{Exit condition} & The booking's charging procedure has ended and the payment has succeeded \\
             \hline
             \textbf{Exceptions} & 
                 \begin{minipage}[t]{\hsize}
@@ -863,7 +910,66 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
         \end{tabularx}
     \end{table}
     
-    \item [6. User does not show up for a booked charge] \hfill \\
+    \item [7. Charging procedure self-terminates and User receives a notification] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & Logged-in User \\
+            \hline
+            \textbf{Entry condition} & The User has already logged in and is on eMall's home page while his current booking has just reached one of its termination conditions:
+            \begin{minipage}[t]{\hsize}
+            \begin{itemize}
+                \item The booked time slot has expired
+                \item The connected vehicle is completely charged
+            \end{itemize}
+            \end{minipage}
+            \vspace{6pt}
+            \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item eMall, via the CPMS, makes the CS's socket stop the charging of the connected vehicle if it hasn't already halted by itself
+                    \item eMall charges the User for the received service through adequate external services, using the User’s registered payment method
+                    \item The User receives a notification from eMall telling them that their charging procedure just ended
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
+            \textbf{Exit condition} & The booking's charging procedure has ended, the payment has succeeded and the User has been notified \\
+            \hline
+            \textbf{Exceptions} & 
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item The payment is rejected
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In the above situation eMall retries the payment a given number of times, if it never succeeds eMall notifies the User to change their payment method.
+                \vspace{6pt}
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item The User did not receive the notification
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In the above situation eMall send the notification again every predetermined amount of time for a configured number of attempts.
+                \vspace{6pt}
+            \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [8. User does not show up for a booked charge] \hfill \\
     \begin{table}[H]
         \centering
         %space between text and right/left borders
@@ -904,7 +1010,7 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
         \end{tabularx}
     \end{table}
     
-    \item [7. CPO wants information on DSOs’ energy prices and mix of sources] \hfill \\
+    \item [9. CPO requests information on DSOs’ energy prices and mix of sources] \hfill \\
     \begin{table}[H]
         \centering
         %space between text and right/left borders
@@ -947,7 +1053,7 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
         \end{tabularx}
     \end{table}
     
-    \item [8. CPO chooses energy sources and battery usage policies for a CS] \hfill \\
+    \item [10. CPO assigns energy sources and battery usage policies for a CS] \hfill \\
     \begin{table}[H]
         \centering
         %space between text and right/left borders
@@ -992,7 +1098,7 @@ Its assumed that a CS is billed for its used electricity via a in loco electrici
         \end{tabularx}
     \end{table}
     
-    \item [9. CPO toggles the CPMS operating mode] \hfill \\
+    \item [11. CPO toggles the CPMS operating mode] \hfill \\
     \begin{table}[H]
         \centering
         %space between text and right/left borders
@@ -1074,8 +1180,63 @@ Prevent an asshole to create 1 trillion accounts and occupy all of a city worth 
 \section{Formal Analysis Using Alloy}
 \label{section:alloy}
 
+Some Bla Bla Bla on how much Alloy s*cks here...
+
+%\bgroup\obeylines \code{
+%    This is alloy
+%}
+%\egroup
+
+\begin{ffcode}
+    This is alloy
+    this s*cks
+    I HATE IT WITH MY WHOLE HEART
+\end{ffcode}
+
 \section{Effort Spent}
 \label{section:effort}
+
+\subsection{Ronzani Marco - mat: 224578}
+
+\begin{tabular}{|l|l|}
+    \hline
+    \textbf{Task} & \textbf{Time spent} \\
+    \hline
+    Introduction & $\infty h$ \\
+    \hline
+    Overall Description & $\infty h$ \\
+    \hline
+    Specific Requirements & $\infty h$ \\
+    \hline
+    Formal Analysis & $\infty h$ \\
+    \hline
+    Other & $\infty h$ \\
+    \hline
+    \hline
+    Total & $5*\infty h$ \\
+    \hline
+\end{tabular}
+
+\subsection{Sassi Alessandro - mat: ...}
+
+\begin{tabular}{|l|l|}
+    \hline
+    \textbf{Task} & \textbf{Time spent} \\
+    \hline
+    Introduction & $\infty h$ \\
+    \hline
+    Overall Description & $\infty h$ \\
+    \hline
+    Specific Requirements & $\infty h$ \\
+    \hline
+    Formal Analysis & $\infty h$ \\
+    \hline
+    Other & $\infty h$ \\
+    \hline
+    \hline
+    Total & $5*\infty h$ \\
+    \hline
+\end{tabular}
 
 \section{References}
 \label{section:references}
