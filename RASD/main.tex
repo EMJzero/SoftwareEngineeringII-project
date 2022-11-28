@@ -281,6 +281,8 @@ The \hyperref[section:effort]{\textbf{effort spent}} section presents data regar
 \\
 Finally \hyperref[section:references]{\textbf{references}} are reported.
 
+\newpage
+
 \section{Overall Description}
 \label{section:overallDescription}
 
@@ -298,8 +300,8 @@ Finally \hyperref[section:references]{\textbf{references}} are reported.
         An already registered user, Bob, reaches the eMall services and intends to either book a charging spot or to manage a currently ongoing charge booked to his name, hence Bob chooses to “login” and enters its credentials. Assuming Bob inserted valid credentials he now has a valid session within the eMall services. If Bob failed in setting valid credentials he can try again.
     \item [3. User looking for charging stations] \hfill \\
         \label{scenario:lookingForCS}
-        \textit{Actors: Logged-in User} \\
-        A person, Bob, needs to know the location and/or pricing of CSs in a certain are of his interest. To obtain such data, Bob has reached the eMall services and has selected the charging stations “search” options. Now Bob can search for CSs and is presented with multiple filters to control:
+        \textit{Actors: Registered User} \\
+        A user already registered on eMall, Bob, needs to know the location and/or pricing of CSs in a certain are of his interest. To obtain such data, Bob has reached the eMall services, has logged in and has selected the charging stations “search” options. Now Bob can search for CSs and is presented with multiple filters to control:
         \begin{itemize}
             \item His area of interest
             \item Charge price ranges
@@ -458,6 +460,8 @@ The CPO will as well be able to let the CPMS take those decisions automatically 
     \label{tab:domain_assumptions}
 \end{table}
 
+\newpage
+
 \section{Specific Requirements}
 \label{section:specificRequirements}
 
@@ -548,21 +552,7 @@ The main functionalities of the STB require cooperation of multiple components s
         R10 & The eMSP shall allow a logged-in user to book a charge at a free socket of a CS for a given time slot \\
         \hline
         R11 & The eMSP shall allow a logged-in user to cancel any of its booked charges \\
-        \hline 
-    \end{tabularx}
-    \label{tab:requirements}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    %space between text and right/left borders
-    \setlength{\tabcolsep}{18pt}
-    %Row height multiplier
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.1\hsize}X|>{\hsize=1.9\hsize}X|}
         \hline
-        \textbf{Id} & \textbf{Requirement} \\
-        \hline 
         R12 & The eMSP shall not allow a user to book a charge at a socket of a CS which has already been booked for the chosen time slot \\
         %IMPLIES ONLY A CHARGE ONGOING AT ANY GIVEN TIME
         \hline
@@ -597,6 +587,20 @@ The main functionalities of the STB require cooperation of multiple components s
         R27 & The CPMS should be able to monitor the charging process of a vehicle \\
         \hline
         R28 & The CPMS should be able to acquire from DSOs their current energy prices \\
+        \hline
+    \end{tabularx}
+    \label{tab:requirements}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.1\hsize}X|>{\hsize=1.9\hsize}X|}
+        \hline
+        \textbf{Id} & \textbf{Requirement} \\
         \hline
         R29 & The CPMS should be able to acquire from DSOs their energy mix \\
         \hline
@@ -1178,6 +1182,8 @@ Prevent an asshole to create 1 trillion accounts and occupy all of a city worth 
 
 \subsubsection{Portability}
 
+\newpage
+
 \section{Formal Analysis Using Alloy}
 \label{section:alloy}
 
@@ -1269,6 +1275,8 @@ Some Bla Bla Bla on how much Alloy s*cks here...
     }
     
 \end{ffcode}
+
+\newpage
 
 \section{Effort Spent}
 \label{section:effort}
