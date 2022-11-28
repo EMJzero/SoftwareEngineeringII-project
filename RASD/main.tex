@@ -11,6 +11,7 @@
 \usepackage{enumitem}
 \usepackage{parskip}
 \usepackage{ffcode}
+\usepackage{graphicx}
 
 \usepackage[margin=2cm]{geometry}
 
@@ -471,7 +472,7 @@ The CPO will as well be able to let the CPMS take those decisions automatically 
 
 The interface eMall will use is a web app, through which its Users will have available all \hyperref[subsec:prodfunctions]{product functions}. Such web app will need to be usable both on desktop and mobile devices, since a mobile device is what users will most likely have available to them while at the CS. \\
 \\
-MOCHUPS HERE \\
+MOCKUPS HERE \\
 \\
 Similarly, CPMSs will offer their functionality to CPOs via a web portal, here there is no need to support anything other than a desktop device, since CPMSs are intended to be managed by employees in a company environment.
 
@@ -1140,6 +1141,16 @@ The main functionalities of the STB require cooperation of multiple components s
 
 \subsubsection{Sequence diagrams}
 
+Here are the sequence diagrams corresponding one-to-one with the use cases in the above section, the entry conditins hold for the diagrams as well, hence things like "login" are not repeated in every diagram.
+
+\begin{description}
+    \item [1. New user registration] \hfill \\
+    \begin{figure}[H]
+        \includegraphics[page={1}, trim=160 170 130 130, width=\linewidth]{SequenceDiagrams.pdf}
+        \caption{Unregistered User registering}
+    \end{figure}
+\end{description}
+
 \subsubsection{Mapping on requirements}
 
 \begin{table}[H]
@@ -1158,13 +1169,37 @@ The main functionalities of the STB require cooperation of multiple components s
     \label{tab:useCasesMapping}
 \end{table}
 
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.7\hsize}X|}
+        \hline
+        \textbf{ID} & \textbf{Requirement} \\
+        \hline
+        NF1 &  \\
+        \hline
+    \end{tabularx}
+    \label{tab:performanceRequirements}
+\end{table}
+
 \subsection{Performance Requirements}
+% LO METTIAMO IN TABELLA (VEDI COMMENTI CAMILLI)????
+The system should be able to handle concurrent users, who may want to book or start a charge at the same time in different geographical locations. As such, the systems should be capable of handling a reasonably high number of concurrent users, which we hypothesize to be in the order of 10.000. \\
+Secondly, the system should operate with reasonable response times (of max 5 seconds), necessary to provide timely feedback to users who are booking or paying for a charge, as well as users who want to start their charge quickly. \\
+Finally, the system should work properly even when accessed from a low-speed connectivity, such as 3G networks, since it is expected that users who might want to start a charge through the system are probably going to access it through their mobile phone. As such, the overall amount of data exchanged with the user should be kept at a minimum. \\
 
 \subsection{Design Constraints}
-
 \subsubsection{Standards compliance}
+The system should adhere to the standards and regulations imposed by the GDPR privacy law, since it is expected to be deployed (entirely or partially) in European countries. \\
+Secondly, the APIs used for communications between the eMSP and CPMSs, as well as APIs used to share data between other parties in the STB should follow the current industry standard for API design which, at the time of writing, is the REST architecture. \\
+Finally, the STB should function as expected on all modern web browser, without loss of functionalities according to the browser chosen by the user. 
 
 \subsubsection{Hardware limitations}
+Given that the system will be accessed from the Web and will require a connection to the platform to carry out its functions, the hardware must support some form of Internet connectivity (such as Wi-Fi, Ethernet or Cellular) and must have at least one modern Browser installed. \\
+Furthermore, given that it is expected that the STB is mostly going to be accessed on mobile devices, it should not require a high processing power in order to perform its front-end functions. \\
 
 \subsubsection{Any other constraint}
 
