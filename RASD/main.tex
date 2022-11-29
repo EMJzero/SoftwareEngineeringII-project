@@ -74,7 +74,7 @@ This document will discuss goals and requirements that regard the system necessa
         \hline
         G1 & Allow Users to see the list of available Charging Stations \\
         \hline
-        G2 & Allow Users to see the cost of a charge and special offers for a Charging Station \\
+        G2 & Allow Users to see the cost of a recharge and special offers for a Charging Station \\
         \hline
         G3 & Allow Users to book charging time slots \\
         \hline
@@ -105,15 +105,15 @@ This document will discuss goals and requirements that regard the system necessa
         \hline
         Charging Station & Device with a connection to the electric grid which brakes out power to one or more socket(s) for vehicles. Monitoring of each socket's status. \\
         \hline
-        Charging Session & The process in which a User performs a charge of their vehicle. \\
+        Charging Session & The process in which a User performs a recharge of their vehicle. \\
         \hline
         Charging Station External Status & Number of charging sockets available, their type such as slow/fast/rapid, their cost, and, if all sockets of a certain type are occupied, the estimated amount of time until the first socket of that type is freed. \\
         \hline
-        Charging Station Internal Status & Amount of energy available in the batteries, if any, number of vehicles being charged and, for each charging vehicle, amount of power absorbed and time left to the end of the charge. \\
+        Charging Station Internal Status & Amount of energy available in the batteries, if any, number of vehicles being charged and, for each charging vehicle, amount of power absorbed and time left to the end of the recharge. \\
         \hline
         Energy Source & Method of energy production that results in a known fraction of the energy supplied to an endpoint in the electric grip. \\
         \hline
-        User-price & Cost of a charge that is shown to the User when they inspect a CS. It is set by the CPO/CPMS on a per-CS basis. \\
+        User-price & Cost of a recharge that is shown to the User when they inspect a CS. It is set by the CPO/CPMS on a per-CS basis. \\
         \hline
         Nominal-price & Cost of electricity at a CS, depends on the DSO that is currently assigned to that CS. \\
         \hline
@@ -246,7 +246,7 @@ In order to represent more clearly whether a phenomenon is world or machine cont
         %\hline
         SP10 & WC MO & CPOs update batteries information and batteries usage policies for their CSs \\
         \hline
-        SP11 & MC WO & The eMSP transfers the amount due to CPOs for performed charges \\
+        SP11 & MC WO & The eMSP transfers the amount due to CPOs for performed recharges \\
         \hline
     \end{tabularx}
     \label{tab:shared_phenomena}
@@ -295,17 +295,17 @@ Finally \hyperref[section:references]{\textbf{references}} are reported.
 \begin{description}
     \item [1. New user registration] \hfill \\
         \textit{Actors: Unregistered User} \\
-        A person, Bob, who discovered eMall has decided to register into the platform to use its charge booking and charge management system. To this end Bob reaches the eMall services and chooses to “sign up”, after that Bob fills in the relevant information and his eMall account is created. Now Bob can proceed to login.
+        A person, Bob, who discovered eMall has decided to register into the platform to use its recharge booking and recharge management system. To this end Bob reaches the eMall services and chooses to “sign up”, after that Bob fills in the relevant information and his eMall account is created. Now Bob can proceed to login.
     \item [2. User login] \hfill \\
         \textit{Actors: Registered User} \\
-        An already registered user, Bob, reaches the eMall services and intends to either book a charging spot or to manage a currently ongoing charge booked to his name, hence Bob chooses to “login” and enters its credentials. Assuming Bob inserted valid credentials he now has a valid session within the eMall services. If Bob failed in setting valid credentials he can try again.
+        An already registered user, Bob, reaches the eMall services and intends to either book a charging spot or to manage a currently ongoing recharge booked to his name, hence Bob chooses to “login” and enters its credentials. Assuming Bob inserted valid credentials he now has a valid session within the eMall services. If Bob failed in setting valid credentials he can try again.
     \item [3. User looking for charging stations] \hfill \\
         \label{scenario:lookingForCS}
         \textit{Actors: Registered User} \\
         A user already registered on eMall, Bob, needs to know the location and/or pricing of CSs in a certain are of his interest. To obtain such data, Bob has reached the eMall services, has logged in and has selected the charging stations “search” options. Now Bob can search for CSs and is presented with multiple filters to control:
         \begin{itemize}
             \item His area of interest
-            \item Charge price ranges
+            \item Recharge price ranges
             \item Connector types available
             \item Charging speeds available
         \end{itemize}
@@ -318,18 +318,18 @@ Finally \hyperref[section:references]{\textbf{references}} are reported.
             \item Available connectors
             \item Available charging speeds
         \end{itemize}
-    \item [4. User booking a charge] \hfill \\
+    \item [4. User booking a recharge] \hfill \\
         \textit{Actors: Logged-in User} \\
-        A user Bob has already performed the login and now intends to book a charge. Bob first performs a search for the CS to reserve for his charge (see “user looking for charging stations” scenario) and once he finds a suitable and available one chooses “book charge” for that station. Bob is then presented with the choice for the time slot for his charge and once he chooses his reservation is completed.
+        A user Bob has already performed the login and now intends to book a recharge. Bob first performs a search for the CS to reserve for his recharge (see “user looking for charging stations” scenario) and once he finds a suitable and available one chooses “book recharge” for that station. Bob is then presented with the choice for the time slot for his recharge and once he chooses his reservation is completed.
     \item [5. User deleting one of his bookings] \hfill \\
         \textit{Actors: Logged-in User} \\
         A user Bob has already performed the login and recently made a few bookings on eMall. However on second thought Bob realized he could not make it in time for one of his bookings and now intends to delete it. To this end Bob selects the option to view his meetings' list on eMall and selects the meeting he desires to remove, he chooses the delete option the meeting list is updated with the deleted meeting now missing, confirming that eMall discarded it.
     \item [6. User performing a charging process (start, monitor and pay)] \hfill \\
         \textit{Actors: Logged-in User} \\
-        The user Bob has previously booked a charge at a certain CS for a certain time slot. Bob shows up at the CS during his reserved time slot and proceeds to connect his vehicle properly. Once the vehicle is connected Bob reaches the eMall services to start the charging process. After the process is started Bob has the option to interrupt it at any time, otherwise the charging procedure automatically halts as the CS noticed the vehicle’s battery being full or the booked time slot expires. Bob is notified by eMall as soon as the charging procedure ends. Immediately after completing a charge, Bob is then presented by eMall with the total cost of his charge and is automatically charged for the service on the payment method he inserted while registering.
-    \item [7. User does not show up for a booked charge] \hfill \\
+        The user Bob has previously booked a recharge at a certain CS for a certain time slot. Bob shows up at the CS during his reserved time slot and proceeds to connect his vehicle properly. Once the vehicle is connected Bob reaches the eMall services to start the charging process. After the process is started Bob has the option to interrupt it at any time, otherwise the charging procedure automatically halts as the CS noticed the vehicle’s battery being full or the booked time slot expires. Bob is notified by eMall as soon as the charging procedure ends. Immediately after completing a recharge, Bob is then presented by eMall with the total cost of his recharge and is automatically charged for the service on the payment method he inserted while registering.
+    \item [7. User does not show up for a booked recharge] \hfill \\
         \textit{Actors: Registered User} \\
-        The user Bob has previously booked a charge at a certain CS for a certain time slot. However Bob forgot about the booking and did not show up to the booked CS during the time slot for the charge, hence he is notified by eMall after the time slot expires and is charged a fee from eMall. Obviously had Bob deleted the meeting beforehand he would have avoided the fee.
+        The user Bob has previously booked a recharge at a certain CS for a certain time slot. However Bob forgot about the booking and did not show up to the booked CS during the time slot for the recharge, hence he is notified by eMall after the time slot expires and is charged a fee from eMall. Obviously had Bob deleted the meeting beforehand he would have avoided the fee.
     \item [8. CPO wants information on DSOs’ energy prices and mix of sources] \hfill \\
         \textit{Actors: CPO} \\
         The CPO Xcorp, or better its employee Mary which authorizes herself with Xcorp's CPMS, wants all information regarding the energy market to evaluate their choice of a DSO. To do this Xcorp uses its CPMS’s functionality to gather such information from all the DSOs known to it, hence the CPMS proceeds to recover this information from the various DSOs and once it has finished it presents the result to Xcorp.
@@ -345,13 +345,68 @@ Finally \hyperref[section:references]{\textbf{references}} are reported.
 
 UML class diagram showing the entities of interest for the system and their relationships. \\
 \\
-A notably missing entity is \textit{vehicle}, which was deemed not necessary, since its charge status is modelled within the socket it is connected to and the user might not necessarily be the owner of the vehicle he charges (ex: rented vehicle), so binding the two might have been counterproductive. \\
+A notably missing entity is \textit{vehicle}, which was deemed not necessary, since its charge status is modelled within the socket it is connected to and the user might not necessarily be the owner of the vehicle he recharges (ex: rented vehicle), so binding the two might have been counterproductive. \\
 \\
 \textit{Unregistered User} is not present and modelled as a flag of User. !!SHOULD WE MODEL IT? Since its not connected to any booking, a significant difference with User...!! 
 
 \subsubsection{State Diagrams}
 
 Those following are representations of the most important interactions that involve the STB, they mostly correspond to the different \hyperref[subsubsec:scenarios]{scenarios}.
+
+\begin{description}
+    \item \textbf{1. User registration and/or login}
+    \begin{figure}[!ht]
+        %trim = left bottom right top
+        \includegraphics[page={1}, width=\linewidth, trim=8cm 3cm 8cm 3cm, clip]{StateCharts.pdf}
+        \caption{User registration and/or login}
+    \end{figure}
+    
+    \item \textbf{2. User searching CS and booking a recharge}
+    \begin{figure}[!ht]
+        %trim = left bottom right top
+        \includegraphics[page={2}, width=\linewidth, trim=2cm 4cm 2cm 4cm, clip]{StateCharts.pdf}
+        \caption{User searching CS and booking a recharge}
+    \end{figure}
+    
+    \newpage
+    
+    \item \textbf{3. User deleting a booking}
+    \begin{figure}[!ht]
+        %trim = left bottom right top
+        \includegraphics[page={3}, width=\linewidth, trim=7cm 4cm 7cm 4cm, clip]{StateCharts.pdf}
+        \caption{User deleting a booking}
+    \end{figure}
+    
+    \item \textbf{4. User performing a charging session}
+    \begin{figure}[!ht]
+        %trim = left bottom right top
+        \includegraphics[page={4}, width=\linewidth, trim=2cm 4cm 2cm 4cm, clip]{StateCharts.pdf}
+        \caption{User performing a charging session}
+    \end{figure}
+    
+    \item \textbf{5. CPO acquiring information on DSOs' energy prices and mixes}
+    \begin{figure}[!ht]
+        %trim = left bottom right top
+        \includegraphics[page={5}, width=\linewidth, trim=1cm 4cm 1cm 4cm, clip]{StateCharts.pdf}
+        \caption{CPO acquiring information on DSOs' energy prices and mixes}
+    \end{figure}
+    
+    \newpage
+    
+    \item \textbf{6. CPO chooses energy sources and battery usage policies for a CS}
+    \begin{figure}[!ht]
+        %trim = left bottom right top
+        \includegraphics[page={6}, width=\linewidth, trim=6cm 5cm 6cm 5cm, clip]{StateCharts.pdf}
+        \caption{CPO chooses energy sources and battery usage policies for a CS}
+    \end{figure}
+    
+    \item \textbf{7. CPO toggles the CPMS automatic mode}
+    \begin{figure}[!ht]
+        %trim = left bottom right top
+        \includegraphics[page={7}, width=\linewidth, trim=10cm 5cm 10cm 5cm, clip]{StateCharts.pdf}
+        \caption{CPO toggles the CPMS automatic mode}
+    \end{figure}
+\end{description}
 
 \subsection{Product Functions}
 \label{subsec:prodfunctions}
@@ -373,7 +428,7 @@ Given those data the account will be created and will be available to the User. 
 Users with an account will be able to search for CSs, multiple selectors will be available to narrow or widen the scope of the search, hence allowing Users to find the best result for their needs. Available filters will be:
 \begin{itemize}
     \item Geographical area of interest
-    \item Charge price ranges
+    \item Reharge price ranges
     \item Connector types available
     \item Charging speeds available
 \end{itemize}
@@ -387,13 +442,13 @@ Users will be able to select a specific CS, consequently seeing the already book
     \item Available charging speeds
 \end{itemize}
 
-\subsubsection{Book a charge at a CS}
+\subsubsection{Book a recharge at a CS}
 
-From the list of results for the \hyperref[subsubsection:searchForCS]{\textbf{search for a CS}} a User will be able to book a charge at a CS, they will be able to select a specific socket and time slot among the available ones for the CS and reserve it for themselves. During their booked time slot they will then have to show up at the CS with their vehicle to perform the charge.
+From the list of results for the \hyperref[subsubsection:searchForCS]{\textbf{search for a CS}} a User will be able to book a recharge at a CS, they will be able to select a specific socket and time slot among the available ones for the CS and reserve it for themselves. During their booked time slot they will then have to show up at the CS with their vehicle to perform the recharge.
 
-\subsubsection{Perform a charge at a CS}
+\subsubsection{Perform a recharge at a CS}
 
-When the User show up at a CS during the time slot the booked it for and they connect to the booked socket they will be able to log into eMall, reach their bookings and start the charging process for the one they are currently connected for. Once the charging process is going, the User will be able to interrupt it through eMall at any time, otherwise the charge will terminate after the vehicle is fully charger or the time slot expires, notifying the User. After the completion of a charge the User will be charged by eMall for the service.
+When the User show up at a CS during the time slot the booked it for and they connect to the booked socket they will be able to log into eMall, reach their bookings and start the charging process for the one they are currently connected for. Once the charging process is going, the User will be able to interrupt it through eMall at any time, otherwise the recharge will terminate after the vehicle is fully charged or the time slot expires, notifying the User. After the completion of a recharge the User will be charged by eMall for the service.
 
 \subsection{Acquire price and energy mix information from DSOs}
 
@@ -408,11 +463,11 @@ The CPO will as well be able to let the CPMS take those decisions automatically 
 
 \begin{description}
     \item [1. Unregistered User] \hfill \\
-        A User which just accesses the list of available CS without being able to book charges, he has the option to register and become a \textit{Logged-In User} at any time.
+        A User which just accesses the list of available CS without being able to book recharges, he has the option to register and become a \textit{Logged-In User} at any time.
     \item [2. Registered User] \hfill \\
         A User with a registered account within eMall which has yet to login-in with their credentials.
     \item [2. Logged-In User] \hfill \\
-        A User with a registered account within eMall which has logged in via their credentials, can still access the CSs list and can also book charge. With their bookings he can then manage their charging sessions one he arrives at the CS.
+        A User with a registered account within eMall which has logged in via their credentials, can still access the CSs list and can also book a recharge. With their bookings he can then manage their charging sessions one he arrives at the CS.
     \item [3. CPO] \hfill \\
         By CPO at large we mean a company whose employees have access to the company's CPMS, hence the actual human beings interacting with the STB will be CPO employees with credentials that allow them to authenticate with the CPMS. The tasks an employee might perform are acquiring DSOs' information, assigning a DSO to a CS owned by their company, changing the battery management policy for any CS controlled by the CPMS or adding/updating CS managed by the CPMS. \\
         The reason for CPOs being identified as a users instead of their employees is that the decisions justifying the operations performed by the employees cannot be taken by the employees, they are just the executors, decisions are taken by their superiors, hence we can view of the entire company as a user to avoid being too specific about who takes which decision and who interacts with the STB. \\
@@ -453,7 +508,7 @@ The CPO will as well be able to let the CPMS take those decisions automatically 
         D9 & A DSO's energy mix is constant for all the locations where said DSO serves electricity \\
         \hline
         %D8 & The DSO association can be controlled on a per-CS basis and there is enough information provided by the DSOs to the CPMS to allow the latter to set a price for a charge at a CS and keep it constant during the whole process, while preventing that a DSO's price change causes a loss \\
-        D10 & The user-price of a charge at a CS is kept constant during the whole charging process \\
+        D10 & The user-price for a recharge at a CS is kept constant during the whole charging process \\
         \hline
         D11 & CPOs pay DSOs for the used electricity via methods outside the scope of this document (Ex: direct bank transfer) \\
         \hline
@@ -505,11 +560,11 @@ The main functionalities of the STB require cooperation of multiple components s
 
 \begin{description}
     \item [1. eMSP acquiring CS information from CPMSs] \hfill \\
-        Whenever a search for CSs, a booking or a charge at a CS is performed via an eMSP, the ladder needs to fetch information regarding one or more CSs from CPMSs first, hence CPMSs need to expose a web API reachable by the eMSP to communicate the details regarding CSs.
-    \item [2. eMSP  managing a charge through a CPMS] \hfill \\
+        Whenever a search for CSs, a booking or a recharge at a CS is performed via an eMSP, the ladder needs to fetch information regarding one or more CSs from CPMSs first, hence CPMSs need to expose a web API reachable by the eMSP to communicate the details regarding CSs.
+    \item [2. eMSP  managing a recharge through a CPMS] \hfill \\
         When a charging process for a previous booking needs to be starter or terminated by a user via the eMSP, the eMSP has no control over the CS, hence needs to interface with the CPSM to request the latter to start/stop the charging process. Hence the CPMS needs to expose in it web API method for eMSP to start/stop charging procedures that were booked through them.
     \item [3. eMSP requesting a payment via an external provider] \hfill \\
-        After the completion of a charging process or when a fee is charged to a user, the eMSP needs to use the payment method a user has nound to its account to charge them for the service, hence it needs to interface with an API which will allow the eMSP to have the amount due accredited to himself.
+        After the completion of a charging process or when a fee is charged to a user, the eMSP needs to use the payment method a user has bound to its account to charge them for the service, hence it needs to interface with an API which will allow the eMSP to have the amount due accredited to himself.
     \item [4. CPMS monitoring and controlling its CSs] \hfill \\
         CSs need to know how to reach the CPMS responsible for them over internet, this way whenever a CS is deployed it will automatically find its CPMS, authenticate with it and setup itself under its control. To this end CPMSs need to expose a web API allowing for new CSs to authenticate with them, and CSs need to offer the connect CPMS and endpoint to allow it to manage them.
     \item [5. CPMS acquiring DSOs price and energy mix information] \hfill \\
@@ -546,48 +601,15 @@ The main functionalities of the STB require cooperation of multiple components s
         \hline
         R7 & The eMSP shall allow a logged-in user to view charging stations nearby \\
         \hline
-        R8 & The eMSP shall allow a logged-in user to know the cost of a charge at a CS \\
+        R8 & The eMSP shall allow a logged-in user to know the cost of a recharge at a CS \\
         \hline
         R9 & The eMSP shall allow a logged-in user to know about ongoing special offers present at a CS \\
         \hline
-        R10 & The eMSP shall allow a logged-in user to book a charge at a free socket of a CS for a given time slot \\
+        R10 & The eMSP shall allow a logged-in user to book a recharge at a free socket of a CS for a given time slot \\
         \hline
-        R11 & The eMSP shall allow a logged-in user to cancel any of its booked charges \\
+        R11 & The eMSP shall allow a logged-in user to cancel any of its booked recharges \\
         \hline
-        R12 & The eMSP shall not allow a user to book a charge at a socket of a CS which has already been booked for the chosen time slot \\
-        %IMPLIES ONLY A CHARGE ONGOING AT ANY GIVEN TIME
-        \hline
-        R13 & The eMSP shall not allow a user to book multiple charges with overlapping time slots \\
-        \hline
-        R14 & The eMSP shall allow a logged-in user to start the charging process for one of their booked charges \\
-        \hline
-        R15 & The eMSP shall not allow a user without a booking to start the charging process \\
-        \hline
-        R16 & The eMSP shall not allow a user to start the charging process as long as the socket is vacant \\
-        \hline
-        R17 & The eMSP should notify a logged-in user when their ongoing charging processes is complete \\
-        \hline
-        R18 & The eMSP should notify a logged-in user when their ongoing charging process is terminated due to the expiration of its booked time slot \\
-        \hline
-        R19 & The eMSP shall allow a logged-in user to terminate their charging process earlier \\
-        \hline
-        R20 & The eMSP should charge a user for everyone of his charging processes as soon as it finishes \\
-        \hline
-        R21 & The eMSP shall charge a user for a fee if they do not start a charge during their booking's time slot \\
-        \hline
-        R22 & The eMSP shall be able to offer its functionalities to multiple users at once \\
-        \hline
-        R23 & The CPMS should be able to acquire location from CSs \\
-        \hline
-        R24 & The CPMS should be able to acquire the internal status from CSs \\
-        \hline
-        R25 & The CPMS should be able to acquire the external status from CSs \\
-        \hline
-        R26 & The CPMS should be able to start charging a vehicle connected to a CS socket \\
-        \hline
-        R27 & The CPMS should be able to monitor the charging process of a vehicle \\
-        \hline
-        R28 & The CPMS should be able to acquire from DSOs their current energy prices \\
+        R12 & The eMSP shall not allow a user to book a recharge at a socket of a CS which has already been booked for the chosen time slot \\
         \hline
     \end{tabularx}
     \label{tab:requirements}
@@ -602,6 +624,39 @@ The main functionalities of the STB require cooperation of multiple components s
     \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.1\hsize}X|>{\hsize=1.9\hsize}X|}
         \hline
         \textbf{Id} & \textbf{Requirement} \\
+        %IMPLIES ONLY A RECHARGE ONGOING AT ANY GIVEN TIME
+        \hline
+        R13 & The eMSP shall not allow a user to book multiple recharges with overlapping time slots \\
+        \hline
+        R14 & The eMSP shall allow a logged-in user to start the charging process for one of their booked recharges \\
+        \hline
+        R15 & The eMSP shall not allow a user without a booking to start the charging process \\
+        \hline
+        R16 & The eMSP shall not allow a user to start the charging process as long as the socket is vacant \\
+        \hline
+        R17 & The eMSP should notify a logged-in user when their ongoing charging processes is complete \\
+        \hline
+        R18 & The eMSP should notify a logged-in user when their ongoing charging process is terminated due to the expiration of its booked time slot \\
+        \hline
+        R19 & The eMSP shall allow a logged-in user to terminate their charging process earlier \\
+        \hline
+        R20 & The eMSP should charge a user for everyone of his charging processes as soon as they finish \\
+        \hline
+        R21 & The eMSP shall charge a user for a fee if they do not start a recharge during their booking's time slot \\
+        \hline
+        R22 & The eMSP shall be able to offer its functionalities to multiple users at once \\
+        \hline
+        R23 & The CPMS should be able to acquire location from CSs \\
+        \hline
+        R24 & The CPMS should be able to acquire the internal status from CSs \\
+        \hline
+        R25 & The CPMS should be able to acquire the external status from CSs \\
+        \hline
+        R26 & The CPMS should be able to start charging a vehicle connected to a CS socket \\
+        \hline
+        R27 & The CPMS should be able to monitor the charging process of a vehicle \\
+        \hline
+        R28 & The CPMS should be able to acquire from DSOs their current energy prices \\
         \hline
         R29 & The CPMS should be able to acquire from DSOs their energy mix \\
         \hline
@@ -625,13 +680,13 @@ The main functionalities of the STB require cooperation of multiple components s
         R38 & The CPMS should report to the user when the platform encountered an error while processing the action \\
         \hline
         % AUTOMATIC PAYMENT TO DSOs?????????
-        R39 & The CPMS should be able to pay DSOs the amount due for the charges performed with its energy \\
+        R39 & The CPMS should be able to pay DSOs the amount due for the recharges performed with its energy \\
         \hline
         R40 & The CPMS should be able to set special offers on CSs for a set time interval \\
         \hline
         R41 & The CPMS should be able to decide whether to start charging the internal batteries of a CS (if present) \\
         \hline
-        % The eMSP shall be able to pay CPOs for the amount due for charges performed through them since the last payment
+        % The eMSP shall be able to pay CPOs for the amount due for recharges performed through them since the last payment
     \end{tabularx}
     \label{tab:requirements-2}
 \end{table}
@@ -772,7 +827,7 @@ The main functionalities of the STB require cooperation of multiple components s
                     \item The User is presented with an initial list of CSs (could be empty) and the filters to update the search results \hyperref[scenario:lookingForCS]{\textbf{(filters list here)}}
                     \item The User can repeat the search to his hearth's contempt by updating the filters
                     \item The User selects a CS to be shown its details \hyperref[scenario:lookingForCS]{\textbf{(details list here)}}
-                    \item The User chooses to book a charge at the selected CS
+                    \item The User chooses to book a recharge at the selected CS
                     \item The User inserts the desired socket and time slot for his booking
                     \item eMall registers the User's booking and confirms it to the User
                 \end{enumerate}
@@ -781,7 +836,7 @@ The main functionalities of the STB require cooperation of multiple components s
             \\
             \hline
             %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
-            \textbf{Exit condition} & The User booked a charge at a CS \\
+            \textbf{Exit condition} & The User booked a recharge at a CS \\
             \hline
             \textbf{Exceptions} & 
                 \begin{minipage}[t]{\hsize}
@@ -856,7 +911,7 @@ The main functionalities of the STB require cooperation of multiple components s
                     \item The User selects the booking made for the current time slot (eMall might highlight it ahead of time)
                     \item The User is presented with the booking's status and the option to start the charging process
                     \item The User chooses to start the charging process
-                    \item eMall, via the CPMS, makes the CS's socket start to charge the connected vehicle
+                    \item eMall, via the CPMS, makes the CS's socket start to recharge the connected vehicle
                 \end{enumerate}
                 \end{minipage}
                 \vspace{6pt}
@@ -975,7 +1030,7 @@ The main functionalities of the STB require cooperation of multiple components s
         \end{tabularx}
     \end{table}
     
-    \item [8. User does not show up for a booked charge] \hfill \\
+    \item [8. User does not show up for a booked recharge] \hfill \\
     \begin{table}[H]
         \centering
         %space between text and right/left borders
@@ -1139,16 +1194,60 @@ The main functionalities of the STB require cooperation of multiple components s
 
 \subsubsection{Use case diagrams}
 
+\begin{description}
+    \item \textbf{1. Unregistered User}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={1}, trim=7cm 9.2cm 7cm 9.2cm, width=0.6\linewidth, clip]{UseCases.pdf}
+        \caption{Unregistered User}
+    \end{figure}
+    
+    \newpage
+    
+    \item \textbf{2. Registered User}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={2}, trim=0cm 2.5cm 0cm 2.5cm, width=\linewidth, clip]{UseCases.pdf}
+        \caption{Registered User}
+    \end{figure}
+    
+    
+    \item \textbf{3. CPO}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={1}, trim=7cm 9.2cm 7cm 9.2cm, width=0.6\linewidth, clip]{UseCases.pdf}
+        \caption{CPO}
+    \end{figure}
+\end{description}
+
+\newpage
+
 \subsubsection{Sequence diagrams}
 
 Here are the sequence diagrams corresponding one-to-one with the use cases in the above section, the entry conditins hold for the diagrams as well, hence things like "login" are not repeated in every diagram.
 
 \begin{description}
-    \item [1. New user registration] \hfill \\
-    \begin{figure}[H]
-        \includegraphics[page={1}, trim=160 170 130 130, width=\linewidth]{SequenceDiagrams.pdf}
-        \caption{Unregistered User registering}
+    \item \textbf{1. New user registration}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={1}, trim=5cm 5.6cm 5cm 4.4cm, width=0.8\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{New user registration}
     \end{figure}
+    
+    \item \textbf{1. User login}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={2}, trim=5cm 9cm 5cm 3.6cm, width=0.8\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{User login}
+    \end{figure}
+    
+    \newpage
+    
 \end{description}
 
 \subsubsection{Mapping on requirements}
@@ -1169,27 +1268,11 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
     \label{tab:useCasesMapping}
 \end{table}
 
-\begin{table}[H]
-    \centering
-    %space between text and right/left borders
-    \setlength{\tabcolsep}{18pt}
-    %Row height multiplier
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.7\hsize}X|}
-        \hline
-        \textbf{ID} & \textbf{Requirement} \\
-        \hline
-        NF1 &  \\
-        \hline
-    \end{tabularx}
-    \label{tab:performanceRequirements}
-\end{table}
-
 \subsection{Performance Requirements}
 % LO METTIAMO IN TABELLA (VEDI COMMENTI CAMILLI)????
-The system should be able to handle concurrent users, who may want to book or start a charge at the same time in different geographical locations. As such, the systems should be capable of handling a reasonably high number of concurrent users, which we hypothesize to be in the order of 10.000. \\
-Secondly, the system should operate with reasonable response times (of max 5 seconds), necessary to provide timely feedback to users who are booking or paying for a charge, as well as users who want to start their charge quickly. \\
-Finally, the system should work properly even when accessed from a low-speed connectivity, such as 3G networks, since it is expected that users who might want to start a charge through the system are probably going to access it through their mobile phone. As such, the overall amount of data exchanged with the user should be kept at a minimum. \\
+The system should be able to handle concurrent users, who may want to book or start a recharge at the same time in different geographical locations. As such, the systems should be capable of handling a reasonably high number of concurrent users, which we hypothesize to be in the order of 10.000. \\
+Secondly, the system should operate with reasonable response times (of max 5 seconds), necessary to provide timely feedback to users who are booking or paying for a recharge, as well as users who want to start their recharge quickly. \\
+Finally, the system should work properly even when accessed from a low-speed connectivity, such as 3G networks, since it is expected that users who might want to start a recharge through the system are probably going to access it through their mobile phone. As such, the overall amount of data exchanged with the user should be kept at a minimum. \\
 
 \subsection{Design Constraints}
 \subsubsection{Standards compliance}
@@ -1204,18 +1287,30 @@ Furthermore, given that it is expected that the STB is mostly going to be access
 \subsubsection{Any other constraint}
 
 \subsection{Software System Attributes}
-
+%Io prendo il treno, ciao, a domani!
+%OK a domani!
 \subsubsection{Reliability}
+The system should be highly reliable and be up and running most of the times, since without it the user would not be able to start a recharge previously booked by the system. Hence regular maintenance is expected, together with some precautions that help reduce the risk of total outages in case of failures (e.g. geographical redundancy).
 
 \subsubsection{Availability}
+High availability is crucial for this system for 2 main reasons:
+\begin{itemize}
+    \item Its entire business model is based off of transactions made through the system (users booking and, later, paying for recharges)
+    \item Users need the system to be up and running in order to start a recharge, even if it was already booked
+\end{itemize}
+Taking this into consideration, it is deemed appropriate to have an availability of 99.99\%, which would result in a maximum of approximately 52 minutes of downtime in an entire year. To achieve such a high figure, it may be essential to run components in parallel, making use of redundant machines and databases. \\
+Furthermore, since the system also relies on external components (including, but not limited to the systems owned by DSOs), it should be noted that these systems may have lower availability constraints, and as such our STB should not fail entirely due to the failure of such dependencies.
 
 \subsubsection{Security}
-
+Since the STB has to deal with highly confidential user data (including, but not limited to billing information), the latest security standards should be applied. In practice, this boils down to the adoption of secure protocols for transferring information over the Internet (e.g. HTTPS), actively checking the authorization status of a user when they attempt to access a resource or a specific endpoint, as well as proper encryption of passwords when stored into the system.
+%RIFRASARE O TOGLIERE????
 Prevent an asshole to create 1 trillion accounts and occupy all of a city worth of CS, hence require credit card info on registration!
 
 \subsubsection{Maintainability}
+The system should be easily maintainable, to allow for future expansion of its feature set without requiring to build it from scratch. As such, standard software patterns should be adopted, and the whole architecture and underlying code should be properly and extensively documented, to allow potential future developers to start working on it without reading the entire code base.
 
 \subsubsection{Portability}
+As mentioned in previous sections, the system should be accessible both on a Desktop browser and on Mobile ones, therefore its interface should be fully responsive to adapt to different screen sizes. Futhermore, the system should be able to run on a wide variety of modern browsers, without feature restrictions for some of them.
 
 \newpage
 
