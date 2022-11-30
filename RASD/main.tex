@@ -113,9 +113,9 @@ This document will discuss goals and requirements that regard the system necessa
         \hline
         Energy Source & Method of energy production that results in a known fraction of the energy supplied to an endpoint in the electric grip. \\
         \hline
-        User-price & Cost of a recharge that is shown to the User when they inspect a CS. It is set by the CPO/CPMS on a per-CS basis. \\
+        User-price & Cost of a recharge that is shown to the User when they inspect a CS and is what they are charged for. It is set by the CPO/CPMS on a per-CS basis.\\
         \hline
-        Nominal-price & Cost of electricity at a CS, depends on the DSO that is currently assigned to that CS. \\
+        Nominal-price & Cost of a recharge at a CS without any discount or offer applied, it is set by the CPO/CPMS. A user-price $<$ nominal-price implies an ongoing special offer. \\
         \hline
     \end{tabularx}
     \label{tab:definitions}
@@ -333,9 +333,9 @@ Finally \hyperref[section:references]{\textbf{references}} are reported.
     \item [8. CPO wants information on DSOs’ energy prices and mix of sources] \hfill \\
         \textit{Actors: CPO} \\
         The CPO Xcorp, or better its employee Mary which authorizes herself with Xcorp's CPMS, wants all information regarding the energy market to evaluate their choice of a DSO. To do this Xcorp uses its CPMS’s functionality to gather such information from all the DSOs known to it, hence the CPMS proceeds to recover this information from the various DSOs and once it has finished it presents the result to Xcorp.
-    \item [9. CPO chooses energy sources and battery usage policies for a CS] \hfill \\
+    \item [9. CPO chooses prices, energy sources and battery usage policies for a CS] \hfill \\
         \textit{Actors: CPO} \\
-        The CPO Xcorp might want to change which DSO supplies its different CSs and how the CSs manage their batteries, if they have any, in order to offer better prices, to cut its expenses or take advantage of better energy mixes provided by other DSO. To this end Xcorp instructs one of its employees, Mary, to authenticates with Xcorp's CPMS. Afterwards Mary selects the CS(s) which will be subject to changes and can choose to assign that CS(s) a new DSO among those the CPMS is aware of or to change the battery usage policy for that CS(s).
+        The CPO Xcorp might want to change which DSO supplies its different CSs and how the CSs manage their batteries, if they have any, in order to offer better prices, to cut its expenses or take advantage of better energy mixes provided by other DSO. To this end Xcorp instructs one of its employees, Mary, to authenticates with Xcorp's CPMS. Afterwards Mary selects the CS(s) which will be subject to changes and can choose to assign that CS(s) a new nominal-price, a new user-price, a new DSO among those the CPMS is aware of or to change the battery usage policy for that CS(s). If Mary were to assign a user-price lower than the nominal-price, that would be the same as her setting up a special offer at that CS.
     \item [10. CPO toggles the CPMS automatic mode] \hfill \\
         \textit{Actors: CPO} \\
         A CPO employee, Mary, in charge of administering the CPMS system wants to change its operating mode from “Manual” to “Automatic”. To do this, she logs in to the CPMS and toggles “Automatic Mode” on. Once the system has finished changing the operating mode, she loses control over manual overrides, and is prompted to enable “Manual Mode” again in order to change those settings. After completing the action, Mary successfully logs out of the system. \hfill \\
@@ -454,10 +454,13 @@ When the User show up at a CS during the time slot the booked it for and they co
 
 A CPO will be able to ask their CPMS to present them with the information regarding energy prices and mix of energy sources used by the different DSOs known to the system. The CPMS will recover the information from DSOs and return it to the CPO.
 
-\subsubsection{Choose the energy sources and battery usage policies for a CS}
+\subsubsection{Choose prices, energy sources and battery usage policies for a CS}
 
-The CPMS will provide its CPO with a list of all CSs handled by the system, from that list the CPO will be able to modify the configuration of each CS independently, specifically they will be able to alter the DSO that is currently supplying that CS and the policy with which that CS used its batteries. \\
-The CPO will as well be able to let the CPMS take those decisions automatically on their behalf.
+The CPMS will provide its CPO with a list of all CSs handled by the system, from that list the CPO will be able to modify the configuration of each CS independently, specifically they will be able to alter the nominal-price and user-price, the DSO that is currently supplying that CS and the policy with which that CS used its batteries.
+
+\subsubsection{Allow the CPMS to operate automatically}
+
+The CPO will as well be able to let the CPMS take decisions regarding the prices, DSO and energy source of a CS automatically on their behalf.
 
 \subsection{User Characteristics}
 
@@ -611,6 +614,10 @@ The main functionalities of the STB require cooperation of multiple components s
         \hline
         R12 & The eMSP shall not allow a user to book a recharge at a socket of a CS which has already been booked for the chosen time slot \\
         \hline
+        R13 & The eMSP shall not allow a user to book multiple recharges with overlapping time slots \\
+        \hline
+        R14 & The eMSP shall allow a logged-in user to start the charging process for one of their booked recharges \\
+        \hline
     \end{tabularx}
     \label{tab:requirements}
 \end{table}
@@ -625,10 +632,6 @@ The main functionalities of the STB require cooperation of multiple components s
         \hline
         \textbf{Id} & \textbf{Requirement} \\
         %IMPLIES ONLY A RECHARGE ONGOING AT ANY GIVEN TIME
-        \hline
-        R13 & The eMSP shall not allow a user to book multiple recharges with overlapping time slots \\
-        \hline
-        R14 & The eMSP shall allow a logged-in user to start the charging process for one of their booked recharges \\
         \hline
         R15 & The eMSP shall not allow a user without a booking to start the charging process \\
         \hline
@@ -646,47 +649,69 @@ The main functionalities of the STB require cooperation of multiple components s
         \hline
         R22 & The eMSP shall be able to offer its functionalities to multiple users at once \\
         \hline
-        R23 & The CPMS should be able to acquire location from CSs \\
+        R23 & The eMSP shall be able to pay CPOs for the amount due for recharges performed through them since the last payment \\
         \hline
-        R24 & The CPMS should be able to acquire the internal status from CSs \\
+        R24 & The CPMS should be able to acquire location from CSs \\
         \hline
-        R25 & The CPMS should be able to acquire the external status from CSs \\
+        R25 & The CPMS should be able to acquire the internal status from CSs \\
         \hline
-        R26 & The CPMS should be able to start charging a vehicle connected to a CS socket \\
+        R26 & The CPMS should be able to acquire the external status from CSs \\
         \hline
-        R27 & The CPMS should be able to monitor the charging process of a vehicle \\
+        R27 & The CPMS should be able to start charging a vehicle connected to a CS socket \\
         \hline
-        R28 & The CPMS should be able to acquire from DSOs their current energy prices \\
+        R28 & The CPMS should be able to monitor the charging process of a vehicle \\
         \hline
-        R29 & The CPMS should be able to acquire from DSOs their energy mix \\
+        R29 & The CPMS should be able to acquire from DSOs their current energy prices \\
         \hline
-        R30 & The CPMS shall allow its CPO to assign a DSO to a CS as its energy provider  when operating in “Manual Mode” \\
+        R30 & The CPMS should be able to acquire from DSOs their energy mix \\
         \hline
-        R31 & The CPMS should be able to automatically assign a DSO to a CS as its energy provider when operating in “Automatic Mode” \\
+        R31 & The CPMS shall allow its CPO to assign a DSO to a CS as its energy provider  when operating in “Manual Mode” \\
+        \hline
+        R32 & The CPMS should be able to automatically assign a DSO to a CS as its energy provider when operating in “Automatic Mode” \\
         \hline
         %the policy is ONE for the whole CPMS and the CURRENT energy source is one PER-CS!
-        R32 & The CPMS shall allow the CPO to decide the energy source management policies when operating in “Manual Mode” \\
+        R33 & The CPMS shall allow the CPO to decide the energy source management policies when operating in “Manual Mode” \\
         \hline
-        R33 & The CPMS should be able to automatically choose the current energy source for a CS according to the given policy when operating in “Automatic Mode” \\
+        R34 & The CPMS should be able to automatically choose the current energy source for a CS according to the given policy when operating in “Automatic Mode” \\
         \hline
-        R34 & The CPMS shall allow the CPO to choose whether it acts automatically or manually \\
+        R35 & The CPMS shall allow its CPO to assign a nominal-price and a user-price to a CS when operating in “Manual Mode” \\
         \hline
-        R35 & The CPMS shall never take a decision automatically when it is set in “Manual Mode” \\
+        R36 & The CPMS should be able to automatically assign a nominal-price and a user-price to a CS when operating in “Automatic Mode” \\
         \hline
-        R36 & The CPMS should report to the user when they sent invalid input data \\
+        R37 & The CPMS shall allow the CPO to choose its policies for operating in "Automatic Mode" \\
         \hline
-        R37 & The CPMS should report to the user when they attempted to perform an unauthorized action \\
+        R38 & The CPMS shall allow the CPO to choose whether it acts automatically or manually \\
         \hline
-        R38 & The CPMS should report to the user when the platform encountered an error while processing the action \\
+        R39 & The CPMS shall never take a decision automatically when it is set in “Manual Mode” \\
+        \hline
+        R40 & The CPMS should report to the user when they sent invalid input data \\
+        \hline
+        R41 & The CPMS should report to the user when they attempted to perform an unauthorized action \\
+        \hline
+        \end{tabularx}
+    \label{tab:requirements}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.1\hsize}X|>{\hsize=1.9\hsize}X|}
+        \hline
+        \textbf{Id} & \textbf{Requirement} \\
+        %IMPLIES ONLY A RECHARGE ONGOING AT ANY GIVEN TIME
+        \hline
+        R42 & The CPMS should report to the user when the platform encountered an error while processing the action \\
         \hline
         % AUTOMATIC PAYMENT TO DSOs?????????
-        R39 & The CPMS should be able to pay DSOs the amount due for the recharges performed with its energy \\
+        R43 & The CPMS should be able to pay DSOs the amount due for the recharges performed with its energy \\
         \hline
-        R40 & The CPMS should be able to set special offers on CSs for a set time interval \\
+        %R41 & The CPMS should be able to set special offers on CSs for a set time interval \\
+        %\hline
+        R44 & The CPMS should be able to decide whether to start charging the internal batteries of a CS (if present) \\
         \hline
-        R41 & The CPMS should be able to decide whether to start charging the internal batteries of a CS (if present) \\
-        \hline
-        % The eMSP shall be able to pay CPOs for the amount due for recharges performed through them since the last payment
     \end{tabularx}
     \label{tab:requirements-2}
 \end{table}
@@ -703,15 +728,15 @@ The main functionalities of the STB require cooperation of multiple components s
         \hline
         \textbf{Goal} & \textbf{Domain assumption} & \textbf{Requirement} \\
         \hline
-        G1 & D4 & R1, R2, R7, R23, R25 \\ %List
+        G1 & D4 & REDO!!! R1, R2, R7, R23, R25 \\ %List
         \hline
-        G2 & D4, D8, D9, D10 & R1, R2, R8, R9, R28, R29, R30, R31, R32, R33, R40 \\ %Cost
+        G2 & D4, D8, D9, D10 & REDO!!! R1, R2, R8, R9, R28, R29, R30, R31, R32, R33, R40 \\ %Cost
         \hline
-        G3 & D1, D2, D4 & R1, R2, R7, R10, R11, R12, R13, R21 \\ %Book
+        G3 & D1, D2, D4 & REDO!!! R1, R2, R7, R10, R11, R12, R13, R21 \\ %Book
         \hline
-        G4 & D1, D2, D3, D4, D5, D6, D7, D10 & R1, R2, R14, R15, R16, R17, R18, R19, R20, R24, R26, R27 \\ %Monitor
+        G4 & D1, D2, D3, D4, D5, D6, D7, D10 & REDO!!! R1, R2, R14, R15, R16, R17, R18, R19, R20, R24, R26, R27 \\ %Monitor
         \hline
-        G5 & D8, D9, D11 & R30, R31, R32, R33, R34, R35 \\ %Energy Source
+        G5 & D8, D9, D11 & REDO!!! R30, R31, R32, R33, R34, R35 \\ %Energy Source
         \hline
     \end{tabularx}
     \label{tab:requirementsMapping}
@@ -835,7 +860,6 @@ The main functionalities of the STB require cooperation of multiple components s
                 \vspace{6pt}
             \\
             \hline
-            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
             \textbf{Exit condition} & The User booked a recharge at a CS \\
             \hline
             \textbf{Exceptions} & 
@@ -917,7 +941,6 @@ The main functionalities of the STB require cooperation of multiple components s
                 \vspace{6pt}
             \\
             \hline
-            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
             \textbf{Exit condition} & The CS's socket started charging the connected vehicle \\
             \hline
             \textbf{Exceptions} & No exception can happen during within user case. \\
@@ -952,7 +975,6 @@ The main functionalities of the STB require cooperation of multiple components s
                 \vspace{6pt}
             \\
             \hline
-            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
             \textbf{Exit condition} & The booking's charging procedure has ended and the payment has succeeded \\
             \hline
             \textbf{Exceptions} & 
@@ -1002,7 +1024,6 @@ The main functionalities of the STB require cooperation of multiple components s
                 \vspace{6pt}
             \\
             \hline
-            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
             \textbf{Exit condition} & The booking's charging procedure has ended, the payment has succeeded and the User has been notified \\
             \hline
             \textbf{Exceptions} & 
@@ -1053,7 +1074,6 @@ The main functionalities of the STB require cooperation of multiple components s
                 \vspace{6pt}
             \\
             \hline
-            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
             \textbf{Exit condition} & The payment of the fee succeeds \\
             \hline
             \textbf{Exceptions} & 
@@ -1141,7 +1161,6 @@ The main functionalities of the STB require cooperation of multiple components s
                 \vspace{6pt}
             \\
             \hline
-            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
             \textbf{Exit condition} & The CS's DSO and/or battery usage policy has been updated \\
             \hline
             \textbf{Exceptions} & 
@@ -1159,7 +1178,51 @@ The main functionalities of the STB require cooperation of multiple components s
         \end{tabularx}
     \end{table}
     
-    \item [11. CPO toggles the CPMS operating mode] \hfill \\
+    \item [11. CPO assigns nominal-price and user-price to a CS] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & CPO (employee) \\
+            \hline
+            \textbf{Entry condition} & A CPO employee has authorized access to the company's CPMS and performing this task is part of his job, hence reached the CPMS login page. The CPMS must be in “Manual Mode”. \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The CPO employee authenticates with the CPMS and reaches its home page
+                    \item The CPO employee requests a list of the CPMS's CS
+                    \item The CPO employee selects a CS and is presented with its details
+                    \item The CPO employee chooses to alter the CS's nominal-price and user-price
+                    \item The CPO employee assigns new prices to the CS
+                    \item The CPMS communicates the updated prices to the CS
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            \textbf{Exit condition} & The CS's prices have been updated \\
+            \hline
+            \textbf{Exceptions} & 
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item The prices inserted by the CPO employee are invalid 
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In the above situation the CPMS does not updated the CS and presents an error to its user.
+                \vspace{6pt}
+            \\
+            \hline
+        \end{tabularx}
+    \end{table}
+    
+    \item [12. CPO toggles the CPMS operating mode] \hfill \\
     \begin{table}[H]
         \centering
         %space between text and right/left borders
@@ -1183,7 +1246,6 @@ The main functionalities of the STB require cooperation of multiple components s
                 \vspace{6pt}
             \\
             \hline
-            %IF NOT MERGED WITH SCENARIO 4: The User saw the details of the CS their were interested in
             \textbf{Exit condition} & The CPMS's operating mode has been toggled w.r.t. its state before the employee's actions \\
             \hline
             \textbf{Exceptions} & No exception can happen during within user case. \\
@@ -1209,16 +1271,15 @@ The main functionalities of the STB require cooperation of multiple components s
     %trim = left bottom right top
     \begin{figure}[!ht]
         \centering
-        \includegraphics[page={2}, trim=0cm 2.5cm 0cm 2.5cm, width=\linewidth, clip]{UseCases.pdf}
+        \includegraphics[page={2}, trim=0cm 2.6cm 0cm 2.6cm, width=\linewidth, clip]{UseCases.pdf}
         \caption{Registered User}
     \end{figure}
-    
     
     \item \textbf{3. CPO}
     %trim = left bottom right top
     \begin{figure}[!ht]
         \centering
-        \includegraphics[page={1}, trim=7cm 9.2cm 7cm 9.2cm, width=0.6\linewidth, clip]{UseCases.pdf}
+        \includegraphics[page={3}, trim=6.6cm 8.8cm 6.6cm 8.8cm, width=0.6\linewidth, clip]{UseCases.pdf}
         \caption{CPO}
     \end{figure}
 \end{description}
@@ -1238,7 +1299,9 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
         \caption{New user registration}
     \end{figure}
     
-    \item \textbf{1. User login}
+    \newpage
+    
+    \item \textbf{2. User login}
     %trim = left bottom right top
     \begin{figure}[!ht]
         \centering
@@ -1246,8 +1309,79 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
         \caption{User login}
     \end{figure}
     
+    \item \textbf{3. User searching and booking a CS}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={3}, trim=1.3cm 1.5cm 1.3cm 3cm, width=\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{User searching and booking a CS}
+    \end{figure}
+    
+    \item \textbf{4. User deleting one of his bookings}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={4}, trim=7cm 8cm 6cm 3cm, width=0.8\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{User deleting one of his bookings}
+    \end{figure}
+    
+    \item \textbf{5. User starting a charging process}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={5}, trim=1cm 8cm 0.5cm 2cm, width=\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{User starting a charging process}
+    \end{figure}
+    
     \newpage
     
+    \item \textbf{6. User interrupting a charging process}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={6}, trim=1cm 6.5cm 0.5cm 2cm, width=\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{User interrupting a charging process}
+    \end{figure}
+    
+    \item \textbf{7. Charging procedure self-terminates and User receives a notification}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={7}, trim=1cm 11cm 0.2cm 3cm, width=\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{Charging procedure self-terminates and User receives a notification}
+    \end{figure}
+    
+    \item \textbf{8. User does not show up for a booked recharge}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={8}, trim=11cm 12.3cm 8cm 4cm, width=0.3\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{User does not show up for a booked recharge}
+    \end{figure}
+    
+    \item \textbf{9. CPO requests information on DSOs’ energy prices and mix of sources}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={9}, trim=1cm 6.8cm 1.5cm 2.5cm, width=0.9\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{CPO requests information on DSOs’ energy prices and mix of sources}
+    \end{figure}
+    
+    \item \textbf{10. CPO assigns nominal-price, user-price, energy sources and battery usage policies for a CS}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={10}, trim=1cm 1.5cm 1cm 2.5cm, width=0.9\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{CPO assigns nominal-price, user-price, energy sources and battery usage policies for a CS}
+    \end{figure}
+    
+    \item \textbf{11. CPO toggles the CPMS operating mode}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={11}, trim=5cm 9cm 5.7cm 3.5cm, width=0.8\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{CPO toggles the CPMS operating mode}
+    \end{figure}
 \end{description}
 
 \subsubsection{Mapping on requirements}
