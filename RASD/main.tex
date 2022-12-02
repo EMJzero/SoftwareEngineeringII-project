@@ -83,6 +83,8 @@ This document will discuss goals and requirements that regard the system necessa
         %G5 & Allow Charge Point Operators to manage the provider each Charging Station uses to source energy \\
         G5 & Allow Charge Point Operators to manage the energy sources each Charging Station uses \\
         \hline
+        G6 & Allow Charge Point Operators to manage the price of electricity for each Charging Station \\
+        \hline
     \end{tabularx}
     \label{tab:goals}
 \end{table}
@@ -626,13 +628,43 @@ The main functionalities of the STB require cooperation of multiple components s
         \hline
         R10 & The eMSP shall allow a logged-in user to book a recharge at a free socket of a CS for a given time slot \\
         \hline
-        R11 & The eMSP shall allow a logged-in user to cancel any of its booked recharges \\
+        %Hey!
+        %Salve! Mi hai spaventato per un secondo ahahah
+        %Pensavi allo spammer?
+        %Più a Overleaf che esplode, ma anche ahah
+        %In effetti....
+        %Ma il goal che hai detto non era già da qualche parte?
+        %Sorry, ho visto adesso i messaggi, comunque non mi pare sia in altri goal, per quello mi sembrava il caso di metterlo nel quito...
+        %Se non c'è assolutamente, è un goal di fatto
+        %Lo metto
+        %Vai, solo vedi tu se metterlo col 5, oppure come 6, nel caso tu lo metta come 6 c'è da spezzare la tabella del mapping G->D->R
+        %Cioè?? Perche fatto a 6 secondo me è meglio, un po' più chiaro
+        %Sì, non mi sembra sbagliato, è solo che siccome non è proprio esplicito nel documento che ci hanno dato, ci sarei andato cauto, semplicemente generalizzando il 5...
+        %Boh come vuoi, se preferisci cautela che cautela sia, era solo per compartimentalizzare un po' tutto ma fa nulla
+        %Aspe che rileggo bene il doc
+        %Nevermind, dice che i CPO devono poter assegnare i prezzi, quindi direi che come 6 è ampiamente giustificato!
+        %Ok, quindi c'è da rifare il mapping?
+        %Non interamente, lo ho già aggiustato, ma se aggiungi quello come G6, va aggiunto il mapping per il G6, e penso ci sia da rivedere quello del G5!
+        %Ok, ci guardo allora. Qui che stavi facendo?
+        %Stavo aggiustando questo requirement, perchè mancava lo specificare che, sì puoi annullare i booking, ma solo prima che inizino!
+        %E poi stavo facendo il mapping UseCases->Requirements
+        %Ah ok, capito! In effetti se è più esplicito è meglio, Camilli rompe meno ahaha
+        %Sure enough, allora andiamo direi, tanto non dovremmo collidere per le cose che dobbiamo fare ahah
+        %No infatti. Cancello la history?
+        %Mhhh, la storia deve sapere che questa conversazione è avvenuta o no? A te la scelta!
+        %Ma teniamola dai
+        %Fair enough XD
+        %Ho fatto una piccola redact ahaha
+        %Concordo, quello era meglio non tenerlo ahahah (non che fosse errato...)
+        R11 & The eMSP shall allow a logged-in user to cancel any of its booked recharges before their scheduled time \\
         \hline
         R12 & The eMSP shall not allow a user to book a recharge at a socket of a CS which has already been booked for the chosen time slot \\
         \hline
         R13 & The eMSP shall not allow a user to book multiple recharges with overlapping time slots \\
         \hline
-        R14 & The eMSP shall allow a logged-in user to start the charging process for one of their booked recharges \\
+        R14 & The eMSP shall allow a logged-in user to see their bookings \\
+        \hline
+        R15 & The eMSP shall allow a logged-in user to start the charging process for one of their booked recharges \\
         \hline
     \end{tabularx}
     \label{tab:requirements}
@@ -649,60 +681,62 @@ The main functionalities of the STB require cooperation of multiple components s
         \textbf{Id} & \textbf{Requirement} \\
         %IMPLIES ONLY A RECHARGE ONGOING AT ANY GIVEN TIME
         \hline
-        R15 & The eMSP shall not allow a user without a booking to start the charging process \\
+        R16 & The eMSP shall not allow a user without a booking to start the charging process \\
         \hline
-        R16 & The eMSP shall not allow a user to start the charging process as long as the socket is vacant \\
+        R17 & The eMSP shall not allow a user to start the charging process as long as the socket is vacant \\
         \hline
-        R17 & The eMSP should notify a logged-in user when their ongoing charging processes is complete \\
+        R18 & The eMSP should notify a logged-in user when their ongoing charging processes is complete \\
         \hline
-        R18 & The eMSP should notify a logged-in user when their ongoing charging process is terminated due to the expiration of its booked time slot \\
+        R19 & The eMSP should notify a logged-in user when their ongoing charging process is terminated due to the expiration of its booked time slot \\
         \hline
-        R19 & The eMSP shall allow a logged-in user to terminate their charging process earlier \\
+        R20 & The eMSP shall allow a logged-in user to terminate their charging process earlier \\
         \hline
-        R20 & The eMSP should charge a user for everyone of his charging processes as soon as they finish \\
+        R21 & The eMSP should charge a user for everyone of his charging processes as soon as they finish \\
         \hline
-        R21 & The eMSP shall charge a user for a fee if they do not start a recharge during their booking's time slot \\
+        R22 & The eMSP shall charge a user for a fee if they do not start a recharge during their booking's time slot \\
         \hline
-        R22 & The eMSP shall be able to offer its functionalities to multiple users at once \\
+        R23 & The eMSP shall be able to offer its functionalities to multiple users at once \\
         \hline
-        R23 & The eMSP shall be able to pay CPOs for the amount due for recharges performed through them since the last payment \\
+        R24 & The eMSP shall be able to pay CPOs for the amount due for recharges performed through them since the last payment \\
         \hline
-        R24 & The CPMS should be able to acquire location from CSs \\
+        R25 & The CPMS should be able to acquire the location from CSs \\
         \hline
-        R25 & The CPMS should be able to acquire the internal status from CSs \\
+        R26 & The CPMS should be able to acquire the internal status from CSs \\
         \hline
-        R26 & The CPMS should be able to acquire the external status from CSs \\
+        R27 & The CPMS should be able to acquire the external status from CSs \\
         \hline
-        R27 & The CPMS should be able to start charging a vehicle connected to a CS socket \\
+        R28 & The CPMS should be able to start charging a vehicle connected to a CS socket \\
         \hline
-        R28 & The CPMS should be able to monitor the charging process of a vehicle \\
+        R29 & The CPMS should be able to monitor the charging process of a vehicle \\
         \hline
-        R29 & The CPMS should be able to acquire from DSOs their current energy prices \\
+        R30 & The CPMS should be able to acquire from DSOs their current energy prices \\
         \hline
-        R30 & The CPMS should be able to acquire from DSOs their energy mix \\
+        R31 & The CPMS should be able to acquire from DSOs their energy mix \\
         \hline
-        R31 & The CPMS shall allow its CPO to assign a DSO to a CS as its energy provider  when operating in “Manual Mode” \\
+        R32 & The CPMS shall allow its CPO to authenticate with it \\
         \hline
-        R32 & The CPMS should be able to automatically assign a DSO to a CS as its energy provider when operating in “Automatic Mode” \\
+        R33 & The CPMS shall allow its CPO to assign a DSO to a CS as its energy provider  when operating in “Manual Mode” \\
+        \hline
+        R34 & The CPMS should be able to automatically assign a DSO to a CS as its energy provider when operating in “Automatic Mode” \\
         \hline
         %the policy is ONE for the whole CPMS and the CURRENT energy source is one PER-CS!
-        R33 & The CPMS shall allow the CPO to decide the energy source management policies when operating in “Manual Mode” \\
+        R35 & The CPMS shall allow the CPO to decide the energy source management policies when operating in “Manual Mode” \\
         \hline
-        R34 & The CPMS should be able to automatically choose the current energy source for a CS according to the given policy when operating in “Automatic Mode” \\
+        R36 & The CPMS should be able to automatically choose the current energy source for a CS according to the given policy when operating in “Automatic Mode” \\
         \hline
-        R35 & The CPMS shall allow its CPO to assign a nominal-price and a user-price to a CS when operating in “Manual Mode” \\
+        R37 & The CPMS shall allow its CPO to assign a nominal-price and a user-price to a CS when operating in “Manual Mode” \\
         \hline
-        R36 & The CPMS should be able to automatically assign a nominal-price and a user-price to a CS when operating in “Automatic Mode” \\
+        R38 & The CPMS should be able to automatically assign a nominal-price and a user-price to a CS when operating in “Automatic Mode” \\
         \hline
-        R37 & The CPMS shall allow the CPO to choose its policies for operating in "Automatic Mode" \\
+        R39 & The CPMS shall allow the CPO to choose its policies for operating in "Automatic Mode" \\
         \hline
-        R38 & The CPMS shall allow the CPO to choose whether it acts automatically or manually \\
+        R40 & The CPMS shall allow the CPO to choose whether it acts automatically or manually \\
         \hline
-        R39 & The CPMS shall never take a decision automatically when it is set in “Manual Mode” \\
+        R41 & The CPMS shall never take a decision automatically when it is set in “Manual Mode” \\
         \hline
-        R40 & The CPMS should report to the user when they sent invalid input data \\
+        R42 & The CPMS should report to the user when they sent invalid input data \\
         \hline
-        R41 & The CPMS should report to the user when they attempted to perform an unauthorized action \\
+        R43 & The CPMS should report to the user when they attempted to perform an unauthorized action \\
         \hline
         \end{tabularx}
     \label{tab:requirements}
@@ -718,14 +752,14 @@ The main functionalities of the STB require cooperation of multiple components s
         \hline
         \textbf{Id} & \textbf{Requirement} \\
         \hline
-        R42 & The CPMS should report to the user when the platform encountered an error while processing the action \\
+        R44 & The CPMS should report to the user when the platform encountered an error while processing the action \\
         \hline
         % AUTOMATIC PAYMENT TO DSOs?????????
         %R43 & The CPMS should be able to pay DSOs the amount due for the recharges performed with its energy \\
         %\hline
         %R41 & The CPMS should be able to set special offers on CSs for a set time interval \\
         %\hline
-        R43 & The CPMS should be able to decide whether to start charging the internal batteries of a CS (if present) \\
+        R45 & The CPMS should be able to decide whether to start charging the internal batteries of a CS (if present) \\
         \hline
     \end{tabularx}
     \label{tab:requirements-2}
@@ -743,15 +777,28 @@ The main functionalities of the STB require cooperation of multiple components s
         \hline
         \textbf{Goal} & \textbf{Domain assumption} & \textbf{Requirement} \\
         \hline
-        G1 & D4 & R1, R2, R3, R4, R5, R6, R7, R22, R24, R26 \\ %List
+        G1 & D4 & R1, R2, R3, R4, R5, R6, R7, R23, R25, R27 \\ %List
         \hline
-        G2 & D4, D8, D9 & R1, R2, R3, R4, R5, R6, R8, R9, R22, R26, R29, R30 \\ %Cost
+        G2 & D4, D8, D9 & R1, R2, R3, R4, R5, R6, R8, R9, R23, R27 \\ %Cost
         \hline
-        G3 & D1, D2, D4 & R1, R2, R3, R4, R5, R6, R7, R10, R11, R12, R13, R21, R22, R24, R26 \\ %Book
+        G3 & D1, D2, D4 & R1, R2, R3, R4, R5, R6, R7, R10, R11, R12, R13, R22, R23, R25, R27 \\ %Book
         \hline
-        G4 & D1, D2, D3, D4, D5, D6, D7, D10, D11 & R1, R2, R3, R4, R5, R6, R14, R15, R16, R17, R18, R19, R20, R23, R25, R26, R27, R28, R29 \\ %Monitor
+        G4 & D1, D2, D3, D4, D5, D6, D7, D10, D11 & R1, R2, R3, R4, R5, R6, R14, R15, R16, R17, R18, R19, R20, R21, R24, R26, R27, R28, R29, R30 \\ %Monitor
         \hline
-        G5 & D8, D9, D11 & R29, R30, R31, R32, R33, R34, R35, R36, R37, R38, R39, R40, R41, R42, R43 \\ %Energy Source
+        G5 & D1, D4, D8, D9, D11 & R30, R31, R32, R33, R34, R35, R36, R37, R38, R39, R40, R41, R42, R43, R44, R45 \\ %Energy Source
+        %perdonami, devo fare due fix veloci ai numeri, dal 14 va agggiunto +1 perchè ho spostato un requirement...
+        %Sorry sono stupido...
+        %ahaha, tra
+        %Metterei D1 per 5 e 6 che dici??
+        %Sisi, D1 ci vuole quasi sempre ahah
+        %altrimenti ci tocca gestire le colonnine che si rompono
+        %Questi li ho già cambiati tutti
+        %Ops, my bad!
+        %Np!
+        %Torno al mio lavoro ahah!
+        %:thumbs_up:
+        \hline
+        G6 & D1, D4, D10 & R30, R32, R37, R38, R40, R41, R42, R43, R44, R45 \\ %Price
         \hline
     \end{tabularx}
     \label{tab:requirementsMapping}
@@ -1419,11 +1466,33 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
     \setlength{\tabcolsep}{18pt}
     %Row height multiplier
     \renewcommand{\arraystretch}{1.2}
-    \begin{tabularx}{\textwidth}{|>{\hsize=1.2\hsize}X|>{\hsize=0.8\hsize}X|}
+    \begin{tabularx}{\textwidth}{|>{\hsize=0.8\hsize}X|>{\hsize=1.2\hsize}X|}
         \hline
         \textbf{Use case} & \textbf{Requirements} \\
         \hline
-        ... & ... \\
+        1. New user registration & R2, R3, R4, R5, R6, R23 \\
+        \hline
+        2. User login &  R1, R3, R4, R5, R6, R23 \\
+        \hline
+        3. User searching and booking a CS & R1, R3, R4, R5, R6, R7, R8, R9, R10, R12, R13, R23, R25, R27 \\
+        \hline
+        4. User deleting one of his bookings & R1, R3, R4, R5, R6, R11, R14 \\
+        \hline
+        5. User starting a charging process & R1, R3, R4, R5, R6, R14, R15, R16, R17, R18, R19, R21, R23, R24, R26, R28, R29 \\
+        \hline
+        6. User interrupting a charging process & R1, R3, R4, R5, R6, R14, R20, R21, R23, R24, R26, R29 \\
+        \hline
+        7. Charging procedure self terminates and User receives a notification & R1, R3, R4, R5, R18, R19, R23, R24, R26, R29 \\
+        \hline
+        8. User does not show up for a booked recharge & R22, R26 \\
+        \hline
+        9. CPO requests information on DSOs’ energy prices and mix of sources & R29, R30, R32, R42, R43, R44 \\
+        \hline
+        10. CPO assigns energy sources and battery usage policies for a CS & R25, R26, R27, R30, R31, R33, R34, R35, R36, R39, R41, R42, R43, R44, R45 \\
+        \hline
+        11. CPO assigns nominal-price and user-price to a CS & R25, R26, R27, R30, R37, R38, R39, R41, R42, R43, R44 \\
+        \hline
+        12. CPO toggles the CPMS operating mode & R39, R42, R43, R44 \\
         \hline
     \end{tabularx}
     \label{tab:useCasesMapping}
