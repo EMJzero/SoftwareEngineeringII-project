@@ -97,15 +97,15 @@ This document will discuss goals and requirements that regard the system necessa
     \setlength{\tabcolsep}{18pt}
     %Row height multiplier
     \renewcommand{\arraystretch}{1.2}
-    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.7\hsize}X|}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.4\hsize}X|>{\hsize=1.6\hsize}X|}
         \hline
         \textbf{Term} & \textbf{Definition} \\
-        \hline
-        ... & Should we define here what a CPMS, CPO, eMSP, etc. are and should more or less do? \\
         \hline
         Charging Station & Device with a connection to the electric grid which brakes out power to one or more socket(s) for vehicles. Monitoring of each socket's status. \\
         \hline
         Charging Session & The process in which a User performs a recharge of their vehicle. \\
+        \hline
+        Energy source of a Charging Station & Batteries or the DSO currently assigned to the CS, whichever the CS is currently drawing its power from. \\
         \hline
         Charging Station External Status & Number of charging sockets available, their type such as slow/fast/rapid, their cost, and, if all sockets of a certain type are occupied, the estimated amount of time until the first socket of that type is freed. \\
         \hline
@@ -116,6 +116,8 @@ This document will discuss goals and requirements that regard the system necessa
         User-price & Cost of a recharge that is shown to the User when they inspect a CS and is what they are charged for. It is set by the CPO/CPMS on a per-CS basis.\\
         \hline
         Nominal-price & Cost of a recharge at a CS without any discount or offer applied, it is set by the CPO/CPMS. A user-price $<$ nominal-price implies an ongoing special offer. \\
+        \hline
+        Energy source management policy OR Battery usage policy & The global policy used by the CPMS to dynamically decide for each CS its energy source or if ts should start charging its batteries. \\
         \hline
     \end{tabularx}
     \label{tab:definitions}
@@ -262,8 +264,9 @@ In order to represent more clearly whether a phenomenon is world or machine cont
 
 \begin{enumerate}
     \item The provided document describing the project: \textit{Assignment RDD AY 2022-2023-v3}.
-    \item \href{https://www.platformelectromobility.eu/2022/05/17/ev-charging-how-to-tap-in-the-grid-smartly/}{Platform for Electromobility. EV Charging: How to tap in the grid smartly?}
-    \item \href{https://mobilityintegrationsymposium.org/wp-content/uploads/sites/10/2018/11/4A_3_Emob18_024_paper_Filipe_Campos.pdf}{F. Campos, L. Marques, and K. Kotsalos, Electric Vehicle CPMS and Secondary Substation Management}.
+    \item The Software Engineering 2 course held by Prof.s Camilli Matteo, Di Nitto Elisabetta and Rossi Matteo Giovanni.
+    \item \textit{ISO/IEC/IEEE 29148:2011(E)} standard for Requirement Engineering.
+    \item Project of last year provided as an assignment.
 \end{enumerate}
 
 \subsection{Document Structure}
@@ -342,12 +345,27 @@ Finally \hyperref[section:references]{\textbf{references}} are reported.
 \end{description}
 
 \subsubsection{Class Diagram}
+\label{subsection:classDiagram}
 
 UML class diagram showing the entities of interest for the system and their relationships. \\
 \\
-A notably missing entity is \textit{vehicle}, which was deemed not necessary, since its charge status is modelled within the socket it is connected to and the user might not necessarily be the owner of the vehicle he recharges (ex: rented vehicle), so binding the two might have been counterproductive. \\
+A notably missing relationship is the one between \textit{Vehicle} and \textit{User}, which was deemed not necessary since an instance of the latter should as well be able to book recharges for vehicles they don't own (Ex: rented electric cars), hence binding the two might have been counterproductive. \\
 \\
-\textit{Unregistered User} is not present and modelled as a flag of User. !!SHOULD WE MODEL IT? Since its not connected to any booking, a significant difference with User...!! 
+The \textit{Policy} entity models the criteria the CPMS uses once set to "Automatic Mode" to decide DSOs, energy source and prices for CS. \\
+\\
+Meanwhile \textit{Booking} presents the \textit{isActive} flag, which is true only when the charging process associated to it is going on. \\
+\\
+The flag \textit{chargingFromBatteries} on \textit{CS} indicates whether the current source of energy the CS is using to charge attached vehicles are its batteries or the associated DSO.
+
+\begin{figure}[!ht]
+    %trim = left bottom right top
+    \centerline{
+        \includegraphics[page={1}, width=1.1\linewidth, trim=7.24cm 9cm 2.28cm 0cm, clip]{UML.pdf} %angle=-90
+    }
+    \caption{Class diagram}
+\end{figure}
+
+\newpage
 
 \subsubsection{State Diagrams}
 
@@ -368,14 +386,14 @@ Those following are representations of the most important interactions that invo
         \caption{User searching CS and booking a recharge}
     \end{figure}
     
-    \newpage
-    
     \item \textbf{3. User deleting a booking}
     \begin{figure}[!ht]
         %trim = left bottom right top
         \includegraphics[page={3}, width=\linewidth, trim=7cm 4cm 7cm 4cm, clip]{StateCharts.pdf}
         \caption{User deleting a booking}
     \end{figure}
+    
+    \newpage
     
     \item \textbf{4. User performing a charging session}
     \begin{figure}[!ht]
@@ -390,8 +408,6 @@ Those following are representations of the most important interactions that invo
         \includegraphics[page={5}, width=\linewidth, trim=1cm 4cm 1cm 4cm, clip]{StateCharts.pdf}
         \caption{CPO acquiring information on DSOs' energy prices and mixes}
     \end{figure}
-    
-    \newpage
     
     \item \textbf{6. CPO chooses energy sources and battery usage policies for a CS}
     \begin{figure}[!ht]
@@ -492,7 +508,7 @@ The CPO will as well be able to let the CPMS take decisions regarding the prices
         \textbf{Assumption} & \textbf{Description} \\
         \hline
         %D1 & To change the sockets of a CS, the whole CS needs to be replaced \\
-        D1 & CSs never disconnect from their CPMSs not malfunction in any way as long as they have bookings or are in use \\
+        D1 & CSs never disconnect from their CPMSs nor malfunction in any way as long as they are booked or in use \\
         \hline
         D2 & The only way to charge at a CS is by booking it via the eMSP \\
         \hline
@@ -701,16 +717,15 @@ The main functionalities of the STB require cooperation of multiple components s
     \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.1\hsize}X|>{\hsize=1.9\hsize}X|}
         \hline
         \textbf{Id} & \textbf{Requirement} \\
-        %IMPLIES ONLY A RECHARGE ONGOING AT ANY GIVEN TIME
         \hline
         R42 & The CPMS should report to the user when the platform encountered an error while processing the action \\
         \hline
         % AUTOMATIC PAYMENT TO DSOs?????????
-        R43 & The CPMS should be able to pay DSOs the amount due for the recharges performed with its energy \\
-        \hline
+        %R43 & The CPMS should be able to pay DSOs the amount due for the recharges performed with its energy \\
+        %\hline
         %R41 & The CPMS should be able to set special offers on CSs for a set time interval \\
         %\hline
-        R44 & The CPMS should be able to decide whether to start charging the internal batteries of a CS (if present) \\
+        R43 & The CPMS should be able to decide whether to start charging the internal batteries of a CS (if present) \\
         \hline
     \end{tabularx}
     \label{tab:requirements-2}
@@ -728,19 +743,21 @@ The main functionalities of the STB require cooperation of multiple components s
         \hline
         \textbf{Goal} & \textbf{Domain assumption} & \textbf{Requirement} \\
         \hline
-        G1 & D4 & REDO!!! R1, R2, R7, R23, R25 \\ %List
+        G1 & D4 & R1, R2, R3, R4, R5, R6, R7, R22, R24, R26 \\ %List
         \hline
-        G2 & D4, D8, D9, D10 & REDO!!! R1, R2, R8, R9, R28, R29, R30, R31, R32, R33, R40 \\ %Cost
+        G2 & D4, D8, D9 & R1, R2, R3, R4, R5, R6, R8, R9, R22, R26, R29, R30 \\ %Cost
         \hline
-        G3 & D1, D2, D4 & REDO!!! R1, R2, R7, R10, R11, R12, R13, R21 \\ %Book
+        G3 & D1, D2, D4 & R1, R2, R3, R4, R5, R6, R7, R10, R11, R12, R13, R21, R22, R24, R26 \\ %Book
         \hline
-        G4 & D1, D2, D3, D4, D5, D6, D7, D10 & REDO!!! R1, R2, R14, R15, R16, R17, R18, R19, R20, R24, R26, R27 \\ %Monitor
+        G4 & D1, D2, D3, D4, D5, D6, D7, D10, D11 & R1, R2, R3, R4, R5, R6, R14, R15, R16, R17, R18, R19, R20, R23, R25, R26, R27, R28, R29 \\ %Monitor
         \hline
-        G5 & D8, D9, D11 & REDO!!! R30, R31, R32, R33, R34, R35 \\ %Energy Source
+        G5 & D8, D9, D11 & R29, R30, R31, R32, R33, R34, R35, R36, R37, R38, R39, R40, R41, R42, R43 \\ %Energy Source
         \hline
     \end{tabularx}
     \label{tab:requirementsMapping}
 \end{table}
+
+\newpage
 
 \subsubsection{Use cases}
 %MAYBE BEFORE REQUIREMENTS
@@ -832,6 +849,8 @@ The main functionalities of the STB require cooperation of multiple components s
         \end{tabularx}
     \end{table}
     
+    \newpage
+    
     \item [3. User searching and booking a CS] \hfill \\
     \begin{table}[H]
         \centering
@@ -915,6 +934,8 @@ The main functionalities of the STB require cooperation of multiple components s
         \end{tabularx}
     \end{table}
     
+    \newpage
+    
     \item [5. User starting a charging process] \hfill \\
     \begin{table}[H]
         \centering
@@ -991,6 +1012,8 @@ The main functionalities of the STB require cooperation of multiple components s
             \hline
         \end{tabularx}
     \end{table}
+    
+    \newpage
     
     \item [7. Charging procedure self-terminates and User receives a notification] \hfill \\
     \begin{table}[H]
@@ -1134,6 +1157,8 @@ The main functionalities of the STB require cooperation of multiple components s
         \end{tabularx}
     \end{table}
     
+    \newpage
+    
     \item [10. CPO assigns energy sources and battery usage policies for a CS] \hfill \\
     \begin{table}[H]
         \centering
@@ -1177,6 +1202,8 @@ The main functionalities of the STB require cooperation of multiple components s
             \hline
         \end{tabularx}
     \end{table}
+    
+    \newpage
     
     \item [11. CPO assigns nominal-price and user-price to a CS] \hfill \\
     \begin{table}[H]
@@ -1254,6 +1281,8 @@ The main functionalities of the STB require cooperation of multiple components s
     \end{table}
 \end{description}
 
+\newpage
+
 \subsubsection{Use case diagrams}
 
 \begin{description}
@@ -1261,17 +1290,15 @@ The main functionalities of the STB require cooperation of multiple components s
     %trim = left bottom right top
     \begin{figure}[!ht]
         \centering
-        \includegraphics[page={1}, trim=7cm 9.2cm 7cm 9.2cm, width=0.6\linewidth, clip]{UseCases.pdf}
+        \includegraphics[page={1}, trim=7cm 9.7cm 7cm 9.6cm, width=0.6\linewidth, clip]{UseCases.pdf}
         \caption{Unregistered User}
     \end{figure}
-    
-    \newpage
     
     \item \textbf{2. Registered User}
     %trim = left bottom right top
     \begin{figure}[!ht]
         \centering
-        \includegraphics[page={2}, trim=0cm 2.6cm 0cm 2.6cm, width=\linewidth, clip]{UseCases.pdf}
+        \includegraphics[page={2}, trim=0cm 2.8cm 0cm 2.7cm, width=\linewidth, clip]{UseCases.pdf}
         \caption{Registered User}
     \end{figure}
     
@@ -1279,7 +1306,7 @@ The main functionalities of the STB require cooperation of multiple components s
     %trim = left bottom right top
     \begin{figure}[!ht]
         \centering
-        \includegraphics[page={3}, trim=6.6cm 8.8cm 6.6cm 8.8cm, width=0.6\linewidth, clip]{UseCases.pdf}
+        \includegraphics[page={3}, trim=6.6cm 8.8cm 6.6cm 8.8cm, width=0.8\linewidth, clip]{UseCases.pdf}
         \caption{CPO}
     \end{figure}
 \end{description}
@@ -1451,7 +1478,11 @@ As mentioned in previous sections, the system should be accessible both on a Des
 \section{Formal Analysis Using Alloy}
 \label{section:alloy}
 
-Some Bla Bla Bla on how much Alloy s*cks here...
+Follows a formal analysis of the system discussed in this document using Alloy, a formal language used to specify software models. This aims to prove that the model's constraints are satisfiable by instances that allow for the goals of the system to be archived.\\
+\\
+All classes modelled in the \hyperref[subsection:classDiagram]{\textbf{class diagram}} are present in this model as \textit{signatures}, together with those attributes that were deemed better modelled by dedicated \textit{signatures} rather than basic types. Note that the representation of time used within \textit{Date} is the same as the Unix Time, and the \textit{Now} signature is randomly chosen during the evaluation of the model to represent the current time. \\
+\\
+The present \textit{facts} model the impact of requirements on the model, while \textit{predicates} allow for the \hyperref[subsec:prodfunctions]{\textbf{product functions}} previously described. \\
 
 %\bgroup\obeylines \code{
 %    This is alloy
@@ -1459,84 +1490,203 @@ Some Bla Bla Bla on how much Alloy s*cks here...
 %\egroup
 
 \begin{ffcode}
-    sig Int {}
-    sig Float {}
-    sig String {}
-    sig Date {}
+    sig Date {
+	unixTime: one Int
+    } {
+    	unixTime >= 0
+    }
+    //Radomly chosen by Alloy
+    one sig Now extends Date {}
+    
     sig Location {}
+    sig Email {}
+    sig UserName {}
+    sig Password {}
+    sig CompanyName {}
+    sig PaymentMethod {}
     
     abstract sig Bool {}
     one sig True extends Bool {}
     one sig False extends Bool {}
     
     sig User {
-        userName: one String,
-        email: one String,
-        password: one String,
-        paymentMethod: one String,
-        bookings: set Booking
+    	userName: one UserName,
+    	email: one Email,
+    	password: one Password,
+    	paymentMethod: one PaymentMethod,
+    	bookings: set Booking
+    } {
+    	//No user can have two overlapping bookings
+    	all b1, b2: Booking | (b1 in bookings and b2 in bookings)
+    	implies
+    	(b1 = b2 or (b1.startDate.unixTime < b2.startDate.unixTime and b1.endDate.unixTime <= b2.startDate.unixTime) or
+    	(b2.startDate.unixTime < b1.startDate.unixTime and b2.endDate.unixTime <= b1.startDate.unixTime))
     }
     
     //Force that a booking of a eMSP is made by a user registered in that eMSP, even tho the eMSP is only one...
     sig Booking {
-        startDate: one Date,
-        endDate: one Date,
-        isActive: Boolean
+    	startDate: one Date,
+    	endDate: one Date,
+    	isActive: one Bool,
+    	socket: one Socket
+    } {
+    	startDate.unixTime < endDate.unixTime
+    	and (isActive = True implies startDate.unixTime <= Now.unixTime and Now.unixTime <= endDate.unixTime)
+    	and (isActive = True implies socket.connectedVehicle != none)
     }
     
     //For our interests, it is a singleton
     one sig eMSP {
-        users: set User,
-        knownCPMSs: some CPMS,
-        bookings: set Booking
+    	users: some User,
+    	knownCPMSs: some CPMS,
+    	bookings: some Booking
     }
     
     //The CS->CPO one-to-one relation can be inferred by going through here
     sig CPMS {
-        CSs: some CS,
-        knownDSOs: some DSO,
-        CPO: one CPO
+    	CSs: some CS,
+    	knownDSOs: some DSO,
+    	owner: one CPO,
+    	policy: one Policy
+    }
+    
+    sig Policy {
+    	weights: set Int,
+    	thresholds: set Int
+    } {
+    	all w: Int | w in weights implies w >= 0
+    	and all t: Int | t in thresholds implies t >= 0
     }
     
     sig CS {
-        socketCount: one Int,
-        location: one Location,
-        nominalPrice: one Float,
-        userPrice: one Float,
-        sockets: some Socket,
-        batteries: set Battery,
-        currentDSO: one DSO
+    	//Do we really need socketCount?
+    	socketCount: one Int,
+    	location: one Location,
+    	nominalPrice: one Int,
+    	userPrice: one Int,
+    	chargingFromBatteries: one Bool,
+    	sockets: some Socket,
+    	batteries: set Battery,
+    	currentDSO: one DSO
+    } {
+    	socketCount > 0
+    	and nominalPrice > 0
+    	and userPrice > 0
+    	and userPrice <= nominalPrice
+    	and nominalPrice >= currentDSO.price
     }
     
+    sig Connector {}
+    
     sig Socket {
-        connector: one String,
-        maxPower: one Float,
-        currentPower: one Float,
-        free: one Bool,
-        //Maybe is better to move those to the eMSP...
-        bookings: set Booking
+    	connector: one Connector,
+    	maxPower: one Int,
+    	currentPower: one Int,
+    	connectedVehicle: lone Vehicle
+    } {
+    	maxPower > 0
+    	and currentPower >= 0
+    	and currentPower <= maxPower
+    }
+    
+    sig Vehicle {
+    	chargePerc: one Int
+    } {
+    	chargePerc >= 0 and chargePerc <= 10
     }
     
     sig CPO {
-        name: one String
+    	name: one CompanyName
     }
     
     sig DSO {
-        name: one String,
-        price: one Float,
-        energyMix: one EnergyMix
+    	name: one CompanyName,
+    	price: one Int,
+    	energyMix: one EnergyMix
+    } {
+    	price > 0
     }
     
     sig EnergyMix {
-        oilAndGas: Float,
-        ccgt: Float,
-        coal: Float,
-        nuclear: Float,
-        hydroelectric: Float,
-        otherRenewableSources: Float
+    	oilAndGas: Int,
+    	ccgt: Int,
+    	coal: Int,
+    	nuclear: Int,
+    	hydroelectric: Int,
+    	otherRenewableSources: Int
     } {
-        this.oilAndGas + this.ccgt + this.coal + this.nuclear + this.hydroelectric + this.otherRenewableSources = 1
+    	//The sum will need to reach 100 in reality, but here we are working with 4-bit integers
+    	oilAndGas + ccgt + coal + nuclear + hydroelectric + otherRenewableSources = 10
+    	and oilAndGas >= 0
+    	and ccgt >= 0
+    	and coal >= 0
+    	and nuclear >= 0
+    	and hydroelectric >= 0
+    	and otherRenewableSources >= 0
     }
+    
+    sig Battery {
+    	capacitymAp: one Int,
+    	chargeLevel: one Int
+    } {
+    	capacitymAp > 0 and
+    	chargeLevel >= 0 and chargeLevel <= 10
+    }
+    
+    fact noCPOsWithSameName {
+    	no c1, c2: CPO | c1 != c2 and c1.name = c2.name
+    }
+    
+    fact noDSOWIthSameName {
+    	no d1, d2: DSO | d1 != d2 and d1.name = d2.name
+    }
+    
+    fact noCPODSOWithSameName {
+    	no c: CPO, d: DSO | c.name = d.name
+    }
+    
+    fact CPOOneToOneCPMS {
+    	no cp1, cp2: CPMS | cp1 != cp2 and cp1.owner = cp2.owner
+    }
+    
+    fact noBookingsWithoutUsers {
+    	all b: Booking | (one u: User | b in u.bookings)
+    }
+    
+    fact noExpiredBookings {
+    	all b: Booking | b.endDate.unixTime >= Now.unixTime
+    }
+    
+    fact noOverlappingSocketBookings {
+    	/*
+    	or ((b1.startDate.unixTime < b2.startDate.unixTime implies b1.endDate.unixTime <= b2.startDate.unixTime) and (b1.startDate.unixTime > b2.startDate.unixTime implies b2.endDate.unixTime <= b1.startDate.unixTime))
+    	*/
+    	all b1, b2: Booking | (b1 = b2 or b1.socket != b2.socket or (b1.startDate.unixTime < b2.startDate.unixTime and b1.endDate.unixTime <= b2.startDate.unixTime)
+    	or (b2.startDate.unixTime < b1.startDate.unixTime and b2.endDate.unixTime <= b1.startDate.unixTime))
+    }
+    
+    fact socketFreeIfNotBooked {
+    	all s: Socket | ((no b: Booking | b.socket = s)
+    	implies 
+    	no s.connectedVehicle)
+    }
+    
+    fact socketNotFreeIfActiveBooking {
+    	all s: Socket | ((some b: Booking | b.socket = s and b.isActive = True)
+    	implies 
+    	s.connectedVehicle != none)
+    }
+    
+    fact allCSHaveACPMS {
+    	//no cs: CS | (no cpm: CPMS | (cs in cpm.CSs))
+    	all cs: CS | (one cpm: CPMS | cs in cpm.CSs)
+    }
+    
+    fact uniqueSocketsForCS {
+    	no cs1, cs2: CS | cs1 != cs2 and (some s: Socket | s in cs1.sockets and s in cs2.sockets)
+    }
+    
+    run {} for 12 but 6 Int, exactly 3 User, exactly 3 CS, exactly 2 CPMS, exactly 3 Booking
     
 \end{ffcode}
 
@@ -1551,18 +1701,18 @@ Some Bla Bla Bla on how much Alloy s*cks here...
     \hline
     \textbf{Task} & \textbf{Time spent} \\
     \hline
-    Introduction & $\infty h$ \\
+    Introduction & $10\ h$ \\
     \hline
-    Overall Description & $\infty h$ \\
+    Overall Description & $15\ h$ \\
     \hline
-    Specific Requirements & $\infty h$ \\
+    Specific Requirements & $14\ h$ \\
     \hline
-    Formal Analysis & $\infty h$ \\
+    Formal Analysis & $6\ h$ \\
     \hline
-    Other & $\infty h$ \\
+    Other & $3\ h$ \\
     \hline
     \hline
-    Total & $5*\infty h$ \\
+    Total & $48 h$ \\
     \hline
 \end{tabular}
 
@@ -1589,5 +1739,12 @@ Some Bla Bla Bla on how much Alloy s*cks here...
 
 \section{References}
 \label{section:references}
+
+\begin{enumerate}
+    \item \href{https://www.platformelectromobility.eu/2022/05/17/ev-charging-how-to-tap-in-the-grid-smartly/}{Platform for Electromobility. EV Charging: How to tap in the grid smartly?}.
+    \item \href{https://mobilityintegrationsymposium.org/wp-content/uploads/sites/10/2018/11/4A_3_Emob18_024_paper_Filipe_Campos.pdf}{F. Campos, L. Marques, and K. Kotsalos, Electric Vehicle CPMS and Secondary Substation Management}.
+    \item \href{https://doi.org/10.1145/3297067.3297078}{Shu Su, Hui Yan, and Ning Ding. 2018. Machine Learning-Based Charging Network Operation Service Platform Reservation Charging Service System. In Proceedings of the 2018 International Conference on Signal Processing and Machine Learning (SPML '18). Association for Computing Machinery, New York, NY, USA, 1–5}.
+    \item Jan Mrkos, Antonín Komenda, and Michal Jakob. 2018. Revenue Maximization for Electric Vehicle Charging Service Providers Using Sequential Dynamic Pricing. In Proceedings of the 17th International Conference on Autonomous Agents and MultiAgent Systems (AAMAS '18). International Foundation for Autonomous Agents and Multiagent Systems, Richland, SC, 832–840.
+\end{enumerate}
 
 \end{document}
