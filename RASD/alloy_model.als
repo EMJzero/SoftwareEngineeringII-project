@@ -56,6 +56,7 @@ one sig eMSP {
 
 //The CS->CPO one-to-one relation can be inferred by going through here
 sig CPMS {
+	operatingManually: one Bool,
 	CSs: some CS,
 	knownDSOs: some DSO,
 	owner: one CPO,
@@ -197,5 +198,14 @@ fact allCSHaveACPMS {
 fact uniqueSocketsForCS {
 	no cs1, cs2: CS | cs1 != cs2 and (some s: Socket | s in cs1.sockets and s in cs2.sockets)
 }
+
+//User registration
+//User booking
+//Booking deletion
+//Start charging process
+//End charge
+//Assign energy source and policy
+//Change nominal and user price
+
 
 run {} for 12 but 6 Int, exactly 3 User, exactly 3 CS, exactly 2 CPMS, exactly 3 Booking

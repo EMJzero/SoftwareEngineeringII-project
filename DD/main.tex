@@ -1,0 +1,237 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[inkscapeformat=pdf]{svg}
+\usepackage{placeins}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{ffcode}
+\usepackage{graphicx}
+
+\usepackage[margin=2cm]{geometry}
+
+\def\code#1{{\texttt{#1}}}
+
+\title{%
+  \textbf{DD} \\
+  \large Software Engineering Project \\ A.Y. 2022-2023}
+
+\author{Marco Ronzani, Alessandro Sassi}
+
+\date{December 2022}
+
+\begin{document}
+
+\maketitle
+
+\doublespacing
+\tableofcontents
+\singlespacing
+
+\section{Introduction}
+\label{section:introduction}
+
+\subsection{Purpose}
+
+Electric vehicles are starting to grow in number, and their takeover of combustion engines is bound to happen, consequently to support such a thriving trend adequate easy access to charging stations is of utmost importance. In this landscape the goal of eMall is to allow owners of electric vehicles to easily know where charging stations are and carefully plan their charging process according to their schedules at any such station. \\
+\\
+This document will follow up on the RASD document with a discussion of the architectural design of the system, its main architectural components and their interfaces. It will also cover the plans for implementation and integration, as well as those for testing, with the goal of guiding the development process. \\
+
+\subsection{Scope}
+
+\subsection{Definitions, Acronyms and Abbreviations}
+
+\subsubsection{Definitions}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.4\hsize}X|>{\hsize=1.6\hsize}X|}
+        \hline
+        \textbf{Term} & \textbf{Definition} \\
+        \hline
+        Charging Station & Device with a connection to the electric grid which brakes out power to one or more socket(s) for vehicles. Monitoring of each socket's status. \\
+        \hline
+        Socket & One of the charging outlets available at a CS where a vehicle connects, its type determines the vehicles that can connect. \\
+        \hline
+        Charging Session & The process in which a User performs a recharge of their vehicle at a specific socket. \\
+        \hline
+        Energy source of a Charging Station & Batteries or the DSO currently assigned to the CS, whichever the CS is currently drawing its power from. \\
+        \hline
+        Charging Station External Status & Number of charging sockets available, their type such as slow/fast/rapid, their cost, and, if all sockets of a certain type are occupied, the estimated amount of time until the first socket of that type is freed. \\
+        \hline
+        Charging Station Internal Status & Amount of energy available in the batteries, if any, number of vehicles being charged and, for each charging vehicle, amount of power absorbed and time left to the end of the recharge. \\
+        \hline
+        Energy Source & Method of energy production that results in a known fraction of the energy supplied to an endpoint in the electric grip. \\
+        \hline
+        User-price & Cost of a recharge that is shown to the User when they inspect a CS and is what they are charged for. It is set by the CPO/CPMS on a per-CS basis.\\
+        \hline
+        Nominal-price & Cost of a recharge at a CS without any discount or offer applied, it is set by the CPO/CPMS. A user-price $<$ nominal-price implies an ongoing special offer. \\
+        \hline
+        Energy source management policy OR Battery usage policy & The global policy used by the CPMS to dynamically decide for each CS its energy source or whether it should start charging its batteries. \\
+        \hline
+    \end{tabularx}
+    \label{tab:definitions}
+\end{table}
+
+\subsubsection{Acronyms}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.3\hsize}X|>{\hsize=1.7\hsize}X|}
+        \hline
+        \textbf{Acronym} & \textbf{Full Name} \\
+        \hline
+        eMall & Electric Mobility for All \\
+        \hline
+        eMSP & Electric Mobility Service Provider \\
+        \hline
+        CPO & Charging Point Operator \\
+        \hline
+        CPMS & Charge Point Management System \\
+        \hline
+        CS & Charging Station \\
+        \hline
+        DSO & Distribution System Operator \\
+        \hline
+        STB & System-To-Be \\
+        \hline
+        OS & Operating system \\
+        \hline
+    \end{tabularx}
+    \label{tab:acronyms}
+\end{table}
+
+\subsection{Revision History}
+
+\subsection{Reference Documents}
+
+\subsection{Document Structure}
+
+\section{Architectural Design}
+
+%For now considering: Express (NodeJs) + MySQL/Postgre
+
+%4-tier architecture (places where layers are deployed) both for eMSP and CPMS:
+% >Presentation/Client
+% >Web Server
+% >App Server
+% >DB Server
+
+%Architettura monolitica, vecchio stile
+%Giustificazione: la abbiamo progettata così che sia facilmente divisibile in microservice qualora il carico sul sisteme richedesse la distribuzione delle funzionalità su più macchine. Inoltre i benefici alla sicurezza di avera un sistema monolitico non sono trascurabili.
+
+%4-layer to map over the physical entities (not 1:1 necessarily)
+%http://www.hanselman.com/blog/a-reminder-on-threemulti-tierlayer-architecturedesign-brought-to-you-by-my-late-night-frustrations
+% >Presentation
+% >Business logic
+% >Data Access
+% >Data Store
+
+%Server 1: eMSP + DB
+%Server 2: CPMS + DB
+
+%CS client del CPMS
+
+\subsection{Overview: High-level components and their interaction}
+
+\subsection{Component View}
+
+\subsubsection{Application Component}
+
+\subsubsection{Web Server Component}
+
+\subsubsection{Application Server Component}
+
+\subsubsection{Data Components}
+
+%Due E-R diagrams per eMSP-DB e CPMS-DB
+
+\subsubsection{External Systems}
+
+%DSO
+%Payment
+
+\subsection{Deployment View}
+
+\subsection{Runtime View}
+
+\subsection{Component Interfaces}
+
+\subsection{Selected Architectural Styles and Patterns}
+
+\subsection{Other Design Decision}
+
+\section{User Interface Design}
+
+\section{Requirements Traceability}
+
+\section{Implementation, Integration and Test Plan}
+
+%Bottom-up
+
+\section{Effort Spent}
+
+\subsection{Ronzani Marco - mat: 224578}
+
+\begin{tabular}{|l|l|}
+    \hline
+    \textbf{Task} & \textbf{Time spent} \\
+    \hline
+    Introduction & $\infty h$ \\
+    \hline
+    Architectural Design & $\infty h$ \\
+    \hline
+    User Interface Design & $\infty h$ \\
+    \hline
+    Requirements Traceability & $\infty h$ \\
+    \hline
+    Implementation, Integration and Test Plan & $\infty h$ \\
+    \hline
+    Other & $\infty h$ \\
+    \hline
+    \hline
+    Total & $5*\infty h$ \\
+    \hline
+\end{tabular}
+
+\subsection{Sassi Alessandro - mat: ...}
+
+\begin{tabular}{|l|l|}
+    \hline
+    \textbf{Task} & \textbf{Time spent} \\
+    \hline
+    Introduction & $\infty h$ \\
+    \hline
+    Architectural Design & $\infty h$ \\
+    \hline
+    User Interface Design & $\infty h$ \\
+    \hline
+    Requirements Traceability & $\infty h$ \\
+    \hline
+    Implementation, Integration and Test Plan & $\infty h$ \\
+    \hline
+    Other & $\infty h$ \\
+    \hline
+    \hline
+    Total & $5*\infty h$ \\
+    \hline
+\end{tabular}
+
+\newpage
+
+\section{References}
+
+\end{document}
