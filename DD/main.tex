@@ -145,19 +145,94 @@ This document will follow up on the RASD document with a discussion of the archi
 
 %CS client del CPMS
 
-\subsection{Overview: High-level components and their interaction}
+\subsection{Overview}
+
+\begin{itemize}
+    \item \textbf{eMSP Web Server} \\
+        Back-end component that interfaces the User's web browser with the other application services in the eMSP's back-end. It handles HTTP requests arriving from user-devices by routing them to the corresponding components that can respond to them.
+    \item \textbf{eMSP App Server} \\
+        aaa
+    \item \textbf{eMSP DB} \\
+        aaa
+    \item \textbf{CPMS Web Server} \\
+        Back-end component that interfaces the CPO Employees' web browser and the back-ends of the eMSP with the other application services in the CPMS's back-end. It handles HTTP requests arriving from the outside by routing them to the corresponding components that can respond to them.
+    \item \textbf{CPMS App Server} \\
+        aaa
+    \item \textbf{CPMS DB} \\
+        aaa
+    \item \textbf{CS} \\
+        aaa
+    \item \textbf{DSO} \\
+        aaa
+\end{itemize}
 
 \subsection{Component View}
 
+COMPONENT DIAGRAM HERE
+
 \subsubsection{Application Component}
+
+The client devices use a web browser. \\
+\\
+The CPO's Employees devices need a web browser as well.
 
 \subsubsection{Web Server Component}
 
-\subsubsection{Application Server Component}
+Both the \textbf{eMSP Web Server} and the \textbf{CPMS Web Server} contain a Reverse Proxy component that ... 
 
-\subsubsection{Data Components}
+\subsubsection{eMSP Application Server Component}
 
-%Due E-R diagrams per eMSP-DB e CPMS-DB
+\begin{itemize}
+    \item \textbf{Authentication} \\
+        aaa
+    \item \textbf{Login} \\
+        aaa
+    \item \textbf{Register} \\
+        aaa
+    \item \textbf{SearchCS} \\
+        aaa
+    \item \textbf{BookingsManager} \\
+        aaa
+    \item \textbf{RechargeManager} \\
+        aaa
+    \item \textbf{PaymentModule} \\
+        aaa
+    \item \textbf{DataAccess} \\
+        aaa
+\end{itemize}
+
+\subsubsection{CPMS Application Server Component}
+
+\begin{itemize}
+    \item \textbf{Authentication} \\
+        aaa
+    \item \textbf{Login} \\
+        aaa
+    \item \textbf{PolicyManager} \\
+        aaa
+    \item \textbf{CSDSOManager} \\
+        aaa
+    \item \textbf{CSPricesManager} \\
+        aaa
+    \item \textbf{ModeSelector} \\
+        aaa
+    \item \textbf{CSList} \\
+        aaa
+    \item \textbf{RechargeManager} \\
+        aaa
+    \item \textbf{DSOInformation} \\
+        aaa
+    \item \textbf{DataAccess} \\
+        aaa
+\end{itemize}
+
+\subsubsection{eMSP Data Components}
+
+%E-R diagram
+
+\subsubsection{CPMS Data Components}
+
+%E-R diagram
 
 \subsubsection{External Systems}
 
