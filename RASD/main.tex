@@ -121,7 +121,9 @@ This document will discuss goals and requirements that regard the system necessa
         \hline
         Nominal-price & Cost of a recharge at a CS without any discount or offer applied, it is set by the CPO/CPMS. A user-price $<$ nominal-price implies an ongoing special offer. \\
         \hline
-        Energy source management policy OR Battery usage policy & The global policy used by the CPMS to dynamically decide for each CS its energy source or whether it should start charging its batteries. \\
+        Energy source management policy OR Battery usage policy & A per-CS policy given them by the CPMS to allow them to dynamically decide whether to acquire energy from their assigned DSO or from their batteries and when to charge their batteries with energy from their DSO. \\
+        \hline
+        Charge Point Management System's policy for “Automatic Mode” & The global policy used by the CPMS to operate autonomously, its mainly built around thresholds and weights to allow the CPMS to decide prices and battery usage policies for its CSs. \\
         \hline
     \end{tabularx}
     \label{tab:definitions}
@@ -252,7 +254,9 @@ In order to represent more clearly whether a phenomenon is world or machine cont
         %\hline
         SP10 & WC MO & CPOs update batteries information and batteries usage policies for their CSs \\
         \hline
-        SP11 & MC WO & The eMSP transfers the amount due to CPOs for performed recharges \\
+        SP11 & WC MO & CPOs update the policy used by their CPMSs to operate autonomously \\
+        \hline
+        SP12 & MC WO & The eMSP transfers the amount due to CPOs for performed recharges \\
         \hline
     \end{tabularx}
     \label{tab:shared_phenomena}
@@ -345,9 +349,15 @@ Finally \hyperref[section:references]{\textbf{references}} are reported.
     \item [9. CPO chooses prices, energy sources and battery usage policies for a CS] \hfill \\
         \textit{Actors: CPO} \\
         The CPO Xcorp might want to change which DSO supplies its different CSs and how the CSs manage their batteries, if they have any, in order to offer better prices, to cut its expenses or take advantage of better energy mixes provided by other DSO. To this end Xcorp instructs one of its employees, Mary, to authenticates with Xcorp's CPMS. Afterwards Mary selects the CS(s) which will be subject to changes and can choose to assign that CS(s) a new nominal-price, a new user-price, a new DSO among those the CPMS is aware of or to change the battery usage policy for that CS(s). If Mary were to assign a user-price lower than the nominal-price, that would be the same as her setting up a special offer at that CS.
+    
+    \newpage
+    
     \item [10. CPO toggles the CPMS automatic mode] \hfill \\
         \textit{Actors: CPO} \\
-        A CPO employee, Mary, in charge of administering the CPMS system wants to change its operating mode from “Manual” to “Automatic”. To do this, she logs in to the CPMS and toggles “Automatic Mode” on. Once the system has finished changing the operating mode, she loses control over manual overrides, and is prompted to enable “Manual Mode” again in order to change those settings. After completing the action, Mary successfully logs out of the system. \hfill \\
+        A CPO employee, Mary, in charge of administering the CPMS of its company, Xcorp, has been tasked to change its operating mode from “Manual” to “Automatic”. To do this, She logs in to the CPMS and toggles “Automatic Mode” on. Once the system has finished changing the operating mode, if its now in “Automatic Mode” She loses control over manual overrides, and is prompted to enable “Manual Mode” again in order to change those settings. After completing the action, Mary successfully logs out of the system. \hfill \\
+    \item [11. CPO changes the CPMS policy] \hfill \\
+        \textit{Actors: CPO} \\
+        Mary, an employee at the CPO Xcorp, has been requested to alter the way the company's CPMS operates automatically, such behaviour is determined by a series of thresholds and weights that Mary has to overwrite. To do so, Mary first logs in to the CPMS and chooses to see its current policy, there She can type in new values in place of the current ones and commits its changes once She is done, only then the CPMS will store the new policy and start using it for its “Automatic Mode”. After committing the changes Mary logs out of the CPMS. \hfill \\
 \end{description}
 
 \subsubsection{Class Diagram}
@@ -357,16 +367,18 @@ UML class diagram showing the entities of interest for the system and their rela
 \\
 A notably missing relationship is the one between \textit{Vehicle} and \textit{User}, which was deemed not necessary since an instance of the latter should as well be able to book recharges for vehicles they don't own (Ex: rented electric cars), hence binding the two might have been counterproductive. \\
 \\
-The \textit{Policy} entity models the criteria the CPMS uses once set to "Automatic Mode" to decide DSOs, energy source and prices for CS. \\
+The \textit{Policy} entity models the criteria the CPMS uses once set to “Automatic Mode” to decide DSOs, energy source and prices for CS. \\
 \\
 Meanwhile \textit{Booking} presents the \textit{isActive} flag, which is true only when the charging process associated to it is going on. \\
 \\
 The flag \textit{chargingFromBatteries} on \textit{CS} indicates whether the current source of energy the CS is using to charge attached vehicles are its batteries or the associated DSO.
 
+\newpage
+
 \begin{figure}[!ht]
     %trim = left bottom right top
     \centerline{
-        \includegraphics[page={1}, width=1.1\linewidth, trim=7.24cm 9cm 2.28cm 0cm, clip]{UML.pdf} %angle=-90
+        \includegraphics[page={1}, width=1.26\linewidth, trim=4.6cm 4.9cm 4.6cm 4.9cm, angle=-90, clip]{UML.pdf}
     }
     \caption{Class diagram}
 \end{figure}
@@ -428,6 +440,13 @@ Those following are representations of the most important interactions that invo
         \includegraphics[page={7}, width=\linewidth, trim=10cm 5cm 10cm 5cm, clip]{StateCharts.pdf}
         \caption{CPO toggles the CPMS automatic mode}
     \end{figure}
+    
+    \item \textbf{8. CPO changes the CPMS policy}
+    \begin{figure}[!ht]
+        %trim = left bottom right top
+        \includegraphics[page={8}, width=\linewidth, trim=6.8cm 5cm 7cm 5cm, clip]{StateCharts.pdf}
+        \caption{CPO changes the CPMS policy}
+    \end{figure}
 \end{description}
 
 \subsection{Product Functions}
@@ -482,7 +501,11 @@ The CPMS will provide its CPO with a list of all CSs handled by the system, from
 
 \subsubsection{Allow the CPMS to operate automatically}
 
-The CPO will as well be able to let the CPMS take decisions regarding the prices, DSO and energy source of a CS automatically on their behalf.
+The CPO will as well be able to let the CPMS take decisions regarding the prices, DSO and energy source of a CS automatically on their behalf by toggling its “Automatic Mode” at will.
+
+\subsubsection{Allow the CPO to change the “Automatic Mode” policy used by the CPMS}
+
+The CPMS will allow the CPO to configure its policy which gets used when operating automatically, altering the way the CPMS will take decisions on its own.
 
 \subsection{User Characteristics}
 
@@ -538,6 +561,8 @@ The CPO will as well be able to let the CPMS take decisions regarding the prices
         D11 & CPOs pay DSOs for the used electricity via methods outside the scope of this document (Ex: direct bank transfer) \\
         \hline
         D12 & eMSPs know in advance which CPMSs they are going to interact with \\
+        \hline
+        D13 & Login credentials to grant access to CPMSs are manually created and inserted by CPOs \\
         \hline
     \end{tabularx}
     \label{tab:domain_assumptions}
@@ -1122,6 +1147,50 @@ The main functionalities of the STB require cooperation of multiple components s
             \hline
         \end{tabularx}
     \end{table}
+    
+    \newpage
+    
+    \item [13. CPO changes the CPMS's “Automatic Mode” policy] \hfill \\
+    \begin{table}[H]
+        \centering
+        %space between text and right/left borders
+        \setlength{\tabcolsep}{18pt}
+        %Row height multiplier
+        \renewcommand{\arraystretch}{1.4}
+        \begin{tabularx}{\textwidth}{|>{\hsize=0.5\hsize}X|>{\hsize=1.5\hsize}X|}
+            \hline
+            \textbf{Actor} & CPO (employee) \\
+            \hline
+            \textbf{Entry condition} & A CPO employee has authorized access to the company's CPMS and performing this task is part of his job, hence reached the CPMS login page. \\
+            \hline
+            \textbf{Event flow} & 
+                \begin{minipage}[t]{\hsize}
+                \begin{enumerate}[topsep=0pt, leftmargin=*]
+                    \item The CPO employee authenticates with the CPMS and reaches its home page
+                    \item The CPO employee reaches the page with the current policy in use by the CPMS
+                    \item The CPO employee updates the policy's weights and thresholds accordingly to its task
+                    \item The CPMS saves and starts using the new policy
+                \end{enumerate}
+                \end{minipage}
+                \vspace{6pt}
+            \\
+            \hline
+            \textbf{Exit condition} & The CPMS's policy has been successfully updated \\
+            \hline
+            \textbf{Exceptions} & 
+                \begin{minipage}[t]{\hsize}
+                \vspace{0pt}
+                \begin{itemize}[topsep=0pt, leftmargin=*]
+                    \item The weights and thresholds inserted by the CPO employee are invalid
+                \end{itemize}
+                \vspace{8pt}
+                \end{minipage}
+                In the above situation the CPMS does not updated the policy and presents an error to its user.
+                \vspace{6pt}
+            \\
+            \hline
+        \end{tabularx}
+    \end{table}
 \end{description}
 
 \newpage
@@ -1149,7 +1218,7 @@ The main functionalities of the STB require cooperation of multiple components s
     %trim = left bottom right top
     \begin{figure}[!ht]
         \centering
-        \includegraphics[page={3}, trim=6.6cm 8.8cm 6.6cm 8.8cm, width=0.8\linewidth, clip]{UseCases.pdf}
+        \includegraphics[page={3}, trim=6.6cm 4cm 6.6cm 8.8cm, width=0.8\linewidth, clip]{UseCases.pdf}
         \caption{CPO}
     \end{figure}
 \end{description}
@@ -1158,7 +1227,7 @@ The main functionalities of the STB require cooperation of multiple components s
 
 \subsubsection{Sequence diagrams}
 
-Here are the sequence diagrams corresponding one-to-one with the use cases in the above section, the entry conditins hold for the diagrams as well, hence things like "login" are not repeated in every diagram.
+Here are the sequence diagrams corresponding one-to-one with the use cases in the above section, the entry conditins hold for the diagrams as well, hence things like “login” are not repeated in every diagram.
 
 \begin{description}
     \item \textbf{1. New user registration}
@@ -1255,7 +1324,17 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
         \includegraphics[page={11}, trim=5cm 9cm 5.7cm 3.5cm, width=0.8\linewidth, clip]{SequenceDiagrams.pdf}
         \caption{CPO toggles the CPMS operating mode}
     \end{figure}
+    
+    \item \textbf{12. CPO changes the CPMS’s ”Automatic Mode” policy}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={12}, trim=4.4cm 4.4cm 5.4cm 4.4cm, width=0.8\linewidth, clip]{SequenceDiagrams.pdf}
+        \caption{CPO changes the CPMS’s ”Automatic Mode” policy}
+    \end{figure}
 \end{description}
+
+\newpage
 
 \subsubsection{Requirements}
 
@@ -1327,20 +1406,6 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
         \hline
         R14 & The eMSP shall allow a logged-in user to see their bookings \\
         \hline
-    \end{tabularx}
-    \label{tab:requirements}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    %space between text and right/left borders
-    \setlength{\tabcolsep}{18pt}
-    %Row height multiplier
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.1\hsize}X|>{\hsize=1.9\hsize}X|}
-        \hline
-        \textbf{Id} & \textbf{Requirement} \\
-        \hline
         R15 & The eMSP shall allow a logged-in user to start the charging process for one of their booked recharges \\
         \hline
         R16 & The eMSP shall not allow a user without a booking to start the charging process \\
@@ -1362,6 +1427,20 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
         R24 & The eMSP shall be able to pay CPOs for the amount due for recharges performed through them since the last payment \\
         \hline
         R25 & The CPMS should be able to acquire the location from CSs \\
+        \hline
+    \end{tabularx}
+    \label{tab:requirements}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.1\hsize}X|>{\hsize=1.9\hsize}X|}
+        \hline
+        \textbf{Id} & \textbf{Requirement} \\
         \hline
         R26 & The CPMS should be able to acquire the internal status from CSs \\
         \hline
@@ -1390,27 +1469,13 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
         \hline
         R38 & The CPMS should be able to automatically assign a nominal-price and a user-price to a CS when operating in “Automatic Mode” \\
         \hline
-        R39 & The CPMS shall allow the CPO to choose its policies for operating in "Automatic Mode" \\
+        R39 & The CPMS shall allow the CPO to choose its policy for operating in “Automatic Mode” \\
         \hline
         R40 & The CPMS shall allow the CPO to choose whether it acts automatically or manually \\
         \hline
         R41 & The CPMS shall never take a decision automatically when it is set in “Manual Mode” \\
         \hline
         R42 & The CPMS should report to the user when they sent invalid input data \\
-        \hline
-        \end{tabularx}
-    \label{tab:requirements}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    %space between text and right/left borders
-    \setlength{\tabcolsep}{18pt}
-    %Row height multiplier
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.1\hsize}X|>{\hsize=1.9\hsize}X|}
-        \hline
-        \textbf{Id} & \textbf{Requirement} \\
         \hline
         R43 & The CPMS should report to the user when they attempted to perform an unauthorized action \\
         \hline
@@ -1447,7 +1512,7 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
         \hline
         G4 & D1, D2, D3, D4, D5, D6, D7, D10, D11, D12 & R1, R2, R3, R4, R5, R6, R14, R15, R16, R17, R18, R19, R20, R21, R24, R26, R27, R28, R29, R30 \\ %Monitor
         \hline
-        G5 & D1, D4, D8, D9, D11 & R30, R31, R32, R33, R34, R35, R36, R37, R38, R39, R40, R41, R42, R43, R44, R45 \\ %Energy Source
+        G5 & D1, D4, D8, D9, D11, D13 & R30, R31, R32, R33, R34, R35, R36, R37, R38, R39, R40, R41, R42, R43, R44, R45 \\ %Energy Source
         %perdonami, devo fare due fix veloci ai numeri, dal 14 va agggiunto +1 perchè ho spostato un requirement...
         %Sorry sono stupido...
         %ahaha, tra
@@ -1460,7 +1525,7 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
         %Torno al mio lavoro ahah!
         %:thumbs_up:
         \hline
-        G6 & D1, D4, D10 & R30, R32, R37, R38, R40, R41, R42, R43, R44, R45 \\ %Price
+        G6 & D1, D4, D10, D13 & R30, R32, R37, R38, R40, R41, R42, R43, R44, R45 \\ %Price
         \hline
     \end{tabularx}
     \label{tab:requirementsMapping}
@@ -1524,7 +1589,7 @@ Finally, the STB should function as expected on all modern web browser, without 
 Given that the system will be accessed from the Web and will require a connection to the platform to carry out its functions, the hardware must support some form of Internet connectivity (such as Wi-Fi, Ethernet or Cellular) and must have at least one modern Browser installed. \\
 Furthermore, given that it is expected that the STB is mostly going to be accessed on mobile devices, it should not require a high processing power in order to perform its front-end functions. \\
 
-\subsubsection{Any other constraint}
+%\subsubsection{Any other constraint}
 
 \subsection{Software System Attributes}
 %Io prendo il treno, ciao, a domani!
@@ -1601,6 +1666,8 @@ The present \textit{facts} model the impact of requirements on the model, while 
     	(b1 = b2 or (b1.startDate.unixTime < b2.startDate.unixTime and b1.endDate.unixTime <= b2.startDate.unixTime) or
     	(b2.startDate.unixTime < b1.startDate.unixTime and b2.endDate.unixTime <= b1.startDate.unixTime))
     }
+\end{ffcode}
+\begin{ffcode}
     
     //Force that a booking of a eMSP is made by a user registered in that eMSP, even tho the eMSP is only one...
     sig Booking {
