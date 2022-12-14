@@ -199,13 +199,44 @@ fact uniqueSocketsForCS {
 	no cs1, cs2: CS | cs1 != cs2 and (some s: Socket | s in cs1.sockets and s in cs2.sockets)
 }
 
-//User registration
 //User booking
+pred addUserBooking[u0, u1: User, b: Booking] {
+	u1.bookings = u0.booking + b
+}
 //Booking deletion
+pred delUserBooking[u0, u1: User, b: Booking] {
+	u1.bookings = u0.booking - b
+}
 //Start charging process
+pred startUserCharge[b0, b1: Booking, v: Vehicle] {
+	b1.socket.currentPower = b0.socket.maxPower
+	b1.socket.connectedVehicle = v
+	b1.isActive = True;
+}
 //End charge
+pred endUserCharge[b0, b1: Booking, v: Vehicle] {
+	b1.socket.currentPower = 0
+	b1.socket.connectedVehicle = none
+	b1.isActive = False
+}
 //Assign energy source and policy
+pred changeEnergySource[d1: DSO, es: EnergyMix] {
+	d1.energyMix = es
+}
+pred changeCPMSPolicy[c: CPMS, p: Policy] {
+	c.policy = p
+}
 //Change nominal and user price
+pred changePrices[c0, c1: CS, np: Int, up: Int] {
+	c1.nominalPrice = np
+	c1.userPrice = up
+}
+
+//Check that we dont't have overlapping bookings on the same Socket of the same CS
+assert noOverlapForSocket {
+	no disj b1, b2: Booking | (b1.socket == b2.socket and (b1.startDate.unixTime >= b2.startDate.unixTime and b1.startDate.unixTime < b2.startDate.unixTime))
+}
+check noOverlapForSocket
 
 
 run {} for 12 but 6 Int, exactly 3 User, exactly 3 CS, exactly 2 CPMS, exactly 3 Booking
