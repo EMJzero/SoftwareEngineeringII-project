@@ -97,7 +97,7 @@ sig CS {
 	and userPrice > 0
 	and userPrice <= nominalPrice
 	and nominalPrice >= currentDSO.price
-	and (not (chargingFromBatteries and rechargingBatteries))
+	and (not ((chargingFromBatteries = True) and (rechargingBatteries = True)))
 }
 
 sig Connector {}
@@ -212,17 +212,17 @@ fact uniqueSocketsForCS {
 
 //User booking
 pred addUserBooking[u0, u1: User, b: Booking] {
-	u1.bookings = u0.booking + b
+	u1.bookings = u0.bookings + b
 }
 //Booking deletion
 pred delUserBooking[u0, u1: User, b: Booking] {
-	u1.bookings = u0.booking - b
+	u1.bookings = u0.bookings - b
 }
 //Start charging process
 pred startUserCharge[b0, b1: Booking, v: Vehicle] {
 	b1.socket.currentPower = b0.socket.maxPower
 	b1.socket.connectedVehicle = v
-	b1.isActive = True;
+	b1.isActive = True
 }
 //End charge
 pred endUserCharge[b0, b1: Booking, v: Vehicle] {
@@ -245,7 +245,7 @@ pred changePrices[c0, c1: CS, np: Int, up: Int] {
 
 //Check that we dont't have overlapping bookings on the same Socket of the same CS
 assert noOverlapForSocket {
-	no disj b1, b2: Booking | (b1.socket == b2.socket and (b1.startDate.unixTime >= b2.startDate.unixTime and b1.startDate.unixTime < b2.startDate.unixTime))
+	no disj b1, b2: Booking | (b1.socket = b2.socket and (b1.startDate.unixTime >= b2.startDate.unixTime and b1.startDate.unixTime < b2.startDate.unixTime))
 }
 check noOverlapForSocket
 
