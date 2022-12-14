@@ -71,6 +71,14 @@ sig Policy {
 	and all t: Int | t in thresholds implies t >= 0
 }
 
+sig BatteryUsagePolicy {
+	weights: set Int,
+	thresholds: set Int
+} {
+	all w: Int | w in weights implies w >= 0
+	and all t: Int | t in thresholds implies t >= 0
+}
+
 sig CS {
 	//Do we really need socketCount?
 	socketCount: one Int,
@@ -78,15 +86,18 @@ sig CS {
 	nominalPrice: one Int,
 	userPrice: one Int,
 	chargingFromBatteries: one Bool,
+	rechargingBatteries: one Bool,
 	sockets: some Socket,
 	batteries: set Battery,
-	currentDSO: one DSO
+	currentDSO: one DSO,
+	batteryUsagePolicy: one BatteryUsagePolicy
 } {
 	socketCount > 0
 	and nominalPrice > 0
 	and userPrice > 0
 	and userPrice <= nominalPrice
 	and nominalPrice >= currentDSO.price
+	and (not (chargingFromBatteries and rechargingBatteries))
 }
 
 sig Connector {}
