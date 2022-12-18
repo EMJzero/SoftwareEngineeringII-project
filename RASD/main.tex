@@ -119,11 +119,13 @@ This document will discuss goals and requirements that regard the system necessa
         \hline
         User-price & Cost of a recharge that is shown to the User when they inspect a CS and is what they are charged for. It is set by the CPO/CPMS on a per-CS basis.\\
         \hline
-        Nominal-price & Cost of a recharge at a CS without any discount or offer applied, it is set by the CPO/CPMS. A user-price $<$ nominal-price implies an ongoing special offer. \\
+        Nominal-price & Cost of a recharge at a CS without any discount or offer applied, it is set by the CPO/CPMS on a per-CS basis. A user-price $<$ nominal-price implies an ongoing special offer. \\
         \hline
         Energy source management policy OR Battery usage policy & A per-CS policy given them by the CPMS to allow them to dynamically decide whether to acquire energy from their assigned DSO or from their batteries and when to charge their batteries with energy from their DSO. \\
         \hline
         Charge Point Management System's policy for “Automatic Mode” & The global policy used by the CPMS to operate autonomously, its mainly built around thresholds and weights to allow the CPMS to decide prices and battery usage policies for its CSs. \\
+        \hline
+        Offer reset date & The date, set on a per-CS basis, at which a CS will reset its user-price to the value of its nominal-price, removing any present offer. \\
         \hline
     \end{tabularx}
     \label{tab:definitions}
@@ -322,18 +324,19 @@ Finally \hyperref[section:references]{\textbf{references}} are reported.
             \item Connector types available
             \item Charging speeds available
         \end{itemize}
-        By manipulating the filters Bob can restrict or widen the scope of his search. Results of the search are displayed in respect of the filters and Bob can see the details of every result such as:
+        By manipulating the filters Bob can restrict or widen the scope of his search. Results of the search are displayed with respect of the filters and Bob can see the details of every result such as:
         \begin{itemize}
             \item Location
-            \item Price
-            \item Offers
+            \item User-Price (with offers applied)
+            \item Nominal-Price (base price without offers)
+            \item Expiration date of any ongoing offer
             \item Booking schedule
             \item Available connectors
             \item Available charging speeds
         \end{itemize}
     \item [4. User booking a recharge] \hfill \\
         \textit{Actors: Logged-in User} \\
-        A user Bob has already performed the login and now intends to book a recharge. Bob first performs a search for the CS to reserve for his recharge (see “user looking for charging stations” scenario) and once he finds a suitable and available one chooses “book recharge” for that station. Bob is then presented with the choice for the time slot for his recharge and once he chooses his reservation is completed.
+        A user Bob has already performed the login and now intends to book a recharge. Bob first performs a search for the CS to reserve for his recharge (see “user looking for charging stations” scenario) and once he finds a suitable and available one chooses “book recharge” for that station. Bob is then presented with the choice for the time slot for his recharge and once he chooses his reservation is completed. \\
     \item [5. User deleting one of his bookings] \hfill \\
         \textit{Actors: Logged-in User} \\
         A user Bob has already performed the login and recently made a few bookings on eMall. However on second thought Bob realized he could not make it in time for one of his bookings and now intends to delete it. To this end Bob selects the option to view his meetings' list on eMall and selects the meeting he desires to remove, he chooses the delete option the meeting list is updated with the deleted meeting now missing, confirming that eMall discarded it.
@@ -348,7 +351,7 @@ Finally \hyperref[section:references]{\textbf{references}} are reported.
         The CPO Xcorp, or better its employee Mary which authorizes herself with Xcorp's CPMS, wants all information regarding the energy market to evaluate their choice of a DSO. To do this Xcorp uses its CPMS’s functionality to gather such information from all the DSOs known to it, hence the CPMS proceeds to recover this information from the various DSOs and once it has finished it presents the result to Xcorp.
     \item [9. CPO chooses prices, energy sources and battery usage policies for a CS] \hfill \\
         \textit{Actors: CPO} \\
-        The CPO Xcorp might want to change which DSO supplies its different CSs and how the CSs manage their batteries, if they have any, in order to offer better prices, to cut its expenses or take advantage of better energy mixes provided by other DSO. To this end Xcorp instructs one of its employees, Mary, to authenticates with Xcorp's CPMS. Afterwards Mary selects the CS(s) which will be subject to changes and can choose to assign that CS(s) a new nominal-price, a new user-price, a new DSO among those the CPMS is aware of or to change the battery usage policy for that CS(s). If Mary were to assign a user-price lower than the nominal-price, that would be the same as her setting up a special offer at that CS.
+        The CPO Xcorp might want to change a few parameters for one of its CSs, for instance which DSO supplies it, how the CS manages its batteries (if any are present) or the prices it offers to users. This might be done for a variety of reasons, for example in order to adjust prices in response to the market, to take advantage of better energy mixes provided by other DSO or to improve the CS's batteries lifespan. To this end Xcorp instructs one of its employees, Mary, to authenticates with Xcorp's CPMS. Afterwards Mary selects the CS which will be subject to changes and can choose to assign that CS a new nominal-price, a new user-price, a new DSO among those the CPMS is aware of or to change the battery usage policy for that CS. If Mary were to assign a user-price lower than the nominal-price, that would be the same as her setting up a special offer at that CS, and when doing so Mary can choose to set an expiration date for the offer as well, after which the CS will resets automatically its user-price to its nominal-price.
     
     \newpage
     
@@ -427,11 +430,11 @@ Those following are representations of the most important interactions that invo
         \caption{CPO acquiring information on DSOs' energy prices and mixes}
     \end{figure}
     
-    \item \textbf{6. CPO chooses energy sources and battery usage policies for a CS}
+    \item \textbf{6. CPO chooses prices, energy sources and battery usage policies for a CS}
     \begin{figure}[!ht]
         %trim = left bottom right top
         \includegraphics[page={6}, width=\linewidth, trim=6cm 5cm 6cm 5cm, clip]{StateCharts.pdf}
-        \caption{CPO chooses energy sources and battery usage policies for a CS}
+        \caption{CPO chooses prices, energy sources and battery usage policies for a CS}
     \end{figure}
     
     \item \textbf{7. CPO toggles the CPMS automatic mode}
@@ -497,7 +500,7 @@ A CPO will be able to ask their CPMS to present them with the information regard
 
 \subsubsection{Choose prices, energy sources and battery usage policies for a CS}
 
-The CPMS will provide its CPO with a list of all CSs handled by the system, from that list the CPO will be able to modify the configuration of each CS independently, specifically they will be able to alter the nominal-price and user-price, the DSO that is currently supplying that CS and the policy with which that CS used its batteries.
+The CPMS will provide its CPO with a list of all CSs handled by the system, from that list the CPO will be able to modify the configuration of each CS independently, specifically they will be able to alter the nominal-price and user-price, the date after which the user-price will be reset to the nominal-price hence removing any active offer, the DSO that is currently supplying that CS and the policy with which that CS used its batteries.
 
 \subsubsection{Allow the CPMS to operate automatically}
 
@@ -578,10 +581,68 @@ The CPMS will allow the CPO to configure its policy which gets used when operati
 \subsubsection{User Interfaces}
 
 The interface eMall will use is a web app, through which its Users will have available all \hyperref[subsec:prodfunctions]{product functions}. Such web app will need to be usable both on desktop and mobile devices, since a mobile device is what users will most likely have available to them while at the CS. \\
+In order to allow the User to select an area of interest while searching for CSs, the user interface will make use of a map. \\
 \\
-MOCKUPS HERE \\
-\\
+What follows are some mockups for the eMSP's user interface design.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{Signup.png}
+    \caption{Signup page mockup}
+    \label{fig:my_label}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{Login.png}
+    \caption{Login page mockup}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{Home.png}
+    \caption{Home page mockup}
+    \label{fig:my_label}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{Bookings.png}
+    \caption{Bookings page mockup}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{Stations.png}
+    \caption{Stations page mockup}
+    \label{fig:my_label}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{StationDetail.png}
+    \caption{Station Details page mockup}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{BookCharge.png}
+    \caption{BookCharge page mockup}
+    \label{fig:my_label}
+\end{figure}
+
 Similarly, CPMSs will offer their functionality to CPOs via a web portal, here there is no need to support anything other than a desktop device, since CPMSs are intended to be managed by employees in a company environment.
+
+\newpage
 
 \subsubsection{Hardware Interfaces}
 
@@ -615,11 +676,13 @@ The main functionalities of the STB require cooperation of multiple components s
         Whenever a search for CSs, a booking or a recharge at a CS is performed via an eMSP, the ladder needs to fetch information regarding one or more CSs from CPMSs first, hence CPMSs need to expose a web API reachable by the eMSP to communicate the details regarding CSs.
     \item [2. eMSP  managing a recharge through a CPMS] \hfill \\
         When a charging process for a previous booking needs to be starter or terminated by a user via the eMSP, the eMSP has no control over the CS, hence needs to interface with the CPSM to request the latter to start/stop the charging process. Hence the CPMS needs to expose in it web API method for eMSP to start/stop charging procedures that were booked through them.
-    \item [3. eMSP requesting a payment via an external provider] \hfill \\
+    \item [3. eMSP website acquiring map data from external map provider] \hfill \\
+        To allow the User to select its area of interest while looking for CS, a map will be used, and such map will need to be loaded dynamically from the eMSP website thanks to a map provider (Ex: Google Maps).
+    \item [4. eMSP requesting a payment via an external provider] \hfill \\
         After the completion of a charging process or when a fee is charged to a user, the eMSP needs to use the payment method a user has bound to its account to charge them for the service, hence it needs to interface with an API which will allow the eMSP to have the amount due accredited to himself.
-    \item [4. CPMS monitoring and controlling its CSs] \hfill \\
-        CSs need to know how to reach the CPMS responsible for them over internet, this way whenever a CS is deployed it will automatically find its CPMS, authenticate with it and setup itself under its control. To this end CPMSs need to expose a web API allowing for new CSs to authenticate with them, and CSs need to offer the connect CPMS and endpoint to allow it to manage them.
-    \item [5. CPMS acquiring DSOs price and energy mix information] \hfill \\
+    \item [5. CPMS monitoring and controlling its CSs] \hfill \\
+        CSs need to know how to reach the CPMS responsible for them over internet, this way whenever a CS is deployed it will automatically find its CPMS, authenticate with it and setup itself under its control. To this end CPMSs need to expose a web API allowing for new CSs to authenticate with them, and CSs need to offer to the CPMS they are connected to an API to allow the CPMS to manage them.
+    \item [6. CPMS acquiring DSOs price and energy mix information] \hfill \\
         To allow CPMSs to know their energy prices and mixes, DSO must have an API available via web so that CPMSs can recover such information.
 \end{description}
 
@@ -1093,7 +1156,7 @@ The main functionalities of the STB require cooperation of multiple components s
                     \item The CPO employee requests a list of the CPMS's CS
                     \item The CPO employee selects a CS and is presented with its details
                     \item The CPO employee chooses to alter the CS's nominal-price and user-price
-                    \item The CPO employee assigns new prices to the CS
+                    \item The CPO employee assigns new prices and an offer reset date to the CS
                     \item The CPMS communicates the updated prices to the CS
                 \end{enumerate}
                 \end{minipage}
@@ -1325,12 +1388,12 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
         \caption{CPO toggles the CPMS operating mode}
     \end{figure}
     
-    \item \textbf{12. CPO changes the CPMS’s ”Automatic Mode” policy}
+    \item \textbf{12. CPO changes the CPMS’s “Automatic Mode” policy}
     %trim = left bottom right top
     \begin{figure}[!ht]
         \centering
         \includegraphics[page={12}, trim=4.4cm 4.4cm 5.4cm 4.4cm, width=0.8\linewidth, clip]{SequenceDiagrams.pdf}
-        \caption{CPO changes the CPMS’s ”Automatic Mode” policy}
+        \caption{CPO changes the CPMS’s “Automatic Mode” policy}
     \end{figure}
 \end{description}
 
@@ -1465,9 +1528,9 @@ Here are the sequence diagrams corresponding one-to-one with the use cases in th
         \hline
         R36 & The CPMS should be able to automatically choose the current energy source for a CS according to the given policy when operating in “Automatic Mode” \\
         \hline
-        R37 & The CPMS shall allow its CPO to assign a nominal-price and a user-price to a CS when operating in “Manual Mode” \\
+        R37 & The CPMS shall allow its CPO to assign a nominal-price, a user-price and an offer reset date to a CS when operating in “Manual Mode” \\
         \hline
-        R38 & The CPMS should be able to automatically assign a nominal-price and a user-price to a CS when operating in “Automatic Mode” \\
+        R38 & The CPMS should be able to automatically assign a nominal-price, a user-price and an offer reset to a CS when operating in “Automatic Mode” \\
         \hline
         R39 & The CPMS shall allow the CPO to choose its policy for operating in “Automatic Mode” \\
         \hline
@@ -1634,207 +1697,335 @@ The present \textit{facts} model the impact of requirements on the model, while 
 %\egroup
 
 \begin{ffcode}
-    sig Date {
+
+//All the numeric types are Integers since the precision of Floats is not required.
+//For prices, to have 2 decimals of precision, we consider the prices directly in cents.
+//NOTE: Integers appear to be 4-bits, meaning that we can no longer reach 100, hence percentages cap at 10
+
+sig Date {
 	unixTime: one Int
-    } {
-    	unixTime >= 0
-    }
-    //Radomly chosen by Alloy
-    one sig Now extends Date {}
-    
-    sig Location {}
-    sig Email {}
-    sig UserName {}
-    sig Password {}
-    sig CompanyName {}
-    sig PaymentMethod {}
-    
-    abstract sig Bool {}
-    one sig True extends Bool {}
-    one sig False extends Bool {}
-    
-    sig User {
-    	userName: one UserName,
-    	email: one Email,
-    	password: one Password,
-    	paymentMethod: one PaymentMethod,
-    	bookings: set Booking
-    } {
-    	//No user can have two overlapping bookings
-    	all b1, b2: Booking | (b1 in bookings and b2 in bookings)
-    	implies
-    	(b1 = b2 or (b1.startDate.unixTime < b2.startDate.unixTime and b1.endDate.unixTime <= b2.startDate.unixTime) or
-    	(b2.startDate.unixTime < b1.startDate.unixTime and b2.endDate.unixTime <= b1.startDate.unixTime))
-    }
+} {
+	unixTime >= 0
+}
+//Radomly chosen by Alloy
+one sig Now extends Date {}
+
+sig Location {}
+sig Email {}
+sig UserName {}
+sig Password {}
+sig CompanyName {}
+sig PaymentMethod {}
+
+abstract sig Bool {}
+one sig True extends Bool {}
+one sig False extends Bool {}
+
+sig User {
+	userName: one UserName,
+	email: one Email,
+	password: one Password,
+	paymentMethod: one PaymentMethod,
+	bookings: set Booking
+} {
+	//No user can have two overlapping bookings
+	all b1, b2: Booking |\textbar| (b1 in bookings and b2 in bookings)
+	implies
+	(b1 = b2 or (b1.startDate.unixTime < b2.startDate.unixTime and b1.endDate.unixTime <= b2.startDate.unixTime) or
+	(b2.startDate.unixTime < b1.startDate.unixTime and b2.endDate.unixTime <= b1.startDate.unixTime))
+}
+
+sig Booking {
+	startDate: one Date,
+	endDate: one Date,
+	isActive: one Bool,
+	socket: one Socket
+} {
+	//No negative duration bookings
+	startDate.unixTime < endDate.unixTime
+	//isActive only when actually within its duration and a vehicle is connected
+	and (isActive = True implies startDate.unixTime <= Now.unixTime and Now.unixTime <= endDate.unixTime)
+	and (isActive = True implies socket.connectedVehicle != none)
+}
+
+one sig eMSP {
+	users: some User,
+	knownCPMSs: some CPMS,
+	bookings: some Booking
+} {
+	//No user outside of the eMSP
+	all u : User |\textbar| u in users
+}
+
+//The CS->CPO one-to-one relation can be inferred by going through here
+sig CPMS {
+	operatingManually: one Bool,
+	CSs: some CS,
+	knownDSOs: some DSO,
+	owner: one CPO,
+	policy: one Policy
+}
+
+sig Policy {
+	weights: set Int,
+	thresholds: set Int
+} {
+	//Weights and thresholds must be positive integers
+	all w: Int |\textbar| w in weights implies w >= 0
+	and all t: Int |\textbar| t in thresholds implies t >= 0
+}
+
+sig BatteryUsagePolicy {
+	weights: set Int,
+	thresholds: set Int
+} {
+	//Weights and thresholds must be positive integers
+	all w: Int |\textbar| w in weights implies w >= 0
+	and all t: Int |\textbar| t in thresholds implies t >= 0
+}
+
+sig CS {
+	socketCount: one Int,
+	location: one Location,
+	nominalPrice: one Int,
+	userPrice: one Int,
+	offerExpirationDate: one Date,
+	chargingFromBatteries: one Bool,
+	rechargingBatteries: one Bool,
+	sockets: some Socket,
+	batteries: set Battery,
+	currentDSO: one DSO,
+	batteryUsagePolicy: one BatteryUsagePolicy
+} {
+	socketCount > 0
+	and nominalPrice > 0
+	and userPrice > 0
+	//Lets avoid givin electricity away for free...
+	and userPrice <= nominalPrice
+	and nominalPrice >= currentDSO.price
+	//Force the system to never charge the batteries and discharge them at the same time
+	and (not ((chargingFromBatteries = True) and (rechargingBatteries = True)))
+}
+
+sig Connector {}
+
+sig Socket {
+	connector: one Connector,
+	maxPower: one Int,
+	currentPower: one Int,
+	connectedVehicle: lone Vehicle
+} {
+	maxPower > 0
+	and currentPower >= 0
+	and currentPower <= maxPower
+}
+
+sig Vehicle {
+	chargePerc: one Int
+} {
+	//As a percentage it must be between 1 and 100 (-> 10 for integer limitations in alloy)
+	chargePerc >= 0 and chargePerc <= 10
+}
+
+sig CPO {
+	name: one CompanyName
+}
+
+sig DSO {
+	name: one CompanyName,
+	price: one Int,
+	energyMix: one EnergyMix
+} {
+	price > 0
+}
+
+sig EnergyMix {
+	oilAndGas: Int,
+	ccgt: Int,
+	coal: Int,
+	nuclear: Int,
+	hydroelectric: Int,
+	otherRenewableSources: Int
+} {
+	//The sum will need to reach 100 in reality, but here we are working with 4-bit integers
+	oilAndGas + ccgt + coal + nuclear + hydroelectric + otherRenewableSources = 10
+	and oilAndGas >= 0
+	and ccgt >= 0
+	and coal >= 0
+	and nuclear >= 0
+	and hydroelectric >= 0
+	and otherRenewableSources >= 0
+}
+
+sig Battery {
+	capacitymAp: one Int,
+	chargeLevel: one Int
+} {
+	capacitymAp > 0 and
+	chargeLevel >= 0 and chargeLevel <= 10
+}
+
+//No two users with the same email or userName
+//Fine for payment methods being used for more than one User
+fact noUsersWithSameEmail {
+	no u1, u2: User |\textbar| u1 != u2 and (u1.email = u2.email or u1.userName = u2.userName)
+}
+
+//No two CPOs can share the same name
+fact noCPOsWithSameName {
+	no c1, c2: CPO |\textbar| c1 != c2 and c1.name = c2.name
+}
+
+//Company names 1:1 with companies
+fact companyNamesToCompanies {
+	all n : CompanyName |\textbar| ((one c : CPO |\textbar| c.name = n) or (one d : DSO |\textbar| d.name = n)) and !((one c : CPO |\textbar| c.name = n) and (one d : DSO |\textbar| d.name = n))
+}
+
+//No unused Passwords
+fact noUnusedPasswords {
+	all p : Password |\textbar| (some u : User |\textbar| u.password = p)
+}
+
+//No unused Payment Methods
+fact noUnusedPaymentMethods {
+	all p : PaymentMethod |\textbar| (some u : User |\textbar| u.paymentMethod = p)
+}
+
+//No two DSOs can share the same name
+fact noDSOsWIthSameName {
+	no d1, d2: DSO |\textbar| d1 != d2 and d1.name = d2.name
+}
+
+//No CPO and DSO can share the same name
+fact noCPODSOWithSameName {
+	no c: CPO, d: DSO |\textbar| c.name = d.name
+}
+
+//Each CPO must be 1:1 with its CPMS
+fact CPOOneToOneCPMS {
+	no cp1, cp2: CPMS |\textbar| cp1 != cp2 and cp1.owner = cp2.owner
+}
+
+//No booking can be without a User associated to it
+fact noBookingsWithoutUsers {
+	all b: Booking |\textbar| (one u: User |\textbar| b in u.bookings)
+}
+
+//No expired booking must be in the system
+fact noExpiredBookings {
+	all b: Booking |\textbar| b.endDate.unixTime >= Now.unixTime
+}
+
+//No two bookings with overlapping time frames must be for the same socket
+fact noOverlappingSocketBookings {
+	all b1, b2: Booking |\textbar| (b1 = b2 or b1.socket != b2.socket or (b1.startDate.unixTime < b2.startDate.unixTime and b1.endDate.unixTime <= b2.startDate.unixTime)
+	or (b2.startDate.unixTime < b1.startDate.unixTime and b2.endDate.unixTime <= b1.startDate.unixTime))
+}
+
+//Every socket must be free if it is not booked
+fact socketFreeIfNotBooked {
+	all s: Socket |\textbar| ((no b: Booking |\textbar| b.socket = s)
+	implies 
+	no s.connectedVehicle)
+}
+
+//No socket should be free if there is an active booking on it
+fact socketNotFreeIfActiveBooking {
+	all s: Socket |\textbar| ((some b: Booking |\textbar| b.socket = s and b.isActive = True)
+	implies 
+	s.connectedVehicle != none)
+}
+
+//All CSs must be associated to one and only one CPMS
+fact allCSHaveACPMS {
+	all cs: CS |\textbar| (one cpm: CPMS |\textbar| cs in cpm.CSs)
+}
+
+//Each Socket must be related to one and only one CS
+fact uniqueSocketsForCS {
+	no cs1, cs2: CS |\textbar| cs1 != cs2 and (some s: Socket |\textbar| s in cs1.sockets and s in cs2.sockets)
+}
+
+//No CS of an unknown CPMS should be booked by an eMSP User
+fact noBookingsOverUnknownCPMSs {
+	no b : Booking |\textbar| (some cpms : CPMS |\textbar| b.socket in cpms.CSs.sockets and (no e : eMSP |\textbar| cpms in e.knownCPMSs))
+}
+
+//Add User booking
+pred addUserBooking[u0, u1: User, b: Booking] {
+	u1.bookings = u0.bookings + b
+}
+
+//Booking deletion
+pred delUserBooking[u0, u1: User, b: Booking] {
+	u1.bookings = u0.bookings - b
+}
+
+//Start charging process
+pred startUserCharge[b0, b1: Booking, v: Vehicle] {
+	b1.socket.currentPower = b0.socket.maxPower
+	b1.socket.connectedVehicle = v
+	b1.isActive = True
+}
+
+//End charge
+pred endUserCharge[b0, b1: Booking, v: Vehicle] {
+	b1.socket.currentPower = 0
+	b1.socket.connectedVehicle = none
+	b1.isActive = False
+}
+
+//Assign energy source and policy
+pred changeEnergySource[d1: DSO, es: EnergyMix] {
+	d1.energyMix = es
+}
+
+//Change CPMS policy
+pred changeCPMSPolicy[c: CPMS, p: Policy] {
+	c.policy = p
+}
+
+//Change nominal and user price
+pred changePrices[c0, c1: CS, np: Int, up: Int] {
+	c1.nominalPrice = np
+	c1.userPrice = up
+}
+
+//Check that we dont't have overlapping bookings on the same Socket of the same CS
+assert noOverlapForSocket {
+	no disj b1, b2: Booking |\textbar| (b1.socket = b2.socket and (b1.startDate.unixTime >= b2.startDate.unixTime and b1.startDate.unixTime < b2.startDate.unixTime))
+}
+
+check noOverlapForSocket
+
 \end{ffcode}
+
+\newpage
+
+\subsection{Results}
+
+%Consider changing to pred
 \begin{ffcode}
-    
-    //Force that a booking of a eMSP is made by a user registered in that eMSP, even tho the eMSP is only one...
-    sig Booking {
-    	startDate: one Date,
-    	endDate: one Date,
-    	isActive: one Bool,
-    	socket: one Socket
-    } {
-    	startDate.unixTime < endDate.unixTime
-    	and (isActive = True implies startDate.unixTime <= Now.unixTime and Now.unixTime <= endDate.unixTime)
-    	and (isActive = True implies socket.connectedVehicle != none)
-    }
-    
-    //For our interests, it is a singleton
-    one sig eMSP {
-    	users: some User,
-    	knownCPMSs: some CPMS,
-    	bookings: some Booking
-    }
-    
-    //The CS->CPO one-to-one relation can be inferred by going through here
-    sig CPMS {
-    	CSs: some CS,
-    	knownDSOs: some DSO,
-    	owner: one CPO,
-    	policy: one Policy
-    }
-    
-    sig Policy {
-    	weights: set Int,
-    	thresholds: set Int
-    } {
-    	all w: Int | w in weights implies w >= 0
-    	and all t: Int | t in thresholds implies t >= 0
-    }
-    
-    sig CS {
-    	//Do we really need socketCount?
-    	socketCount: one Int,
-    	location: one Location,
-    	nominalPrice: one Int,
-    	userPrice: one Int,
-    	chargingFromBatteries: one Bool,
-    	sockets: some Socket,
-    	batteries: set Battery,
-    	currentDSO: one DSO
-    } {
-    	socketCount > 0
-    	and nominalPrice > 0
-    	and userPrice > 0
-    	and userPrice <= nominalPrice
-    	and nominalPrice >= currentDSO.price
-    }
-    
-    sig Connector {}
-    
-    sig Socket {
-    	connector: one Connector,
-    	maxPower: one Int,
-    	currentPower: one Int,
-    	connectedVehicle: lone Vehicle
-    } {
-    	maxPower > 0
-    	and currentPower >= 0
-    	and currentPower <= maxPower
-    }
-    
-    sig Vehicle {
-    	chargePerc: one Int
-    } {
-    	chargePerc >= 0 and chargePerc <= 10
-    }
-    
-    sig CPO {
-    	name: one CompanyName
-    }
-    
-    sig DSO {
-    	name: one CompanyName,
-    	price: one Int,
-    	energyMix: one EnergyMix
-    } {
-    	price > 0
-    }
-    
-    sig EnergyMix {
-    	oilAndGas: Int,
-    	ccgt: Int,
-    	coal: Int,
-    	nuclear: Int,
-    	hydroelectric: Int,
-    	otherRenewableSources: Int
-    } {
-    	//The sum will need to reach 100 in reality, but here we are working with 4-bit integers
-    	oilAndGas + ccgt + coal + nuclear + hydroelectric + otherRenewableSources = 10
-    	and oilAndGas >= 0
-    	and ccgt >= 0
-    	and coal >= 0
-    	and nuclear >= 0
-    	and hydroelectric >= 0
-    	and otherRenewableSources >= 0
-    }
-    
-    sig Battery {
-    	capacitymAp: one Int,
-    	chargeLevel: one Int
-    } {
-    	capacitymAp > 0 and
-    	chargeLevel >= 0 and chargeLevel <= 10
-    }
-    
-    fact noCPOsWithSameName {
-    	no c1, c2: CPO | c1 != c2 and c1.name = c2.name
-    }
-    
-    fact noDSOWIthSameName {
-    	no d1, d2: DSO | d1 != d2 and d1.name = d2.name
-    }
-    
-    fact noCPODSOWithSameName {
-    	no c: CPO, d: DSO | c.name = d.name
-    }
-    
-    fact CPOOneToOneCPMS {
-    	no cp1, cp2: CPMS | cp1 != cp2 and cp1.owner = cp2.owner
-    }
-    
-    fact noBookingsWithoutUsers {
-    	all b: Booking | (one u: User | b in u.bookings)
-    }
-    
-    fact noExpiredBookings {
-    	all b: Booking | b.endDate.unixTime >= Now.unixTime
-    }
-    
-    fact noOverlappingSocketBookings {
-    	/*
-    	or ((b1.startDate.unixTime < b2.startDate.unixTime implies b1.endDate.unixTime <= b2.startDate.unixTime) and (b1.startDate.unixTime > b2.startDate.unixTime implies b2.endDate.unixTime <= b1.startDate.unixTime))
-    	*/
-    	all b1, b2: Booking | (b1 = b2 or b1.socket != b2.socket or (b1.startDate.unixTime < b2.startDate.unixTime and b1.endDate.unixTime <= b2.startDate.unixTime)
-    	or (b2.startDate.unixTime < b1.startDate.unixTime and b2.endDate.unixTime <= b1.startDate.unixTime))
-    }
-    
-    fact socketFreeIfNotBooked {
-    	all s: Socket | ((no b: Booking | b.socket = s)
-    	implies 
-    	no s.connectedVehicle)
-    }
-    
-    fact socketNotFreeIfActiveBooking {
-    	all s: Socket | ((some b: Booking | b.socket = s and b.isActive = True)
-    	implies 
-    	s.connectedVehicle != none)
-    }
-    
-    fact allCSHaveACPMS {
-    	//no cs: CS | (no cpm: CPMS | (cs in cpm.CSs))
-    	all cs: CS | (one cpm: CPMS | cs in cpm.CSs)
-    }
-    
-    fact uniqueSocketsForCS {
-    	no cs1, cs2: CS | cs1 != cs2 and (some s: Socket | s in cs1.sockets and s in cs2.sockets)
-    }
-    
-    run {} for 12 but 6 Int, exactly 3 User, exactly 3 CS, exactly 2 CPMS, exactly 3 Booking
-    
+run {} for 12 but 6 Int, exactly 3 User, exactly 3 Password, exactly 3 PaymentMethod, exactly 3 CS, exactly 2 CPMS, exactly 3 Booking
 \end{ffcode}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=190mm]{Alloy_2.png}
+    \caption{First run}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{ffcode}
+run {} for 12 but 6 Int, exactly 2 User, exactly 1 CS, exactly 1 CPMS, exactly 3 Booking, exactly 1 DSO
+\end{ffcode}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=190mm]{Alloy_1.png}
+    \caption{Second run}
+    \label{fig:my_label}
+\end{figure}
 
 \newpage
 
@@ -1875,6 +2066,8 @@ The present \textit{facts} model the impact of requirements on the model, while 
     Specific Requirements & $\infty h$ \\
     \hline
     Formal Analysis & $\infty h$ \\
+    \hline
+    UI Mockups & $\infty h$ \\
     \hline
     Other & $\infty h$ \\
     \hline
