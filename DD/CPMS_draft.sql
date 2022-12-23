@@ -1,6 +1,5 @@
 CREATE TABLE CS (
     csID int,
-    city varchar(63),
     locationLatitude float,
     locationLongitude float,
     nominalPrice decimal(8, 2),
