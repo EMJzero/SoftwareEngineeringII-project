@@ -12,6 +12,7 @@
 \usepackage{parskip}
 \usepackage{ffcode}
 \usepackage{graphicx}
+\usepackage{caption}
 
 \usepackage[margin=2cm]{geometry}
 
@@ -588,7 +589,10 @@ What follows are some mockups for the eMSP's user interface design.
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=180mm]{Signup.png}
-    \caption{Signup page mockup}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Signup page mockup \\
+    %Is this enough of a description for ya?
+    Users will be able to register into eMall by compiling the form with their data}
     \label{fig:my_label}
 \end{figure}
 
@@ -597,14 +601,18 @@ What follows are some mockups for the eMSP's user interface design.
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=180mm]{Login.png}
-    \caption{Login page mockup}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Login page mockup \\
+    Users will be able to log into their eMall account by inserting their credentials}
     \label{fig:my_label}
 \end{figure}
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=180mm]{Home.png}
-    \caption{Home page mockup}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Home page mockup \\
+    Users will be able to click on the “See All” button to be redirected to the page with all their bookings}
     \label{fig:my_label}
 \end{figure}
 
@@ -613,14 +621,18 @@ What follows are some mockups for the eMSP's user interface design.
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=180mm]{Bookings.png}
-    \caption{Bookings page mockup}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Bookings page mockup \\
+    Users will see the list of their bookings, with the option to delete any non-active one and to start their charge for any active booking with a vehicle connected}
     \label{fig:my_label}
 \end{figure}
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=180mm]{Stations.png}
-    \caption{Stations page mockup}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Stations page mockup \\
+    Users can use the map together with the time selector to filter the search}
     \label{fig:my_label}
 \end{figure}
 
@@ -629,14 +641,18 @@ What follows are some mockups for the eMSP's user interface design.
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=180mm]{StationDetail.png}
-    \caption{Station Details page mockup}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Station Details page mockup \\
+    Users can click on “Book Your Charge” to open the page for booking creation}
     \label{fig:my_label}
 \end{figure}
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=180mm]{BookCharge.png}
-    \caption{BookCharge page mockup}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{BookCharge page mockup \\
+    Users can select the time slot for their booking as well as charge speed and socket type among the available ones}
     \label{fig:my_label}
 \end{figure}
 
@@ -1678,7 +1694,8 @@ Prevent an asshole to create 1 trillion accounts and occupy all of a city worth 
 The system should be easily maintainable, to allow for future expansion of its feature set without requiring to build it from scratch. As such, standard software patterns should be adopted, and the whole architecture and underlying code should be properly and extensively documented, to allow potential future developers to start working on it without reading the entire code base.
 
 \subsubsection{Portability}
-As mentioned in previous sections, the system should be accessible both on a Desktop browser and on Mobile ones, therefore its interface should be fully responsive to adapt to different screen sizes. Futhermore, the system should be able to run on a wide variety of modern browsers, without feature restrictions for some of them.
+As mentioned in previous sections, the system should be accessible both on a Desktop browser and on Mobile ones, therefore its interface should be fully responsive to adapt to different screen sizes. Furthermore, the system should be able to run on a wide variety of modern browsers, without feature restrictions for some of them. \\
+The system shall also use English as its language to avoid restricting its usage due to language constraints.
 
 \newpage
 
@@ -2038,41 +2055,37 @@ run {} for 12 but 6 Int, exactly 2 User, exactly 1 CS, exactly 1 CPMS, exactly 3
     \hline
     \textbf{Task} & \textbf{Time spent} \\
     \hline
-    Introduction & $10\ h$ \\
+    Introduction & $17\ h$ \\
     \hline
-    Overall Description & $15\ h$ \\
+    Overall Description & $20\ h$ \\
     \hline
-    Specific Requirements & $14\ h$ \\
+    Specific Requirements & $15\ h$ \\
     \hline
-    Formal Analysis & $6\ h$ \\
-    \hline
-    Other & $3\ h$ \\
+    Formal Analysis & $8\ h$ \\
     \hline
     \hline
-    Total & $48 h$ \\
+    Total & $60 h$ \\
     \hline
 \end{tabular}
 
-\subsection{Sassi Alessandro - mat: ...}
+\subsection{Sassi Alessandro - mat: 220837}
 
 \begin{tabular}{|l|l|}
     \hline
     \textbf{Task} & \textbf{Time spent} \\
     \hline
-    Introduction & $\infty h$ \\
+    Introduction & $11\ h $ \\
     \hline
-    Overall Description & $\infty h$ \\
+    Overall Description & $16\ h$ \\
     \hline
-    Specific Requirements & $\infty h$ \\
+    Specific Requirements & $15\ h$ \\
     \hline
-    Formal Analysis & $\infty h$ \\
+    Formal Analysis & $8\ h$ \\
     \hline
-    UI Mockups & $\infty h$ \\
-    \hline
-    Other & $\infty h$ \\
+    UI Mockups & $6\ h$ \\
     \hline
     \hline
-    Total & $5*\infty h$ \\
+    Total & $56\ h$ \\
     \hline
 \end{tabular}
 

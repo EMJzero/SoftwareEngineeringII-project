@@ -74,11 +74,13 @@ This document will follow up on the RASD document with a discussion of the archi
         \hline
         User-price & Cost of a recharge that is shown to the User when they inspect a CS and is what they are charged for. It is set by the CPO/CPMS on a per-CS basis.\\
         \hline
-        Nominal-price & Cost of a recharge at a CS without any discount or offer applied, it is set by the CPO/CPMS. A user-price $<$ nominal-price implies an ongoing special offer. \\
+        Nominal-price & Cost of a recharge at a CS without any discount or offer applied, it is set by the CPO/CPMS on a per-CS basis. A user-price $<$ nominal-price implies an ongoing special offer. \\
         \hline
         Energy source management policy OR Battery usage policy & A per-CS policy given them by the CPMS to allow them to dynamically decide whether to acquire energy from their assigned DSO or from their batteries and when to charge their batteries with energy from their DSO. \\
         \hline
         Charge Point Management System's policy for “Automatic Mode” & The global policy used by the CPMS to operate autonomously, its mainly built around thresholds and weights to allow the CPMS to decide prices and battery usage policies for its CSs. \\
+        \hline
+        Offer reset date & The date, set on a per-CS basis, at which a CS will reset its user-price to the value of its nominal-price, removing any present offer. \\
         \hline
     \end{tabularx}
     \label{tab:definitions}
@@ -118,7 +120,18 @@ This document will follow up on the RASD document with a discussion of the archi
 
 \subsection{Revision History}
 
+\begin{enumerate}
+    \item[v0.1] First draft of the document.
+\end{enumerate}
+
 \subsection{Reference Documents}
+
+\begin{enumerate}
+    \item The provided document describing the project: \textit{Assignment RDD AY 2022-2023-v3}.
+    \item The Software Engineering 2 course held by Prof.s Camilli Matteo, Di Nitto Elisabetta and Rossi Matteo Giovanni.
+    \item \textit{ISO/IEC/IEEE 29148:2011(E)} standard for Requirement Engineering.
+    \item Project of last year provided as an assignment.
+\end{enumerate}
 
 \subsection{Document Structure}
 
@@ -160,7 +173,7 @@ OVERVIEW DIAGRAM HERE
         Back-end component that interfaces the User's web browser with the other application services in the eMSP's back-end. It handles HTTP requests arriving from user-devices by routing them to the corresponding components that can respond to them.
     \item \textbf{eMSP App Server} \\
         The principal back-end component for the eMSP, it contains all the modules that together offer all functionalities available via the eMSP. Requests are routed from the Web Server to the module capable handling them, the response is than sent from the App Server through the Web Server to the User's device. The App Server is also capable of accessing the eMSP DataBase and the external services needed for its functions.
-    \item \textbf{eMSP DB} \\
+    \item \textbf{eMSP DataBase Server} \\
         Component dedicated to data storage for the eMSP, it stores for instance the Users' credentials and bookings, to ensure its safety it can only be accessed by the eMSP's App Server.
     \item \textbf{CPMS Web Application} \\
         A Web Application meant for the desktop devices available to CPO Employees, it runs withing the browser and allows its users to access the management functions of the CPMS. It dialogues with the CPMS Web Server through the HTTP protocol.
@@ -168,7 +181,7 @@ OVERVIEW DIAGRAM HERE
         Back-end component that interfaces the CPO Employees' web browser and the back-ends of the eMSP with the application services in the CPMS's back-end. It handles HTTP requests arriving from the outside by routing them to the corresponding components that can respond to them and allows tunneling of WebSocket connections from CS to the back-end.
     \item \textbf{CPMS App Server} \\
         The principal back-end component for the CPMS, it contains all the modules that together offer all functionalities available to the CPO and eMSPs, as well as being the endpoint where CS connect to in order to be managed. Requests and connections are routed from the Web Server to the module capable handling them, in the fist case the response is than sent from the App Server through the Web Server to the requesting device, in the second case the connection is handled and kept alive by its target module. The App Server is also capable of accessing the CPMS DataBase and the external services needed for its functions.
-    \item \textbf{CPMS DB} \\
+    \item \textbf{CPMS DataBase Server} \\
         Component dedicated to data storage for the CPMS, it stores for instance the credentials for CPO Employees as well as a local copy of the CSs' configurations, to ensure its safety it can only be accessed by the CPMS's App Server.
     \item \textbf{CS} \\
         External entity w.r.t. the STB, it is configured to reach out to the CPMS App Server via a WebSocket connection that allows the CPMS to manage and monitor it.
@@ -180,94 +193,135 @@ OVERVIEW DIAGRAM HERE
 
 \subsection{Component View}
 
+In this section, every major component is analysed in terms of its sub-components. \\
+Everything that is outside of the system is considered as a black box.
+
 COMPONENT DIAGRAM HERE
 
-\subsubsection{eMSP Web Application Component}
+\subsubsection{Client Device}
 
-The client devices access via a web browser the responsive webapp.
+Client devices represent all the devices connected to the internet and used to reach the eMall website. By reaching eMall the \textbf{eMSP Web Application Component} in the form of an interactive web application is loaded by the device's web browser and eMall's UI is shown to the User.\\
+\\
+The \textbf{eMSP Web Application Component} is the front-end that it offers to its Users, it consists of a website offering an interactive web application with a UI that allows Users to access every function offered by eMall. This component does not integrate computational intensive tasks and in itself does not have any data that can instead be provided by eMall's back-end. Its functionalities are limited to error checking, UI rendering and contacting the eMSP's back-end to recover any data needed to offer the User the intended functionalities.
 
 \subsubsection{eMSP Web Server Component}
 
-Contain a Reverse Proxy component that ... 
+The eMSP Web Server is required in order to serve the eMSP Web Application to User, and to allow such Web App to interact with the eMSP's back-end when needed. \\
+\\
+To this end its main sub-component is a \textbf{Request Router}, a Reverse Proxy component that sits in front of the back-end and routes requests from client devices to the back-end services capable of satisfying them, this way the resources returned to clients appear as if they originated from the Web Server itself. \\
+The role of the Reverse Proxy is also to help increase scalability, performance, resilience and security by both acting as a content cache and as a middleware before the back-end. 
 
 \subsubsection{eMSP Application Server Component}
 
+The back-end for the eMSP, as per the hierarchy of components, every request reaching it is first checked for an active session, and only those with one which has a performed valid login are allowed access to components other than \textbf{Register}. \\
+Every component present performs all the required checks on the received data to correctly perform any of its functions.
+
 \begin{itemize}
     \item \textbf{Authentication} \\
-        aaa
+        Sub-component that handles the authentication by checking the credentials for every request reaching the back-end.
     \item \textbf{Login} \\
-        aaa
+        Sub-component which checks the login credentials inserted by Users through the Web App and grants them an authenticated session if those are valid.
     \item \textbf{Register} \\
-        aaa
+        Sub-component that allows Unregistered Users to create a new account with eMall.
     \item \textbf{SearchCS} \\
-        aaa
+        Sub-component whose purpose is to allow authenticated Users to query eMall for the CSs it has available with the use of filters. It returns the list of matching CSs.
     \item \textbf{BookingsManager} \\
-        aaa
+        Sub-component offering the functionalities to both create a new booking and receive the current list of bookings for the authenticated User, with the possibility of deleting any booking. 
     \item \textbf{RechargeManager} \\
-        aaa
+        Sub-component which allows for control over a booking which is currently active, after a User has connected their vehicle to a booked CS, via this component they can start/stop the charging process as well as get notified of the process terminating.
     \item \textbf{PaymentModule} \\
-        aaa
+        Sub-component that interfaces with an external payment provider and allows the eMSP to charge Users for any obtained service or fee if they were not to show up for a booking.
     \item \textbf{DataAccess} \\
-        aaa
+        Sub-component that provides access to the DataBase for every other sub-component.
 \end{itemize}
 
-\subsubsection{CPMS Web Application Component}
+\subsubsection{CPO Device}
 
-The CPO's Employees devices via a web browser access the CPMS management web pages.
+CPO Devices represent all the machines available to CPO Employees to operate with the company's CPMS. \\
+\\
+The \textbf{CPMS Web Application Component} is meant to be ran inside a web browser on the CPO Devices and consequently be available to CPO Employees, it is the front-end offered by the CPMS and its UI is meant to offer to its users all the management functionalities of the CPMS. This component does not integrate computational intensive tasks and does not store locally any data that can instead be provided by the CPMS's back-end. Its functionalities are limited to error checking, UI rendering and contacting the CPMS's back-end to recover any data required for its functionalities.
 
 \subsubsection{CPMS Web Server Component}
 
-Contain a Reverse Proxy component that ... for both HTTP requests and WebSockets from the CS ...
+The CPMS Web Server is required in order to serve the CPMS Web Application to CPO Employees, to allow such Web App to interact with the CPMS's back-end and to allow CS to reach the CPMS with a WebSocket connection, allowing the CPMS to actively manage them. \\
+\\
+To this end its main sub-components are:
+
+\begin{itemize}
+    \item \textbf{Request Router} \\
+        A reverse proxy that sits between a client and the CPMS back-end, its role is to route requests from clients to the back-end services capable of answering them, this way the resources resources returned to clients appear as if they originated from the Web Server itself. The role of the Reverse Proxy is also to help increase scalability, performance, resilience and security by both acting as a content cache and as a middleware before the back-end.
+    \item \textbf{WebSocket Proxy} \\
+        Its role is to tunnel WebSocket connections between the CPMS back-end and the CSs, after those are originated from upgrade requests over HTTP that went through the Request Router.
+\end{itemize}
 
 \subsubsection{CPMS Application Server Component}
 
+The back-end for the CPMS, every request reaching it is let through to the CPO-only components only if it has an active authenticated session with CPO credentials. Access to components that are meant for eMSPs is granted to all eMSPs that are known by the system as long as their request are correctly performed with an authenticated session. \\
+Every component present performs all the required checks on the received data to correctly perform any of its functions.
+
 \begin{itemize}
     \item \textbf{Authentication} \\
-        aaa
+        Sub-component that handles the authentication by checking the credentials for every request reaching the back-end.
     \item \textbf{Login} \\
-        aaa
+        Sub-component which checks the login credentials inserted by CPO Employees through the Web App and grants them an authenticated session if those are valid.
     \item \textbf{CSBatteryPolicyManager} \\
-        aaa
+        Sub-component that allows CPOs to change the policy currently in use by a CS to manage its batteries, it both saves to the CPMS's DataBase updated CS policies as well as requests the \textbd{CSManager} to communicate the updated policies to the actual CS.
     \item \textbf{CSDSOManager} \\
-        aaa
+        Sub-component that allows CPOs to change the DSO currently supplying a CS, it both saves to the CPMS's DataBase updated CS's DSO as well as requests the \textbd{CSManager} to communicate the change to the actual CS.
     \item \textbf{CSPricesManager} \\
-        aaa
+        Sub-component that allows CPOs to change the user-price, the nominal-price and the offer reset date of a CS, it both saves to the CPMS's DataBase updated prices and date as well as requests the \textbd{CSManager} to communicate the updated values to the actual CS.
     \item \textbf{AutomaticModeManager} \\
-        aaa
+        Sub-component which allows CPO Employees to toggle the operating mode of the CPMS from “Automatic Mode” to “Manual Mode” or vice-versa, as well as allowing the CPO to update the CPMS’s policy for “Automatic Mode”.
     \item \textbf{CSList} \\
-        aaa
+        Sub-component providing the CPO and external eMSPs with the list of CS currently under the control of the CPMS. It also accepts filters to reduce the list of provided CSs. If they are requested, details regarding a specific CS can also be provided by this component.
     \item \textbf{RechargeManager} \\
-        aaa
+        Sub-component providing external eMSPs with the possibility of managing, on behalf of their Users, the ongoing charging process to a certain socket of a CS. This module also provides the eMSP feedback on the current status of the charging process. This component dialogues with the \textbd{CSManager} to gather the CS status and forward it commands to manage the charging process.  
     \item \textbf{DSOInformation} \\
-        aaa
+        Sub-component providing the CPO with information regarding the DSOs known by the CPMS. This module also interfaces directly with the DSOs external API to gather their prices and energy mixes. 
+    \item \textbf{CSManager} \\
+        Sub-component that allows the other back-end components to dialogue with CSs, know their real-time status, coordinate their charging processes and update their configuration. This module also accepts WebSocket connections from CS to allow their management.
     \item \textbf{DataAccess} \\
-        aaa
+        Sub-component that provides access to the DataBase for every other sub-component.
 \end{itemize}
 
-\subsubsection{eMSP Data Components}
+\subsubsection{eMSP DataBase Components}
 
-%E-R diagram
+SQL DataBase for the eMSP, it contains the accounts and bookings of all users.
 
-\subsubsection{CPMS Data Components}
+E-R diagram HERE
 
-%E-R diagram
+\subsubsection{CPMS DataBase Components}
+
+SQL DataBase for the CPMS, it contains information on all known CSs and their configurations.
+
+E-R diagram HERE
 
 \subsubsection{External Systems}
 
+Systems outside the scope of this document, whose existence is acknowledge in order to explain the behaviour of certain components of the STB.
+
 \begin{itemize}
     \item \textbf{DSO} \\
-        aaa
+        An endpoint with an exposed API that allows for retrieval of information regarding the DSO's energy mix and prices.
     \item \textbf{Payment Provider} \\
-        aaa
-    \item \textbf{CSBatteryPolicyManager} \\
-        aaa
+        An endpoint that allows, given adequate payment details, to charge someone for a service and move the sum to a certified bank account.
+    \item \textbf{Map Provider} \\
+        A service providing up to date maps for the entire world. It is reached by the eMSP Web Application to improve the UI with an interactive map.
 \end{itemize}
 
-%DSO
-%Payment
-%Maps
-
 \subsection{Deployment View}
+
+Here we describe the arrangement of physical nodes and the components deployed on them. \textbf{Load balancers} and \textbf{Firewalls} are also included in the diagram:
+\begin{itemize}
+    \item \textbf{Firewall} \\
+        Is directly connected to the Internet and filters incoming packets, only letting pass those identified as trustworthy.
+    \item \textbf{Load balancer} \\
+        A device that forwards requests to the back-end's services in accordance to their current load, aiming to distribute work evenly. Its presence improves the maximum load capacity the system can handle and its reliability. 
+\end{itemize}
+
+DEPLOYEMENT DIAGRAM HERE \\
+\\
+Client devices will only need to reach the Web Server of the eMSP, which will then forward their requests to the eMSP's back-end if needed
 
 \subsection{Runtime View}
 
