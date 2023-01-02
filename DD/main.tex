@@ -135,6 +135,8 @@ This document will follow up on the RASD document with a discussion of the archi
 
 \subsection{Document Structure}
 
+\newpage
+
 \section{Architectural Design}
 
 %For now considering: Express (NodeJs) + MySQL/Postgre
@@ -163,8 +165,13 @@ This document will follow up on the RASD document with a discussion of the archi
 \subsection{Overview}
 
 The architecture of the system is organized in \textbf{four layers} distributed over \textbf{four tiers} in a thin client fashion, this results in a monolithic structure that benefits security and maintenance. To be noted however that the modular design of the architecture is already predisposed to allow an easy transitions to microservices when, if ever, the load imposed on the system will require the distribution of its functionalities over many machines. \\
-\\
-OVERVIEW DIAGRAM HERE
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={1}, trim=1cm 1.25cm 1cm 1.25cm, width=\linewidth, clip]{OverviewDiagram.pdf}
+    \caption{Overview Diagram}
+\end{figure}
 
 \begin{itemize}
     \item \textbf{eMSP Web Application} \\
@@ -196,7 +203,27 @@ OVERVIEW DIAGRAM HERE
 In this section, every major component is analysed in terms of its sub-components. \\
 Everything that is outside of the system is considered as a black box.
 
-COMPONENT DIAGRAM HERE
+\newpage
+
+\begin{figure}[!ht]
+    %trim = left bottom right top
+    \centerline{
+        \includegraphics[page={1}, width=1.26\linewidth, trim=0cm 2cm 0cm 4cm, angle=-90, clip]{ComponentDiagram.pdf}
+    }
+    \caption{Component diagram}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+    %trim = left bottom right top
+    \centerline{
+        \includegraphics[page={2}, width=1.26\linewidth, trim=3cm 1cm 4cm 3cm, angle=-90, clip]{ComponentDiagram.pdf}
+    }
+    \caption{Component diagram}
+\end{figure}
+
+\newpage
 
 \subsubsection{Client Device}
 
@@ -279,22 +306,36 @@ Every component present performs all the required checks on the received data to
     \item \textbf{DSOInformation} \\
         Sub-component providing the CPO with information regarding the DSOs known by the CPMS. This module also interfaces directly with the DSOs external API to gather their prices and energy mixes. 
     \item \textbf{CSManager} \\
-        Sub-component that allows the other back-end components to dialogue with CSs, know their real-time status, coordinate their charging processes and update their configuration. This module also accepts WebSocket connections from CS to allow their management.
+        Sub-component that allows the other back-end components to dialogue with CSs, know their real-time status, coordinate their charging processes and update their configuration. CS signal this module when one of their recharges is complete, and this module forwards such notification to the eMSP. This module also accepts WebSocket connections from CS to allow their management.
     \item \textbf{DataAccess} \\
         Sub-component that provides access to the DataBase for every other sub-component.
 \end{itemize}
+
+\newpage
 
 \subsubsection{eMSP DataBase Components}
 
 SQL DataBase for the eMSP, it contains the accounts and bookings of all users.
 
-E-R diagram HERE
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={1}, trim=1.5cm 6cm 1.5cm 6cm, width=\linewidth, clip]{ERDiagrams.pdf}
+    \caption{eMSP ER Diagram}
+\end{figure}
 
 \subsubsection{CPMS DataBase Components}
 
 SQL DataBase for the CPMS, it contains information on all known CSs and their configurations.
 
-E-R diagram HERE
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={2}, trim=5cm 3.5cm 5cm 3.5cm, width=\linewidth, clip]{ERDiagrams.pdf}
+    \caption{CPMS ER Diagram}
+\end{figure}
+
+\newpage
 
 \subsubsection{External Systems}
 
@@ -309,6 +350,8 @@ Systems outside the scope of this document, whose existence is acknowledge in or
         A service providing up to date maps for the entire world. It is reached by the eMSP Web Application to improve the UI with an interactive map.
 \end{itemize}
 
+\newpage
+
 \subsection{Deployment View}
 
 Here we describe the arrangement of physical nodes and the components deployed on them. \textbf{Load balancers} and \textbf{Firewalls} are also included in the diagram:
@@ -319,11 +362,161 @@ Here we describe the arrangement of physical nodes and the components deployed o
         A device that forwards requests to the back-end's services in accordance to their current load, aiming to distribute work evenly. Its presence improves the maximum load capacity the system can handle and its reliability. 
 \end{itemize}
 
-DEPLOYEMENT DIAGRAM HERE \\
-\\
-Client devices will only need to reach the Web Server of the eMSP, which will then forward their requests to the eMSP's back-end if needed
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={1}, trim=0cm 0cm 0cm 0cm, width=\linewidth, clip]{DeploymentView.pdf}
+    \caption{Deployment View}
+\end{figure}
+    
+Client devices will only need to reach the Web Server of the eMSP, which will then forward their requests to the eMSP's back-end if needed.
+
+\newpage
 
 \subsection{Runtime View}
+
+In this section the dynamic behaviour of the system is presented via sequence diagrams that summarize all the possible interactions that can be had with both the eMSP or the CPMS. Each diagram further expands on those discussed in the RASD document in section 3.2.3 .
+
+\begin{description}
+    \item \textbf{1. New user registration}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={1}, trim=0cm 18cm 16cm 1cm, width=\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{New user registration}
+    \end{figure}
+    
+    \item \textbf{2. User login}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={2}, trim=0cm 20cm 25cm 1cmm, width=\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{User login}
+    \end{figure}
+    
+    \newpage
+    
+    \item \textbf{3. User searching and booking a CS}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={3}, trim=0cm 5cm 0cm 1cmm, width=\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{User login}
+    \end{figure}
+    
+    \item \textbf{4. User deleting one of his bookings}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={4}, trim=0cm 10cm 21cm 1cmm, width=0.95\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{User deleting one of his bookings}
+    \end{figure}
+    
+    \newpage
+    
+    \item \textbf{5. User starting a charging process}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={5}, trim=0cm 7cm 8cm 1cmm, width=\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{User starting a charging process}
+    \end{figure}
+    
+    \item \textbf{6. User interrupting a charging process}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={6}, trim=0cm 3cm 1cm 1cmm, width=\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{User interrupting a charging process}
+    \end{figure}
+    
+    \newpage
+    
+    \item \textbf{7. Charging procedure self-terminates and User receives a notification}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={7}, trim=0cm 16cm 0cm 1cmm, width=\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{Charging procedure self-terminates and User receives a notification}
+    \end{figure}
+    
+    \item \textbf{8. User does not show up for a booked recharge}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={8}, trim=0cm 19cm 26cm 1cmm, width=0.8\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{User does not show up for a booked recharge}
+    \end{figure}
+    
+    \item \textbf{9. CPO logs in into the CPMS}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={9}, trim=0cm 20cm 25cm 1cmm, width=0.95\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{CPO logs in into the CPMS}
+    \end{figure}
+    
+    \newpage
+    
+    \item \textbf{10. CPO retrieves energy prices and mixes from DSOs}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={10}, trim=0cm 17cm 25cm 1cmm, width=\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{CPO retrieves energy prices and mixes from DSOs}
+    \end{figure}
+    
+    \newpage
+    
+    \item \textbf{11. CPO assigns nominal-price, user-price, energy sources and battery usage policies for a CS} \\
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={11}, trim=0cm 4cm 1cm 1cm, width=\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{CPO assigns nominal-price, user-price, energy sources and battery usage policies for a CS}
+    \end{figure} \\
+    This diagram summarized 3 views in one, by simply substituting the following components and interactions to the $\ast s$ one can obtain the different versions:
+    \begin{enumerate}
+        \item \textbf{CPO assigns nominal-price, user-price}
+        \begin{description}
+            \item $\ast\ \rightarrow$ CSPricesManager
+            \item $\ast\ast \rightarrow$ updateCSPrices(CSID, userprice, nominalprice)
+            \item $\ast\ast\ast \rightarrow$ updateCSPrices(userprice, nominalprice)
+        \end{description}
+        \item \textbf{CPO assigns energy sources}
+        \begin{description}
+            \item $\ast \rightarrow$ CSDSOManager
+            \item $\ast\ast \rightarrow$ updateCSDSO(CSID, DSOId)
+            \item $\ast\ast\ast \rightarrow$ updateCSDSO(DSOId)
+        \end{description}
+        \item \textbf{CPO assigns energy battery usage policies}
+        \begin{description}
+            \item $\ast \rightarrow$ CSBatteryPolicyManager
+            \item $\ast\ast \rightarrow$ updateCSBatteryPolicy(CSID, thresholds, weights)
+            \item $\ast\ast\ast \rightarrow$ updateCSBatteryPolicy(thresholds, weights)
+        \end{description}
+    \end{enumerate}
+    
+    \newpage
+    
+    \item \textbf{12. CPO toggles the CPMS operating mode}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={12}, trim=0cm 16cm 28cm 1cmm, width=0.95\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{CPO toggles the CPMS operating mode}
+    \end{figure}
+    
+    \item \textbf{13. CPO changes the CPMS’s “Automatic Mode” policy}
+    %trim = left bottom right top
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[page={13}, trim=0cm 15cm 27cm 1cmm, width=0.95\linewidth, clip]{RuntimeDiagrams.pdf}
+        \caption{CPO CPO changes the CPMS’s “Automatic Mode” policy}
+    \end{figure}
+\end{description}
+
+\newpage
 
 \subsection{Component Interfaces}
 
