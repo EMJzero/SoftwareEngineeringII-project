@@ -12,6 +12,7 @@
 \usepackage{parskip}
 \usepackage{ffcode}
 \usepackage{graphicx}
+\usepackage{caption}
 
 \usepackage[margin=2cm]{geometry}
 
@@ -43,6 +44,8 @@ Electric vehicles are starting to grow in number, and their takeover of combusti
 This document will follow up on the RASD document with a discussion of the architectural design of the system, its main architectural components and their interfaces. It will also cover the plans for implementation and integration, as well as those for testing, with the goal of guiding the development process. \\
 
 \subsection{Scope}
+
+This DD document takes into consideration the requirements and specifications of the eMSP platform “eMall”, together with its interaction with one or more CPMSs. The stakeholders considered are the End Users who interact with the “eMall” platform, CPOs owning the respective CSs and CPMSs, and DSOs offering their services to the aforementioned parties.
 
 \subsection{Definitions, Acronyms and Abbreviations}
 
@@ -114,6 +117,8 @@ This document will follow up on the RASD document with a discussion of the archi
         \hline
         OS & Operating system \\
         \hline
+        DB & Database \\
+        \hline
     \end{tabularx}
     \label{tab:acronyms}
 \end{table}
@@ -134,6 +139,18 @@ This document will follow up on the RASD document with a discussion of the archi
 \end{enumerate}
 
 \subsection{Document Structure}
+
+The document is divided into the following N sections.
+
+The \textbf{architecture design} introduces the structure of the STB and its main components in regard to both the eMSP and the CPMS. Every component is thoughtfully described in its purpose and position in the components hierarchy. Following the components description in a view of how the STB will be deployed and its runtime interactions between the various components of across both the eMSP and CPMS. In the subsection the main design decision behind the system architecture are elicitated and discussed in futher details. \\
+\\
+The \textbf{user interface design} section resumes what was already present in the RASD document and futher expands on it. \\
+\\
+The \textbf{implementation, integration and test plan} section then proceeds to discuss how the architecture previously described will be realized, with its modules integrated and tested in order to guarantee the correctness of the final product, w.r.t. the requirements and directions expressed both in this document and the RASD, during each step of development. \\
+\\
+The \textbf{effort spent} section presents data regarding the amount of time each team member invested in the creation of this document. \\
+\\
+Finally \textbf{references} are reported.
 
 \newpage
 
@@ -164,7 +181,9 @@ This document will follow up on the RASD document with a discussion of the archi
 
 \subsection{Overview}
 
-The architecture of the system is organized in \textbf{four layers} distributed over \textbf{four tiers} in a thin client fashion, this results in a monolithic structure that benefits security and maintenance. To be noted however that the modular design of the architecture is already predisposed to allow an easy transitions to microservices when, if ever, the load imposed on the system will require the distribution of its functionalities over many machines. \\
+The system architecture can be split into 2 main parts: one for the eMSP, the other one for the CPMS. \\
+The eMSP adopts an architecture organized into \textbf{four layers} distributed over \textbf{four tiers}, resulting in a monolithic structure with benefits for security and maintenance, given that there are less entry points for possible attack vectors. This monolityic architecture is also quite appropriate for the system-to-be, since the services it needs to provide are all closely related. However, it should be noted that its modular approach would allow for an easy transition to microservices when, if ever, the load imposed on the system will require the distribution of its functionalities over multiple machines. Therefore, the eMSP system is composed of a \textbf{presentation layer}, running the client-side application, a \textbf{Web Server} and \textbf{Application Server} to handle API routing and web app page serving, and finally a \textbf{dedicated DB Server}. \\
+The CPMS adopts an analogous architectural pattern, with the same \textbf{four layers} and \textbf{four tiers}. However, in order to communicate with the CSs it owns, they are modeled as clients, which run a custom application and communicate with the CPMS platform through the Web Server and its exposed APIs. \\
 
 %trim = left bottom right top
 \begin{figure}[!ht]
@@ -176,19 +195,22 @@ The architecture of the system is organized in \textbf{four layers} distributed 
 \begin{itemize}
     \item \textbf{eMSP Web Application} \\
         A Web Application that runs within the User’s web browser and that gives them access to the eMall services. All the resources it needs get downloaded to the User's browser from the eMSP Web Server as the the device reaches it through HTTP requests.
+
+    \newpage
+
     \item \textbf{eMSP Web Server} \\
         Back-end component that interfaces the User's web browser with the other application services in the eMSP's back-end. It handles HTTP requests arriving from user-devices by routing them to the corresponding components that can respond to them.
     \item \textbf{eMSP App Server} \\
-        The principal back-end component for the eMSP, it contains all the modules that together offer all functionalities available via the eMSP. Requests are routed from the Web Server to the module capable handling them, the response is than sent from the App Server through the Web Server to the User's device. The App Server is also capable of accessing the eMSP DataBase and the external services needed for its functions.
-    \item \textbf{eMSP DataBase Server} \\
+        The principal back-end component for the eMSP, it contains all the modules that together offer all functionalities available via the eMSP. Requests are routed from the Web Server to the module capable handling them, the response is than sent from the App Server through the Web Server to the User's device. The App Server is also capable of accessing the eMSP DB and the external services needed for its functions.
+    \item \textbf{eMSP DB Server} \\
         Component dedicated to data storage for the eMSP, it stores for instance the Users' credentials and bookings, to ensure its safety it can only be accessed by the eMSP's App Server.
     \item \textbf{CPMS Web Application} \\
         A Web Application meant for the desktop devices available to CPO Employees, it runs withing the browser and allows its users to access the management functions of the CPMS. It dialogues with the CPMS Web Server through the HTTP protocol.
     \item \textbf{CPMS Web Server} \\
         Back-end component that interfaces the CPO Employees' web browser and the back-ends of the eMSP with the application services in the CPMS's back-end. It handles HTTP requests arriving from the outside by routing them to the corresponding components that can respond to them and allows tunneling of WebSocket connections from CS to the back-end.
     \item \textbf{CPMS App Server} \\
-        The principal back-end component for the CPMS, it contains all the modules that together offer all functionalities available to the CPO and eMSPs, as well as being the endpoint where CS connect to in order to be managed. Requests and connections are routed from the Web Server to the module capable handling them, in the fist case the response is than sent from the App Server through the Web Server to the requesting device, in the second case the connection is handled and kept alive by its target module. The App Server is also capable of accessing the CPMS DataBase and the external services needed for its functions.
-    \item \textbf{CPMS DataBase Server} \\
+        The principal back-end component for the CPMS, it contains all the modules that together offer all functionalities available to the CPO and eMSPs, as well as being the endpoint where CS connect to in order to be managed. Requests and connections are routed from the Web Server to the module capable handling them, in the fist case the response is than sent from the App Server through the Web Server to the requesting device, in the second case the connection is handled and kept alive by its target module. The App Server is also capable of accessing the CPMS DB and the external services needed for its functions.
+    \item \textbf{CPMS DB Server} \\
         Component dedicated to data storage for the CPMS, it stores for instance the credentials for CPO Employees as well as a local copy of the CSs' configurations, to ensure its safety it can only be accessed by the CPMS's App Server.
     \item \textbf{CS} \\
         External entity w.r.t. the STB, it is configured to reach out to the CPMS App Server via a WebSocket connection that allows the CPMS to manage and monitor it.
@@ -259,7 +281,7 @@ Every component present performs all the required checks on the received data to
     \item \textbf{PaymentModule} \\
         Sub-component that interfaces with an external payment provider and allows the eMSP to charge Users for any obtained service or fee if they were not to show up for a booking.
     \item \textbf{DataAccess} \\
-        Sub-component that provides access to the DataBase for every other sub-component.
+        Sub-component that provides access to the DB for every other sub-component.
 \end{itemize}
 
 \subsubsection{CPO Device}
@@ -292,11 +314,11 @@ Every component present performs all the required checks on the received data to
     \item \textbf{Login} \\
         Sub-component which checks the login credentials inserted by CPO Employees through the Web App and grants them an authenticated session if those are valid.
     \item \textbf{CSBatteryPolicyManager} \\
-        Sub-component that allows CPOs to change the policy currently in use by a CS to manage its batteries, it both saves to the CPMS's DataBase updated CS policies as well as requests the \textbd{CSManager} to communicate the updated policies to the actual CS.
+        Sub-component that allows CPOs to change the policy currently in use by a CS to manage its batteries, it both saves to the CPMS's DB updated CS policies as well as requests the \textbd{CSManager} to communicate the updated policies to the actual CS.
     \item \textbf{CSDSOManager} \\
-        Sub-component that allows CPOs to change the DSO currently supplying a CS, it both saves to the CPMS's DataBase updated CS's DSO as well as requests the \textbd{CSManager} to communicate the change to the actual CS.
+        Sub-component that allows CPOs to change the DSO currently supplying a CS, it both saves to the CPMS's DB updated CS's DSO as well as requests the \textbd{CSManager} to communicate the change to the actual CS.
     \item \textbf{CSPricesManager} \\
-        Sub-component that allows CPOs to change the user-price, the nominal-price and the offer reset date of a CS, it both saves to the CPMS's DataBase updated prices and date as well as requests the \textbd{CSManager} to communicate the updated values to the actual CS.
+        Sub-component that allows CPOs to change the user-price, the nominal-price and the offer reset date of a CS, it both saves to the CPMS's DB updated prices and date as well as requests the \textbd{CSManager} to communicate the updated values to the actual CS.
     \item \textbf{AutomaticModeManager} \\
         Sub-component which allows CPO Employees to toggle the operating mode of the CPMS from “Automatic Mode” to “Manual Mode” or vice-versa, as well as allowing the CPO to update the CPMS’s policy for “Automatic Mode”.
     \item \textbf{CSList} \\
@@ -308,14 +330,14 @@ Every component present performs all the required checks on the received data to
     \item \textbf{CSManager} \\
         Sub-component that allows the other back-end components to dialogue with CSs, know their real-time status, coordinate their charging processes and update their configuration. CS signal this module when one of their recharges is complete, and this module forwards such notification to the eMSP. This module also accepts WebSocket connections from CS to allow their management.
     \item \textbf{DataAccess} \\
-        Sub-component that provides access to the DataBase for every other sub-component.
+        Sub-component that provides access to the DB for every other sub-component.
 \end{itemize}
 
 \newpage
 
-\subsubsection{eMSP DataBase Components}
+\subsubsection{eMSP DB Components}
 
-SQL DataBase for the eMSP, it contains the accounts and bookings of all users.
+SQL DB for the eMSP, it contains the accounts and bookings of all users.
 
 %trim = left bottom right top
 \begin{figure}[!ht]
@@ -324,9 +346,9 @@ SQL DataBase for the eMSP, it contains the accounts and bookings of all users.
     \caption{eMSP ER Diagram}
 \end{figure}
 
-\subsubsection{CPMS DataBase Components}
+\subsubsection{CPMS DB Components}
 
-SQL DataBase for the CPMS, it contains information on all known CSs and their configurations.
+SQL DB for the CPMS, it contains information on all known CSs and their configurations.
 
 %trim = left bottom right top
 \begin{figure}[!ht]
@@ -512,25 +534,326 @@ In this section the dynamic behaviour of the system is presented via sequence di
     \begin{figure}[!ht]
         \centering
         \includegraphics[page={13}, trim=0cm 15cm 27cm 1cmm, width=0.95\linewidth, clip]{RuntimeDiagrams.pdf}
-        \caption{CPO CPO changes the CPMS’s “Automatic Mode” policy}
+        \caption{CPO changes the CPMS’s “Automatic Mode” policy}
     \end{figure}
 \end{description}
+%Salve!
+%Ciao! Come va?
+%Ho un pelo di febbre...però a parte quello tutto bene dai!
+%Ahio... iniziamo l'anno?
+%Ma neh ahahah, pace, tanto sicuramente ho preso freddo, un giono al massimo e sto bene! Tu invece, tutto ok?
+%Eh col tempo che c'è tra l'altro... Ma sei qui a Milano?
+%Nono, a casetta al calduccio ahaha, a Milano non ci metto piede almeno fino all'esame di FOR
+%E fai bene ahaha qui è grigio e piove tutti i giorni :sad:
+%BTW stavo pensando: per descrivere l'architettura non ci conviene splittare (almeno nella overview dove spieghiamo un po' tutto a grandi linee) la roba lato eMSP e CPMS?
+%Mhhh, direi che si può fare tranquillamente, non so esattamente cosa scriveresti nelle due sezioni, ma se hai qualcosa in mente, vai pure!
+%Onsetamente lato CPMS non so manco io cosa mettere, mi sembra tutto self-evident dal diagramma (che poi è venuto molto bene) però vabbè mi invento qualcosa sicuro!
+%Onesto, allora al massimo inserisci la sezione extra solo per l'eMSP e pace...
+%Aspe quale sezione extra?
+%Se volevi aggiungere una descrizione "descrivere l'architettura non ci conviene splittare"
+%Ah no io intendevo che nella overview spiego prima quella dell'eMSP (come sistema a sè) e poi quella del CPMS (come sistema a sè) quindi con tutte le tier ecc
+%Ahhhh, sorry, avevo capito male, allora niente, va benissimo anche se scrivi un tot per l'eMSP e poi per il CPMS la chiudi in fretta perchè in effetti c'è ben poco da dire...
+%Eh già, non c'è molto da dire per quello... Ok
+%Perfetto, allora mentre tu fai quella parte io fixo due o tre cose che non mi piacciono dei diagrammi vari e poi ci sono da fare solo quelli dell'integration...
+%Ovvero? Oh no l'integration.... Ma cosa non ti piace?
+%Ah, solo qualche freccia non centrata o blocchi non allineati XD
+%Aaah no pensavo che ci fosse roba strutturale da cambiare
+%Nonono, spero quello di non doverci più mettere mano, anche perchè oramai il tempo non lo permette...
+%Well... tecnicamente possiamo fare modifiche fino al 17 febbraio eh... però abbiamo anche gli esami e l'implementazione da fare, quindi non so quanto modificheremo
+%No, infatti, io direi di finire coll'8-9 massimo e chiuderla lì col DD, fare l'implementazione ed al massimo tornare a fixare il DD a fine progetto, che tanto dalla mail dell'altro giorno ci è concesso!
+%Concordo pienamente!
+%Perfetto, allora io direi che stasera mi fixo i grafici e poi vado a dormire sperando di star meglio domani...poi che ne diresti domani sera o dopodomani di sentirci su discord per finire tutto?
+%Se non ho call di DSD si può fare sì... magari dopo cena così sono un po' più sicuro di non avere nulla se ti va bene, altrimenti quando vuoi
+%Assolutamente, tanto anche io fino alle 19 studio, quindi ci sarei alle ~21
+%Ehehe idem
+%Oki dai, allora ci sentiamo domani, se succede qualcosa con DSD fammi sapere any time!
+%Sure!
+%BTW abbiamo fatto un video di demo di DSD io ed Ema all'1 di notte... se vuoi ti mando il link
+%Oddio ahahahahah, sono seriamente curioso XD
+%Te lo mando su TG!
+%Okkkk, nel mentre metto overleaf in background, 'Notte!
+%Notte!
 
 \newpage
 
 \subsection{Component Interfaces}
 
+This section provides a summary of the interfaces required and offered by the various components of both the eMSP and CPMS in the form of the following diagram.
+
+\begin{figure}[!ht]
+    %trim = left bottom right top
+    \centerline{
+        \includegraphics[page={1}, width=1.18\linewidth, trim=0cm 3.25cm 2cm 0cm, angle=-90, clip]{InterfacesDiagram.pdf}
+    }
+    \caption{Interfaces diagram}
+\end{figure}
+
+\newpage
+
 \subsection{Selected Architectural Styles and Patterns}
+
+Regarding architectural styles, both systems will use a \textbf{Client-Server} architecture, where clients can be both consumer-accessible devices (e.g. laptops, desktop PCs) or, as is the case for the CPMS, internal CS software. For communication, \textbf{REST APIs} are extensively used to expose a standard interface to all clients involved in the process, while adopting a de-facto industry standard for client-server communication. \\
+To support the aforementioned client-server communication, the \textbf{HTTP} protocol is used, except for messages exchanged between the CSs and CPMS, which adopt the \textbf{WebSocket} protocol. \\
+A \textbf{Model-View-Controller} approach is adopted for both the eMSP and CPMS infrastructures. The three components can be mapped as follows:
+\begin{itemize}
+    \item \textbf{View}: The Client-side HTML/CSS code, as well as JavaScript views used to present data to the user;
+    \item \textbf{Controller}: The Client-side modules used to asynchronously request and send data to the back-end, but also the Server-side components handling all API routes;
+    \item \textbf{Model}: Server-side representations of the data stored in the DB;
+\end{itemize}
+Therefore, the client can be classified as a \textbf{Fat Client}, since it incorporates part of the controller logic to handle asynchronous client-to-server communication and view updates. \\
+This architectural style also maps easily to the \textbf{4-tier} architecture used by both systems, where the \textbf{Presentation Layer} includes both the \textbf{View} and part of the \textbf{Controller} (due to the fat client approach), the \textbf{Web Server} and \textbf{Application Server} run all the server-side \textbf{Controller} modules, as well as abstract \textbf{Model} representations, and the \textbf{DB Server} manages all the \textbf{Model} data. \\
+Finally, the common \textbf{Observer} pattern is adopted for asynchronous events that require an action or a response by either a client or server. This pattern is employed mostly to handle CS event notifications, as well as for managing events such as a user skipping one of their bookings. \\
 
 \subsection{Other Design Decision}
 
+For security reasons, all passwords are never stored as clear text, but rather encoded using standard hashing algorithms (Ex: Bcrypt). \\
+%If there is something to say about interactions with external stuff
+
+\newpage
+
 \section{User Interface Design}
+
+The interface eMall will use is a web app, through which its Users will have available all \hyperref[subsec:prodfunctions]{product functions}. Such web app will need to be usable both on desktop and mobile devices, since a mobile device is what users will most likely have available to them while at the CS. \\
+In order to allow the User to select an area of interest while searching for CSs, the user interface will make use of a map. \\
+\\
+What follows are some mockups for the eMSP's user interface design.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{Signup.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Signup page mockup \\
+    %Is this enough of a description for ya?
+    Users will be able to register into eMall by compiling the form with their data}
+    \label{fig:my_label}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{Login.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Login page mockup \\
+    Users will be able to log into their eMall account by inserting their credentials}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{Home.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Home page mockup \\
+    Users will be able to click on the “See All” button to be redirected to the page with all their bookings}
+    \label{fig:my_label}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{Bookings.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Bookings page mockup \\
+    Users will see the list of their bookings, with the option to delete any non-active one and to start their charge for any active booking with a vehicle connected}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{Stations.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Stations page mockup \\
+    Users can use the map together with the time selector to filter the search}
+    \label{fig:my_label}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{StationDetail.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Station Details page mockup \\
+    Users can click on “Book Your Charge” to open the page for booking creation}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=180mm]{BookCharge.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{BookCharge page mockup \\
+    Users can select the time slot for their booking as well as charge speed and socket type among the available ones}
+    \label{fig:my_label}
+\end{figure}
+
+Similarly, CPMSs will offer their functionality to CPOs via a web portal, here there is no need to support anything other than a desktop device, since CPMSs are intended to be managed by employees in a company environment. Follow some mockups for the CPMS's user interface.
+
+MOCKUPS HERE FOR CPMS!!!!
+
+\newpage
 
 \section{Requirements Traceability}
 
 \section{Implementation, Integration and Test Plan}
 
-%Bottom-up
+Here we discuss how the architecture previously described will be realized, with its modules integrated and tested in order to guarantee the correctness of the final product, w.r.t. the requirements and directions expressed both in this document and the RASD, during each step of development.
+
+\subsection{Implementation}
+
+The implementation will proceed separately for the two main parts that the system is divided into, the eMSP and the CPMS, since the two can easily be implemented just by knowing the exposed interfaces of the other and no further knowledge. That being said, withing each part the implementation order can be the following:
+
+\subsubsection{eMSP}
+
+\begin{enumerate}
+    \item The \textbf{Database} is the first component to implement as the way data is organized within it has to be reflected by the Data Access component.
+    \item The \textbf{Data Access} component can be realized immediately after the DB, as it allows access from the other modules to the data it stores and is also relatively simple, mainly realizing ORM.
+    \item The \textbf{Payment Module} as it is the gateway to interfaces with the Payment Provider, it needs to be implemented before the components which need access to the former.
+    \item The following components can all be implemented concurrently as they have no dependencies with one-another and all constitute the interfaces which the Web Application relies upon.
+    \begin{itemize}
+        \item Login
+        \item Register
+        \item Serch CS
+        \item Bookings Manager
+        \item Recharge Manager
+    \end{itemize}
+    \item The \textbf{Authentication} component can be realized after the other back-end components, since all of them either rely on authenticated connections or grant them to clients, but only the request router uses this component to verify the session of a connected client.
+    \item The \textbf{Web Application} is realized for last as it is the less critical component and its testing can be highly aided by the existence of all the other back-end components. To be noted that the Web Application's UI design, not its functionalities, can be realized at any time, while the development of the application is bonded to this sequence.
+\end{enumerate}
+
+\subsubsection{CPMS}
+
+\begin{enumerate}
+    \item The \textbf{Database} is the first component to implement as the way data is organized within it has to be reflected by the Data Access component.
+    \item The \textbf{Data Access} component can be realized immediately after the DB, as it allows access from the other modules to the data it stores and is also relatively simple, mainly realizing ORM.
+    \item The \textbf{CS Manager} is a critical component that needs to be realized before the others as it handles communications with the CSs and offers the functionalities that allow other components to configure CSs.
+    \item The following components can all be implemented concurrently as they have no dependencies with one-another, they either expose and API for the CPO's web application or an API intended for the eMSP. 
+    \begin{itemize}
+        \item Login
+        \item CS Battery Policy Manager
+        \item CS DSO Manager
+        \item CS Prices Manager
+        \item Automatic Mode Manager
+        \item CS List
+        \item Recharge Manager
+        \item DSO Information
+    \end{itemize}
+    \item The \textbf{Authentication} component can be realized after the other back-end components, since all of them either rely on authenticated connections or grant them to clients, but only the request router uses this component to verify the session of a connected client.
+    \item The \textbf{Web Application} is realized for last as it is the less critical component and its testing can be highly aided by the existence of all the other back-end components. To be noted that the Web Application's UI design, not its functionalities, can be realized at any time, while the development of the application is bonded to this sequence.
+\end{enumerate}
+
+\subsection{Integration and Testing}
+
+In this section we present our integration and testing plan for both systems. Since the two systems are designed to be distinct, they are first tested separately, following two parallel bottom-up approaches while stubbing the CPMS (for the eMSP) and writing a driver of the eMSP (for the CPMS). After all tests have been carried out (that is, all unit tests and bottom-up integration testing) the final integration of the two systems is carried out by removing stubs and drivers and using the pre-defined interfaces for communication between the two parties. \\
+As hinted above, the two systems will use the following testing plan:
+\begin{enumerate}
+    \item \textbf{Unit Testing} of each component;
+    \item \textbf{Bottom-Up Integration Testing} with appropriate drivers;
+    \item \textbf{Final Integration Testing} by removing the CPMS stub (on the eMSP side) and the eMSP-like driver (on the CPMS side)
+\end{enumerate}
+This plan allows for easier bug identification and fixing, and ensures that whenever a component is finished its behavior is fully compliant with all the requirements. \\
+It should be noted, however, that some components must be assumed to work as expected, since they are external modules that cannot be tested. An example of this is the DBMS, which is stubbed in all unit tests. \\
+In addition, a variety of System Tests are used to ensure that properties of the system as a whole are respected. In particular, the following tests are adopted:
+\begin{itemize}
+    \item \textbf{Functional Testing}, to make sure that each requirement specified in the RASD document has been implemented properly;
+    \item \textbf{Performance Testing}, to analyze key metrics of the performance of the system (such as response time) and identify and remove possible bottlenecks that would hamper the user experience;
+    \item \textbf{Stress Testing}, to ensure that the system remains stable even under heavy or unforeseen load conditions.
+\end{itemize}
+Below is a list of diagrams illustrating the bottom-up integration testing approach and how all modules are progressively integrated and tested together. \\
+
+\subsubsection{eMSP Integration}
+
+%trim = left bottom right top 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={1}, trim=0cm 31cm 46cm 0cmm, clip]{IntegrationDiagram.pdf}
+    \caption{Data Access component integration}
+\end{figure}
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={2}, trim=0cm 31cm 46cm 0cmm, clip]{IntegrationDiagram.pdf}
+    \caption{Payment Module component integration}
+\end{figure}
+
+\newpage
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={3}, trim=0cm 27cm 26.5cm 0cmm, width=\linewidth, clip]{IntegrationDiagram.pdf}
+    \caption{Bookings Manager, Recharge Manager, SearchCS, Register and Login components integration}
+\end{figure}
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={4}, trim=0cm 22.5cm 26.5cm 0cmm, width=\linewidth, clip]{IntegrationDiagram.pdf}
+    \caption{Authentication and Request Router components integration}
+\end{figure}
+
+\newpage
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={5}, trim=0cm 22.5cm 26.5cm 0cmm, width=\linewidth, clip]{IntegrationDiagram.pdf}
+    \caption{Full integration}
+\end{figure}
+
+\subsubsection{CPMS Integration}
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={6}, trim=0cm 31cm 46cm 0cmm, clip]{IntegrationDiagram.pdf}
+    \caption{Data Access component integration}
+\end{figure}
+
+\newpage
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={7}, trim=0cm 28.5cm 36.5cm 0cmm, width=0.7\linewidth, clip]{IntegrationDiagram.pdf}
+    \caption{CS Manager component integration}
+\end{figure}
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={8}, trim=0cm 25.5cm 14cm 0cmm, width=\linewidth, clip]{IntegrationDiagram.pdf}
+    \caption{DSO Information, Recharge Manger, CS List, Automatic Mode Manager, CS Prices Manager, CS DSO Manager, CS Battery Policy Manager and Login component integration}
+\end{figure}
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={9}, trim=0cm 21cm 14cm 0cmm, width=\linewidth, clip]{IntegrationDiagram.pdf}
+    \caption{Authentication and Request Router component integration}
+\end{figure}
+
+\newpage
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={10}, trim=0cm 21cm 14cm 0cmm, width=\linewidth, clip]{IntegrationDiagram.pdf}
+    \caption{Full integration}
+\end{figure}
+
+\subsubsection{Whole System Integration}
+
+%trim = left bottom right top
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[page={11}, trim=0cm 11cm 13cm 0cmm, width=\linewidth, clip]{IntegrationDiagram.pdf}
+    \caption{eMSP and CPMS integration}
+\end{figure}
+
+\newpage
 
 \section{Effort Spent}
 
@@ -583,5 +906,13 @@ In this section the dynamic behaviour of the system is presented via sequence di
 \newpage
 
 \section{References}
+\label{section:references}
 
+\begin{enumerate}
+    \item \href{https://www.chargelab.co/}{ChargeLab - operating system for EV charges}
+    \item \href{https://www.platformelectromobility.eu/2022/05/17/ev-charging-how-to-tap-in-the-grid-smartly/}{Platform for Electromobility. EV Charging: How to tap in the grid smartly?}.
+    \item \href{https://mobilityintegrationsymposium.org/wp-content/uploads/sites/10/2018/11/4A_3_Emob18_024_paper_Filipe_Campos.pdf}{F. Campos, L. Marques, and K. Kotsalos, Electric Vehicle CPMS and Secondary Substation Management}.
+    \item \href{https://doi.org/10.1145/3297067.3297078}{Shu Su, Hui Yan, and Ning Ding. 2018. Machine Learning-Based Charging Network Operation Service Platform Reservation Charging Service System. In Proceedings of the 2018 International Conference on Signal Processing and Machine Learning (SPML '18). Association for Computing Machinery, New York, NY, USA, 1–5}.
+    \item Jan Mrkos, Antonín Komenda, and Michal Jakob. 2018. Revenue Maximization for Electric Vehicle Charging Service Providers Using Sequential Dynamic Pricing. In Proceedings of the 17th International Conference on Autonomous Agents and MultiAgent Systems (AAMAS '18). International Foundation for Autonomous Agents and Multiagent Systems, Richland, SC, 832–840.
+\end{enumerate}
 \end{document}
