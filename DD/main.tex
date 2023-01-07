@@ -34,6 +34,8 @@
 \tableofcontents
 \singlespacing
 
+\newpage
+
 \section{Introduction}
 \label{section:introduction}
 
@@ -140,9 +142,7 @@ This DD document takes into consideration the requirements and specifications of
 
 \subsection{Document Structure}
 
-The document is divided into the following N sections.
-
-The \textbf{architecture design} introduces the structure of the STB and its main components in regard to both the eMSP and the CPMS. Every component is thoughtfully described in its purpose and position in the components hierarchy. Following the components description in a view of how the STB will be deployed and its runtime interactions between the various components of across both the eMSP and CPMS. In the subsection the main design decision behind the system architecture are elicitated and discussed in futher details. \\
+The \textbf{architecture design} introduces the structure of the STB and its main components in regard to both the eMSP and the CPMS. Every component is thoughtfully described in its purpose and position in the components hierarchy. Following the components description in a view of how the STB will be deployed and its runtime interactions between the various components of across both the eMSP and CPMS. In the subsection the main design decision behind the system architecture are elicitated and discussed in further details. \\
 \\
 The \textbf{user interface design} section resumes what was already present in the RASD document and futher expands on it. \\
 \\
@@ -690,11 +690,260 @@ What follows are some mockups for the eMSP's user interface design.
 
 Similarly, CPMSs will offer their functionality to CPOs via a web portal, here there is no need to support anything other than a desktop device, since CPMSs are intended to be managed by employees in a company environment. Follow some mockups for the CPMS's user interface.
 
-MOCKUPS HERE FOR CPMS!!!!
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=145mm]{CPMSLogin.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Signup page mockup \\
+    CPO Employees can input their company credentials to reach the CPMS management page}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=145mm]{CPMSDashboard.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Main CPMS page \\
+    Here CPO Employees can toggle the CPMS automatic mode and set its policy for operating automatically}
+    \label{fig:my_label}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=145mm]{CPMSStations.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{List of the CPMS's CS \\
+    CPO Employees see here the entire list of the CSs managed by their CPMS, and can choose to edit the details of any of them}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=145mm]{CPMSStationUpdate.png}
+    \captionsetup{justification=centering,margin=2cm}
+    \caption{Details/Edit of a CS \\
+    CPO Employees see here the main properties of a CS and can alter them (for example, they can set the CS's prices, hence setting up offers}
+    \label{fig:my_label}
+\end{figure}
 
 \newpage
 
 \section{Requirements Traceability}
+
+The following table reports how the different components described in the architecture satisfy the requirements elicitated in the RASD document. \\
+Note that two components will be omitted:
+
+\begin{itemize}
+    \item The \textbf{Request Routers} of both the eMSP and CPMS, since they are implicitly required whenever both their back-end components and the front-end ones are present.
+    \item The \textbf{DBMSs} are omitted since they are required whenever their respective Data Access components are needed.
+\end{itemize}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.15\hsize}X|>{\hsize=1.425\hsize}X|>{\hsize=1.425\hsize}X|}
+        \hline
+        \textbf{Id} & \textbf{Requirement} & \textbf{Mappings} \\
+        \hline
+        R1 & The eMSP shall allow a registered user to login & eMSP: Web Application, Authentication, Login, Data Access \\
+        & & CPMS: - \\
+        \hline
+        R2 & The eMSP shall allow an unregistered user to register on the platform & eMSP: Web Application, Register, Payment Module, Data Access \\
+        & & CPMS: - \\
+        \hline
+        R3 & The eMSP should report to the user when they sent invalid input data through a form & eMSP: Web Application, Authentication, Login, Register, Search CS \\
+        & & CPMS: - \\
+        \hline
+        R4 & The eMSP should report to the user when they attempted to perform an unauthorized action & eMSP: Web Application, Authentication, Bookings Manager, Recharge Manager \\
+        & & CPMS: - \\
+        \hline
+        R5 & The eMSP should report to the user when the platform encountered an error while processing the action & eMSP: Web Application, Authentication, Login, Data Access \\
+        & & CPMS: - \\
+        \hline
+        R6 & The eMSP should report to the user any successful action performed & eMSP: Web Application, Authentication, Login, Register, Search CS, Bookings Manager, Recharge Manager \\
+        & & CPMS: - \\
+        \hline
+        R7 & The eMSP shall allow a logged-in user to view charging stations nearby & eMSP: Web Application, Authentication, Search CS, Data Access \\
+        & & CPMS: CS List, Data Access \\
+        \hline
+        R8 & The eMSP shall allow a logged-in user to know the cost of a recharge at a CS & eMSP: Web Application, Authentication, Search CS, Data Access \\
+        & & CPMS: CS List, Data Access \\
+        \hline
+        R9 & The eMSP shall allow a logged-in user to know about ongoing special offers present at a CS & eMSP: Web Application, Authentication, Search CS, Data Access \\
+        & & CPMS: CS List, Data Access \\
+        \hline
+        R10 & The eMSP shall allow a logged-in user to book a recharge at a free socket of a CS for a given time slot & eMSP: Web Application, Authentication, Search CS, Bookings Manager, Data Access \\
+        & & CPMS: CS List, Data Access \\
+        \hline
+        R11 & The eMSP shall allow a logged-in user to cancel any of its booked recharges before their scheduled time & eMSP: Web Application, Authentication, Bookings Manager, Data Access \\
+        & & CPMS: - \\
+        \hline
+        R12 & The eMSP shall not allow a user to book a recharge at a socket of a CS which has already been booked for the chosen time slot & eMSP: Web Application, Authentication, Bookings Manager, Data Access \\
+        & & CPMS: - \\
+        \hline
+    \end{tabularx}
+    \label{tab:requirements}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.15\hsize}X|>{\hsize=1.425\hsize}X|>{\hsize=1.425\hsize}X|}
+        \hline
+        \textbf{Id} & \textbf{Requirement} & \textbf{Mappings} \\
+        \hline
+        R13 & The eMSP shall not allow a user to book multiple recharges with overlapping time slots & eMSP: Web Application, Authentication, Bookings Manager, Data Access \\
+        & & CPMS: - \\
+        \hline
+        R14 & The eMSP shall allow a logged-in user to see their bookings & eMSP: Web Application, Authentication, Bookings Manager, Data Access \\
+        & & CPMS: - \\
+        \hline
+        R15 & The eMSP shall allow a logged-in user to start the charging process for one of their booked recharges & eMSP: Web Application, Authentication, Bookings Manager, Recharge Manager, Data Access \\
+        & & CPMS: Recharge Manager, CS Manager, Data Access \\
+        \hline
+        R16 & The eMSP shall not allow a user without a booking to start the charging process & eMSP: Web Application, Authentication, Bookings Manager, Recharge Manager, Data Access \\
+        & & CPMS: - \\
+        \hline
+        R17 & The eMSP shall not allow a user to start the charging process as long as the socket is vacant & eMSP: Web Application, Authentication, Bookings Manager, Recharge Manager, Data Access \\
+        & & CPMS: Recharge Manager, CS Manager, Data Access \\
+        \hline
+        R18 & The eMSP should notify a logged-in user when their ongoing charging processes is complete & eMSP: Web Application, Authentication, Recharge Manager, Data Access \\
+        & & CPMS: CS Manager, Data Access \\
+        \hline
+        R19 & The eMSP should notify a logged-in user when their ongoing charging process is terminated due to the expiration of its booked time slot & eMSP: Web Application, Authentication, Recharge Manager, Data Access \\
+        & & CPMS: CS Manager, Data Access \\
+        \hline
+        R20 & The eMSP shall allow a logged-in user to terminate their charging process earlier & eMSP: Web Application, Authentication, Bookings Manager, Recharge Manager, Data Access \\
+        & & CPMS: Recharge Manager, CS Manager, Data Access \\
+        \hline
+        R21 & The eMSP should charge a user for everyone of his charging processes as soon as they finish & eMSP: Web Application, Authentication, Recharge Manager, Payment Module, Data Access \\
+        & & CPMS: - \\
+        \hline
+        R22 & The eMSP shall charge a user for a fee if they do not start a recharge during their booking's time slot & eMSP: Web Application, Authentication, Bookings Manger, Payment Module, Data Access \\
+        & & CPMS: - \\
+        \hline
+    \end{tabularx}
+    \label{tab:requirements}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.15\hsize}X|>{\hsize=1.425\hsize}X|>{\hsize=1.425\hsize}X|}
+        \hline
+        \textbf{Id} & \textbf{Requirement} & \textbf{Mappings} \\
+        \hline
+        R23 & The eMSP shall be able to offer its functionalities to multiple users at once & eMSP: All components \\
+        & & CPMS: - \\
+        \hline
+        R24 & The CPMS should be able to acquire the location from CSs & eMSP: - \\
+        & & CPMS: Web Application, Authenticate, CS List, Data Access \\
+        \hline
+        R25 & The CPMS should be able to acquire the internal status from CSs & eMSP: - \\
+        & & CPMS: CS Manager, Data Access \\
+        \hline
+        R26 & The CPMS should be able to acquire the external status from CSs & eMSP: - \\
+        & & CPMS: CS Manager, Data Access \\
+        \hline
+        R27 & The CPMS should be able to start charging a vehicle connected to a CS socket & eMSP: - \\
+        & & CPMS: CS Manager, Data Access \\
+        \hline
+        R28 & The CPMS should be able to monitor the charging process of a vehicle & eMSP: - \\
+        & & CPMS: CS Manager, Data Access \\
+        \hline
+        R29 & The CPMS should be able to acquire from DSOs their current energy prices & eMSP: - \\
+        & & CPMS: DSO Information \\
+        \hline
+        R30 & The CPMS should be able to acquire from DSOs their energy mix & eMSP: - \\
+        & & CPMS: DSO Information \\
+        \hline
+        R31 & The CPMS shall allow its CPO to authenticate with it & eMSP: - \\
+        & & CPMS: Web Application, Authenticate, Login, Data Access \\
+        \hline
+        R32 & The CPMS shall allow its CPO to assign a DSO to a CS as its energy provider  when operating in “Manual Mode” & eMSP: - \\
+        & & CPMS: Web Application, Authenticate, CS List, CS DSO Manager, CS Manager, Data Access \\
+        \hline
+        R33 & The CPMS should be able to automatically assign a DSO to a CS as its energy provider when operating in “Automatic Mode” & eMSP: - \\
+        & & CPMS: CS DSO Manager, CS Manager, Data Access \\
+        \hline
+    \end{tabularx}
+    \label{tab:requirements}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.15\hsize}X|>{\hsize=1.425\hsize}X|>{\hsize=1.425\hsize}X|}
+        \hline
+        \textbf{Id} & \textbf{Requirement} & \textbf{Mappings} \\
+        \hline
+        %the policy is ONE for the whole CPMS and the CURRENT energy source is one PER-CS!
+        R34 & The CPMS shall allow the CPO to decide the energy source management policies when operating in “Manual Mode” & eMSP: - \\
+        & & CPMS: Web Application, Authenticate, CS List, CS Battery Policy Manager, CS Manager, Data Access \\
+        \hline
+        R35 & The CPMS should be able to automatically choose the current energy source for a CS according to the given policy when operating in “Automatic Mode” & eMSP: - \\
+        & & CPMS: CS Battery Policy Manager, CS Manager, Data Access \\
+        \hline
+        R36 & The CPMS shall allow its CPO to assign a nominal-price, a user-price and an offer reset date to a CS when operating in “Manual Mode” & eMSP: - \\
+        & & CPMS: Web Application, Authenticate, CS List, CS Prices Manager, CS Manager, Data Access \\
+        \hline
+        R37 & The CPMS should be able to automatically assign a nominal-price, a user-price and an offer reset to a CS when operating in “Automatic Mode” & eMSP: - \\
+        & & CPMS: CS Prices Manager, CS Manager, Data Access \\
+        \hline
+        R38 & The CPMS shall allow the CPO to choose its policy for operating in “Automatic Mode” & eMSP: - \\
+        & & CPMS: Web Application, Authenticate, Automatic Mode Manager \\
+        \hline
+        R39 & The CPMS shall allow the CPO to choose whether it acts automatically or manually & eMSP: - \\
+        & & CPMS: Web Application, Authenticate, Automatic Mode Manager \\
+        \hline
+        R40 & The CPMS shall never take a decision automatically when it is set in “Manual Mode” & eMSP: - \\
+        & & CPMS: Automatic Mode Manager, CS Battery Policy Manager, CS DOS Manager, CS Prices Manage \\
+        \hline
+    \end{tabularx}
+    \label{tab:requirements}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    %space between text and right/left borders
+    \setlength{\tabcolsep}{18pt}
+    %Row height multiplier
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{|>{\centering\hsize=0.15\hsize}X|>{\hsize=1.425\hsize}X|>{\hsize=1.425\hsize}X|}
+        \hline
+        \textbf{Id} & \textbf{Requirement} & \textbf{Mappings} \\
+        \hline
+        R41 & The CPMS should report to the user when they sent invalid input data & eMSP: - \\
+        & & CPMS: Web Application, Authenticate, Login, Automatic Mode Manager, CS Battery Policy Manager, CS DOS Manager, CS Prices Manage, CS List \\
+        \hline
+        R42 & The CPMS should report to the user when they attempted to perform an unauthorized action & eMSP: - \\
+        & & CPMS: Web Application, Authenticate, Automatic Mode Manager, CS Battery Policy Manager, CS DOS Manager, CS Prices Manage, CS List, DSO Information \\
+        \hline
+        R43 & The CPMS should report to the user when the platform encountered an error while processing the action & eMSP: - \\
+        & & CPMS: Web Application, Authenticate, Login, Automatic Mode Manager, CS Battery Policy Manager, CS DOS Manager, CS Prices Manage, CS List, DSO Information \\
+        \hline
+        R44 & The CPMS should be able to decide whether to start charging the internal batteries of a CS (if present) & eMSP: - \\
+        & & CPMS: CS Battery Policy Manager, CS Manager, Data Access \\
+        \hline
+    \end{tabularx}
+    \label{tab:requirements-2}
+\end{table}
+
+\newpage
 
 \section{Implementation, Integration and Test Plan}
 
