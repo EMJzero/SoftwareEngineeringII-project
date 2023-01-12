@@ -42,7 +42,6 @@ export default abstract class Authentication {
         }
 
         request.userId = decodedJWT.userId;
-        request.userActive = decodedJWT.active;
 
         next();
     }
@@ -54,7 +53,7 @@ export default abstract class Authentication {
      * @throws Error if the JWT_SECRET env variable is not defined
      * @return Returns the userId and the activation status
      */
-    static checkJWT(request: Request): { userId: string, active: boolean } {
+    static checkJWT(request: Request): { userId: string } {
         const secret = env.JWT_SECRET;
 
         const cookieJWT: string | undefined = request.cookies?.__session;
@@ -81,12 +80,11 @@ export default abstract class Authentication {
         }
 
         const userId = decoded["userId"];
-        const active = decoded["active"];
-        if (!userId || typeof userId != "string" || active == undefined || typeof active != "boolean") {
+        if (!userId || typeof userId != "string") {
             throw new AuthError("JWT Cookie is invalid");
         }
 
-        return { userId, active };
+        return { userId };
     }
 
     /**
@@ -96,7 +94,7 @@ export default abstract class Authentication {
     static createJWT(user: IUser): string | undefined {
         const secret = env.JWT_SECRET;
         if (secret) {
-            return sign({ "userId": user._id, "active": user.isActive }, secret, {
+            return sign({ "userId": user._id }, secret, {
                 expiresIn: env.JWT_EXPIRE
             });
         }

@@ -103,7 +103,7 @@ describe("Authentication helper module", () => {
         expect(mockRequest.userId).to.be.undefined;
     });*/
 
-    /*it("should throw internal user error", () => {
+/*it("should throw internal user error", () => {
         const mockRequest = {
             body: {},
             cookies: {}
