@@ -14,15 +14,10 @@ declare global {
     namespace Express {
         interface Request {
             /**
-             * The id of the user that sent this request.
-             * Optionally set by PrivTAP authentication middleware if JWT cookie is provided and valid. Can be used by other middleware.
+             * Whether the current request has been validated or not with eMSP Authentication.
              */
-            userId: string;
-            /**
-             * The activation status of the user that sent this request.
-             * Optionally set by PrivTAP authentication middleware if JWT cookie is provided and valid. Can be used by other middleware.
-             */
-            userActive: boolean;
+            authenticated: boolean;
+            mspName: string;
         }
     }
 }

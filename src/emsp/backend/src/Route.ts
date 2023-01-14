@@ -3,12 +3,12 @@ import Authentication from "./helper/authentication";
 
 /**
  * Superclass for all routes that takes care of all the boilerplate for HTTP methods registration and
- * authentication handling.
+ * eMSP Authentication handling.
  */
 export default class Route {
     // Name of the endpoint for this API route, this will be used for registering the route to the Express application
     readonly endpointName: string;
-    // Flag that indicates if this API route requires user authentication
+    // Flag that indicates if this API route requires user eMSP Authentication
     readonly requiresAuth: boolean;
     // Flag that indicates if this API route requires that the user is confirmed
     readonly requiresActivation: boolean;
@@ -22,11 +22,11 @@ export default class Route {
         // Creates a new Router
         this.router = Router();
 
-        // If this endpoint requires authentication, register the authentication middleware to the Router
+        // If this endpoint requires eMSP Authentication, register the eMSP Authentication middleware to the Router
         if (requiresAuth || requiresValidation)
             this.router.use(Authentication.checkAuthentication);
 
-        // If this endpoint requires authentication, register the confirmation middleware to the Router
+        // If this endpoint requires eMSP Authentication, register the confirmation middleware to the Router
         if (requiresValidation)
             this.router.use(Authentication.checkActivation);
 

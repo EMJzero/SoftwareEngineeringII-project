@@ -15,12 +15,12 @@ declare global {
         interface Request {
             /**
              * The id of the user that sent this request.
-             * Optionally set by PrivTAP authentication middleware if JWT cookie is provided and valid. Can be used by other middleware.
+             * Optionally set by PrivTAP eMSP Authentication middleware if JWT cookie is provided and valid. Can be used by other middleware.
              */
             userId: string;
             /**
              * The activation status of the user that sent this request.
-             * Optionally set by PrivTAP authentication middleware if JWT cookie is provided and valid. Can be used by other middleware.
+             * Optionally set by PrivTAP eMSP Authentication middleware if JWT cookie is provided and valid. Can be used by other middleware.
              */
             userActive: boolean;
         }

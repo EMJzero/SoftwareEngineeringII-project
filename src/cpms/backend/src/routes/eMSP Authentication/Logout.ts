@@ -4,7 +4,7 @@ import { success } from "../../helper/http";
 
 export default class LogoutRoute extends Route {
     constructor() {
-        super("logout", true, false);
+        super("logout-emsp", true);
     }
 
     protected async httpGet(request: Request, response: Response): Promise<void> {

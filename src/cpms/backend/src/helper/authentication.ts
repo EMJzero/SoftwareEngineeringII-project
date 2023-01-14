@@ -1,5 +1,4 @@
 import { CookieOptions, NextFunction, Request, Response } from "express";
-import { IUser } from "../model/User";
 import { verify, sign, JwtPayload } from "jsonwebtoken";
 import {
     badRequest,
@@ -17,14 +16,14 @@ export class AuthError extends Error {
 }
 
 export default abstract class Authentication {
-    static readonly API_KEY_HEADER = "emsp-api-key";
+    static readonly API_KEY_HEADER = "cpms-api-key";
 
     /**
-     * Middleware function used to check for a valid JWT authentication token in the cookies of a request.
+     * Middleware function used to check for a valid JWT eMSP Authentication token in the cookies of a request.
      * Automatically sends back unauthorized response if the token is not valid.
      * @param request the HTTP request
      * @param response the HTTP response
-     * @param next function to call if the request authentication is valid
+     * @param next function to call if the request eMSP Authentication is valid
      */
     static checkAuthentication(request: Request, response: Response, next: NextFunction) {
         let decodedJWT;
@@ -41,8 +40,8 @@ export default abstract class Authentication {
             return;
         }
 
-        request.userId = decodedJWT.userId;
-        request.userActive = decodedJWT.active;
+        request.authenticated = true;
+        request.mspName = decodedJWT.mspName;
 
         next();
     }
@@ -54,7 +53,7 @@ export default abstract class Authentication {
      * @throws Error if the JWT_SECRET env variable is not defined
      * @return Returns the userId and the activation status
      */
-    static checkJWT(request: Request): { userId: string, active: boolean } {
+    static checkJWT(request: Request): { mspName: string } {
         const secret = env.JWT_SECRET;
 
         const cookieJWT: string | undefined = request.cookies?.__session;
@@ -80,37 +79,37 @@ export default abstract class Authentication {
             throw new AuthError("JWT Cookie can't be decoded");
         }
 
-        const userId = decoded["userId"];
-        const active = decoded["active"];
-        if (!userId || typeof userId != "string" || active == undefined || typeof active != "boolean") {
+        const payload = decoded["payload"];
+        const mspName = decoded["username"];
+        if (!payload || typeof payload != "string" || !mspName || typeof mspName != "string") {
             throw new AuthError("JWT Cookie is invalid");
         }
 
-        return { userId, active };
+        return { mspName: mspName };
     }
 
     /**
      Create a json web token encrypted using the secret in the env
-     @param user: the user of which you want to create the token
+     @param mspName: the eMSP of which you want to create the token
      */
-    static createJWT(user: IUser): string | undefined {
+    static createJWT(mspName: string): string | undefined {
         const secret = env.JWT_SECRET;
         if (secret) {
-            return sign({ "userId": user._id, "active": user.isActive }, secret, {
+            return sign({ "payload": crypto.randomUUID(), "username": mspName }, secret, {
                 expiresIn: env.JWT_EXPIRE
             });
         }
     }
 
     /**
-     * Sets the appropriate headers in the response to send back the authentication cookie to the client.
+     * Sets the appropriate headers in the response to send back the eMSP Authentication cookie to the client.
      * @param response the response that will set the cookie
-     * @param user the user for which the cookie will be generated
+     * @param mspName Th eMSP name of the registered MSP
      * @protected
      */
-    static setAuthenticationCookie(response: Response, user: IUser) {
+    static setAuthenticationCookie(response: Response, mspName: string) {
         // Create a JWT token for the user
-        const jwt = Authentication.createJWT(user);
+        const jwt = Authentication.createJWT(mspName);
         if (!jwt)
             return false;
 

@@ -5,7 +5,7 @@ import sinonChai = require("sinon-chai");
 import app from "../../src/app";
 import User from "../../src/model/User";
 import bcrypt = require( "bcrypt");
-import Authentication from "../../src/helper/authentication";
+import Authentication from "../../src/helper/eMSP Authentication";
 import Logger from "../../src/helper/logger";
 import { beforeEach } from "mocha";
 
@@ -75,7 +75,7 @@ describe("/login endpoint", () => {
             expect(res).to.have.status(400);
         });
 
-        it("should fail if the authentication cookie is not properly set", async () => {
+        it("should fail if the eMSP Authentication cookie is not properly set", async () => {
             queryUserStub.resolves("username");
             compareSyncStub.returns(true);
             setAuthenticationCookieStub.returns(false);

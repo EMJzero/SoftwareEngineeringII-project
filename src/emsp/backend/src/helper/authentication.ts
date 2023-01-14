@@ -20,11 +20,11 @@ export default abstract class Authentication {
     static readonly API_KEY_HEADER = "emsp-api-key";
 
     /**
-     * Middleware function used to check for a valid JWT authentication token in the cookies of a request.
+     * Middleware function used to check for a valid JWT eMSP Authentication token in the cookies of a request.
      * Automatically sends back unauthorized response if the token is not valid.
      * @param request the HTTP request
      * @param response the HTTP response
-     * @param next function to call if the request authentication is valid
+     * @param next function to call if the request eMSP Authentication is valid
      */
     static checkAuthentication(request: Request, response: Response, next: NextFunction) {
         let decodedJWT;
@@ -101,7 +101,7 @@ export default abstract class Authentication {
     }
 
     /**
-     * Sets the appropriate headers in the response to send back the authentication cookie to the client.
+     * Sets the appropriate headers in the response to send back the eMSP Authentication cookie to the client.
      * @param response the response that will set the cookie
      * @param user the user for which the cookie will be generated
      * @protected

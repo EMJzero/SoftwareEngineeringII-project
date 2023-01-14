@@ -1,4 +1,4 @@
-/*import Authentication from "../../src/helper/authentication";
+/*import Authentication from "../../src/helper/eMSP Authentication";
 import { expect } from "chai";
 import * as sinon from "sinon";
 import { IUser } from "../../src/model/User";
