@@ -22,6 +22,7 @@
     "jsonwebtoken": "^9.0.0",
     "morgan": "~1.9.1",
     "promisified-pipe": "^1.0.0",
+    "mysql2": "^3.0.1",
     "tracer": "^1.1.6"
   },
   "devDependencies": {
