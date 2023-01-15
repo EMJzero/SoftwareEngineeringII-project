@@ -4,7 +4,7 @@ import { badRequest, internalServerError, success } from "../../helper/http";
 import Route from "../../Route";
 import { Request, Response } from "express";
 import { checkUndefinedParams } from "../../helper/http";
-import {Emsp} from "../../model/Emsp";
+import { Emsp } from "../../model/Emsp";
 
 export default class LoginRoute extends Route {
     constructor() {

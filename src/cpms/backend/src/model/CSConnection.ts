@@ -38,9 +38,9 @@ enum ChargeSpeedPower {
 
 class SocketMachine {
 
-    private csId: string
+    private csId: string;
     private state = 0; //STATES: 0 = Idle, 1 = Connected (not charging), 2 = Charging
-    private currentPower: number = 0;
+    private currentPower = 0;
     private readonly maxPower: number;
     private connectedCar?: CarData;
 
@@ -82,9 +82,9 @@ class SocketMachine {
     public stopChargeCar() {
         if (this.state == 2) {
             this.state = 1;
-            this.currentPower = 0
+            this.currentPower = 0;
         } else {
-            throw "Cannot end a charge which never started!"
+            throw "Cannot end a charge which never started!";
         }
     }
 
@@ -92,7 +92,7 @@ class SocketMachine {
         if (this.state == 2 && this.connectedCar) {
             return (this.connectedCar.batteryCapacityKWh - this.connectedCar.remainingCapacityKWh) / this.currentPower;
         } else {
-            throw "Cannot estimate time when no charge is ongoing!"
+            throw "Cannot estimate time when no charge is ongoing!";
         }
     }
 }
@@ -129,9 +129,9 @@ class CarData {
 
 function getCarData(): CarData {
     const carDB = [new CarData("Tesla", 100, 30, 300),
-                   new CarData("Volkswagen", 80, 60, 150),
-                   new CarData("Toyota", 120, 90, 90),
-                   new CarData("Honda", 60, 55, 90),
-                   new CarData("Lexus", 300, 90, 400)]
+        new CarData("Volkswagen", 80, 60, 150),
+        new CarData("Toyota", 120, 90, 90),
+        new CarData("Honda", 60, 55, 90),
+        new CarData("Lexus", 300, 90, 400)];
     return carDB[Math.round(Math.random() * 4)];
 }
