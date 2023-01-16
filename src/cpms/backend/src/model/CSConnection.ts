@@ -25,37 +25,38 @@ export default class CSConnection {
         }
     }
 
-    public startCharge(socketId: number): boolean {
-        const socket = this._sockets.find(sc => sc.socketId == socketId);
-        if(socket == undefined)
-            return false;
-
-        socket.chargeCar();
-        return true;
+    public async startCharge(socketId: number): Promise<boolean> {
+        const socket = (await this.sockets()).find((sc) => sc.socketId == socketId);
+        if (socket) {
+            socket.chargeCar();
+            return true;
+        }
+        return false;
     }
 
-    public stopCharge(socketId: number): boolean {
-        const socket = this._sockets.find(sc => sc.socketId == socketId);
-        if(socket == undefined)
-            return false;
-
-        socket.stopChargeCar();
-        return true;
+    public async stopCharge(socketId: number): Promise<boolean> {
+        const socket = (await this.sockets()).find((sc) => sc.socketId == socketId);
+        if (socket) {
+            socket.stopChargeCar();
+            return true;
+        }
+        return false;
     }
 
-    public getTimeRemaining(socketIndex: number): number {
-        return this._sockets[socketIndex].getEstimatedTimeRemaining();
+    public async getTimeRemaining(socketID: number): Promise<number | undefined> {
+        return (await this.sockets()).find((sc) => sc.socketId == socketID)?.getEstimatedTimeRemaining();
     }
 
     get id(): number {
         return this._id;
     }
 
-    public getSocket(socketId: number): SocketMachine | undefined {
-        return this._sockets.find(sc => sc.socketId == socketId);
+    public async getSocket(socketId: number): Promise<SocketMachine | undefined> {
+        return (await this.sockets()).find(sc => sc.socketId == socketId);
     }
 
-    get sockets(): SocketMachine[] {
+    public async sockets(): Promise<SocketMachine[]> {
+        //TODO: Query socket state from the CS on the fly
         return this._sockets;
     }
 }

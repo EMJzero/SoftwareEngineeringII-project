@@ -1,6 +1,4 @@
 import { readdirSync, statSync } from "fs";
-import { badRequest, internalServerError } from "./http";
-import { Response } from "express";
 import axios, { AxiosResponse } from "axios";
 import logger from "./logger";
 
@@ -36,14 +34,10 @@ export function checkURL(url: string): boolean {
 /**
  * Make a get http request to a specific url
  * @param url the url of the request
- * @param token use this if you want to put an auth token
  * @param parameters
  */
-export async function getReqHttp(url: string, token: string | null, parameters: object): Promise<AxiosResponse | null> {
-    const config = token ? {
-        headers: { "Authorization": `Bearer ${token}` },
-        params: parameters
-    } : { params: parameters };
+export async function getReqHttp(url: string, parameters: object): Promise<AxiosResponse | null> {
+    const config = { params: parameters };
     let res;
     try {
         res = await axios.get(url, config);
@@ -57,14 +51,12 @@ export async function getReqHttp(url: string, token: string | null, parameters: 
 /**
  * Make a post http request to a specific url
  * @param url the url of the request
- * @param token use this if you want to put an auth token
  * @param body the object containing the field and the value of the query string
  */
-export async function postReqHttp(url: string, token: string | null, body: object): Promise<AxiosResponse | null> {
-    const config = token ? { headers: { "Authorization": `Bearer ${token}` } } : undefined;
+export async function postReqHttp(url: string, body: object): Promise<AxiosResponse | null> {
     let res;
     try {
-        res = await axios.post(url, body, config);
+        res = await axios.post(url, body);
         return res;
     } catch (e) {
         logger.error("Axios response status:", res != undefined ? res.status : "undefined");
@@ -75,13 +67,12 @@ export async function postReqHttp(url: string, token: string | null, body: objec
 /**
  * Make a delete http request to a specific url
  * @param url the url of the request
- * @param token use this if you want to put an auth token
  * @param query the object containing the field and the value of the query string
  */
-export async function deleteReqHttp(url: string, token: string, query: object): Promise<AxiosResponse | null> {
+export async function deleteReqHttp(url: string, query: object): Promise<AxiosResponse | null> {
     let res;
     try {
-        const config = { headers: { "Authorization": `Bearer ${token}` }, params: query };
+        const config = { params: query };
         // TODO: manage body
         res = await axios.delete(url, config);
         return res;

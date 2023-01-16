@@ -1,7 +1,9 @@
-import { badRequest, checkUndefinedParams, success } from "../helper/http";
+import { badRequest, checkUndefinedParams, internalServerError, success } from "../helper/http";
 import Route from "../Route";
 import { Request, Response } from "express";
 import { CSDB } from "../model/CSConnection";
+import { postReqHttp } from "../helper/misc";
+import logger from "../helper/logger";
 
 export default class RechargeManager extends Route {
     constructor() {
@@ -12,29 +14,35 @@ export default class RechargeManager extends Route {
         const CSID: number = parseInt(request.query.CSID as string);
         const socketID: number = parseInt(request.query.socketID as string);
 
-        if(checkUndefinedParams(response, CSID, socketID))
-            return;
+        if (checkUndefinedParams(response, CSID, socketID)) return;
 
         const connection = CSDB.shared.getConnectionToCSWithID(CSID);
-        if(connection == undefined) {
+        if (!connection) {
             badRequest(response, "Invalid CSID");
             return;
         }
-        const socket = connection.getSocket(socketID);
-        if(socket == undefined) {
+
+        const socket = await connection.getSocket(socketID);
+        if (!socket) {
             badRequest(response, "Invalid socketID");
             return;
         }
 
-        success(response, {
-            CSID: CSID,
-            socketID: socketID,
-            state: socket.state,
-            currentPower: socket.currentPower,
-            maxPower: socket.maxPower,
-            connectedCar: socket.connectCar(),
-            estimatedTimeRemaining: socket.getEstimatedTimeRemaining()
-        });
+        try {
+            const respObject = {
+                CSID,
+                socketID,
+                state: socket.state,
+                currentPower: socket.currentPower,
+                maxPower: socket.maxPower,
+                connectedCar: socket.connectCar(),
+                estimatedTimeRemaining: socket.getEstimatedTimeRemaining()
+            };
+            success(response, respObject);
+        } catch (error) {
+            internalServerError(response, "" + error);
+            return;
+        }
     }
 
     protected async httpPost(request: Request, response: Response): Promise<void> {
@@ -42,24 +50,21 @@ export default class RechargeManager extends Route {
         const socketID = request.body.socketID;
         const action = request.body.action;
 
-        if(checkUndefinedParams(response, CSID, socketID, action))
-            return;
+        if (checkUndefinedParams(response, CSID, socketID, action)) return;
 
-        const connection = CSDB.shared.getConnectionToCSWithID(CSID);
-        if(connection == undefined) {
-            badRequest(response, "Invalid CSID");
+        let axiosResponse;
+        try {
+            axiosResponse = await postReqHttp(request.protocol + "://" + request.get("host") + "/cs-manager", {
+                stationID: CSID,
+                socketID: socketID,
+                chargeCommand: action
+            });
+        } catch (e) {
+            logger.debug("Axios response status =", axiosResponse?.status);
+            internalServerError(response, "" + e);
             return;
         }
 
-        if(action == "start") {
-            if(!connection.startCharge(socketID)) {
-                badRequest(response, "Invalid socketID");
-            }
-        } else if(action == "end") {
-            if(!connection.stopCharge(socketID)) {
-                badRequest(response, "Invalid socketID");
-            }
-        } else
-            badRequest(response, "Invalid action, allowed ones: {start, end}");
+        success(response);
     }
 }
