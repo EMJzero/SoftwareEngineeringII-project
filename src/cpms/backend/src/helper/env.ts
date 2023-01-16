@@ -28,7 +28,7 @@ interface EnvVariables {
     FRONTEND_URL: string,
     // The minimum level of messages to log
     LOG_LEVEL: "log"|"trace"|"debug"|"info"|"warn"|"error"|"fatal",
-    // The database connection string for a MongoDB database
+    // The database connection string for our database
     DB_STRING: string
 }
 
