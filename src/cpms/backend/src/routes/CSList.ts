@@ -9,15 +9,15 @@ export default class CSListRoute extends Route {
     }
 
     protected async httpGet(request: Request, response: Response): Promise<void> {
-        const CSID = request.body.CSID;
+        const CSID: number = parseInt(request.query.CSID as string);
 
-        const locationLatitude: number = request.body.locationLatitude;
-        const locationLongitude: number = request.body.locationLongitude;
-        const locationRange: number = request.body.locationRange;
-        const priceLowerBound: number = request.body.priceLowerBound;
-        const priceUpperBound: number = request.body.priceUpperBound;
+        const locationLatitude: number = parseFloat(request.query.locationLatitude as string);
+        const locationLongitude: number = parseFloat(request.query.locationLongitude as string);
+        const locationRange: number = parseFloat(request.query.locationRange as string);
+        const priceLowerBound: number = parseFloat(request.query.priceLowerBound as string);
+        const priceUpperBound: number = parseFloat(request.query.priceUpperBound as string);
 
-        console.log("Test to check the type of the parameters: " + typeof request.body.locationLatitude);
+        console.log("Test to check the type of the parameters: " + typeof request.query.locationLatitude);
 
         if(checkUndefinedParams(response, locationLatitude, locationLongitude, locationRange, priceLowerBound, priceUpperBound))
             return;

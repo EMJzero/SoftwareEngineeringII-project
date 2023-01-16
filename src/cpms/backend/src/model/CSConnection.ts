@@ -7,38 +7,52 @@ export class CSDB {
         this.connections.push(connection);
     }
 
-    public getConnectionToCSWithID(csID: string): CSConnection | undefined {
+    public getConnectionToCSWithID(csID: number): CSConnection | undefined {
         return this.connections.find((conn) => conn.id == csID);
     }
 }
 
 export default class CSConnection {
 
-    private readonly _id: string;
+    private readonly _id: number;
     private readonly _sockets: SocketMachine[];
 
-    constructor(id: string, socketTypes: SocketType[], socketSpeeds: ChargeSpeedPower[]) {
+    constructor(id: number, socketIds: number[], socketTypes: SocketType[], socketSpeeds: ChargeSpeedPower[]) {
         this._id = id;
         this._sockets = [];
         for (let i = 0; i < socketTypes.length; i++) {
-            this._sockets.push(new SocketMachine(id, socketTypes[i], socketSpeeds[i]));
+            this._sockets.push(new SocketMachine(id, socketIds[i], socketTypes[i], socketSpeeds[i]));
         }
     }
 
-    public startCharge(socketIndex: number) {
-        this._sockets[socketIndex].chargeCar();
+    public startCharge(socketId: number): boolean {
+        const socket = this._sockets.find(sc => sc.socketId == socketId);
+        if(socket == undefined)
+            return false;
+
+        socket.chargeCar();
+        return true;
     }
 
-    public stopCharge(socketIndex: number) {
-        this._sockets[socketIndex].stopChargeCar();
+    public stopCharge(socketId: number): boolean {
+        const socket = this._sockets.find(sc => sc.socketId == socketId);
+        if(socket == undefined)
+            return false;
+
+        socket.stopChargeCar();
+        return true;
     }
 
     public getTimeRemaining(socketIndex: number): number {
         return this._sockets[socketIndex].getEstimatedTimeRemaining();
     }
 
-    get id(): string {
+    get id(): number {
         return this._id;
+    }
+
+    public getSocket(socketId: number): SocketMachine | undefined {
+        return this._sockets.find(sc => sc.socketId == socketId);
     }
 
     get sockets(): SocketMachine[] {
@@ -60,62 +74,84 @@ enum ChargeSpeedPower {
 
 class SocketMachine {
 
-    private csId: string;
-    private state = 0; //STATES: 0 = Idle, 1 = Connected (not charging), 2 = Charging
-    private currentPower = 0;
-    private readonly maxPower: number;
-    private connectedCar?: CarData;
+    private csId: number;
+    private _socketId: number;
+    private _state = 0; //STATES: 0 = Idle, 1 = Connected (not charging), 2 = Charging
+    private _currentPower = 0;
+    private readonly _maxPower: number;
+    private _connectedCar?: CarData;
 
-    constructor(csId: string, socketType: SocketType, speed: ChargeSpeedPower) {
+    constructor(csId: number, socketId: number, socketType: SocketType, speed: ChargeSpeedPower) {
         this.csId = csId;
-        this.maxPower = Math.min(speed, socketType);
+        this._socketId = socketId;
+        this._maxPower = Math.min(speed, socketType);
     }
 
     public connectCar() {
-        if (this.state == 0) {
-            this.state = 1;
+        if (this._state == 0) {
+            this._state = 1;
         } else {
             throw "Cannot connect a new car: a car is already connected!";
         }
     }
 
     public disconnectCar() {
-        if (this.state == 1) {
-            this.state = 0;
-            this.currentPower = 0;
+        if (this._state == 1) {
+            this._state = 0;
+            this._currentPower = 0;
         } else {
             throw "Cannot disconnect a car";
         }
     }
 
     public chargeCar() {
-        if (this.state == 1) {
-            this.state = 2;
-            this.connectedCar = getCarData();
-            if (!this.connectedCar) {
+        if (this._state == 1) {
+            this._state = 2;
+            this._connectedCar = getCarData();
+            if (!this._connectedCar) {
                 throw "Cannot start a charge without getting car data first!";
             }
-            this.currentPower = Math.min(this.maxPower, this.connectedCar.maxAcceptedPowerKW);
+            this._currentPower = Math.min(this._maxPower, this._connectedCar.maxAcceptedPowerKW);
         } else {
             throw "Cannot start charging a car";
         }
     }
 
     public stopChargeCar() {
-        if (this.state == 2) {
-            this.state = 1;
-            this.currentPower = 0;
+        if (this._state == 2) {
+            this._state = 1;
+            this._currentPower = 0;
         } else {
             throw "Cannot end a charge which never started!";
         }
     }
 
     public getEstimatedTimeRemaining(): number {
-        if (this.state == 2 && this.connectedCar) {
-            return (this.connectedCar.batteryCapacityKWh - this.connectedCar.remainingCapacityKWh) / this.currentPower;
+        if (this._state == 2 && this._connectedCar) {
+            return (this._connectedCar.batteryCapacityKWh - this._connectedCar.remainingCapacityKWh) / this._currentPower;
         } else {
             throw "Cannot estimate time when no charge is ongoing!";
         }
+    }
+
+    get socketId(): number {
+        return this._socketId;
+    }
+
+    get state(): number {
+        return this._state;
+    }
+
+    get currentPower(): number {
+        return this._currentPower;
+    }
+
+    get maxPower(): number {
+        return this._maxPower;
+    }
+
+    get connectedCar(): CarData {
+        return <CarData>this._connectedCar;
     }
 }
 
