@@ -20,11 +20,11 @@ export class CS {
         this.sockets = sockets;
     }
 
-    public static async getCSList(location: [number, number], locationRange: number, priceRange: [number, number]): Promise<CS[]> {
+    public static async getCSList(locationLatitude: number, locationLongitude: number, locationRange: number, priceLowerBound: number, priceUpperBound: number): Promise<CS[]> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT * FROM cs WHERE (userPrice >= ? AND userPrice <= ?) AND (locationLatitude >= ? - ? AND locationLatitude <= ? + ?) AND (locationLongitude >= ? - ? AND locationLongitude <= ? + ?)",
-            [priceRange[0], priceRange[1], location[0], locationRange, location[0], locationRange, location[1], locationRange, location[1], locationRange]);
+            [priceLowerBound, priceUpperBound, locationLatitude, locationRange, locationLatitude, locationRange, locationLongitude, locationRange, locationLongitude, locationRange]);
 
         connection.release();
 
