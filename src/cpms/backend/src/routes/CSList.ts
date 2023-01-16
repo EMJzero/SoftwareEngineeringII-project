@@ -1,4 +1,4 @@
-import { badRequest, checkUndefinedParams, success } from "../helper/http";
+import {badRequest, checkNaN, checkUndefinedParams, success} from "../helper/http";
 import Route from "../Route";
 import { Request, Response } from "express";
 import { CS } from "../model/CS";
@@ -6,7 +6,7 @@ import logger from "../helper/logger";
 
 export default class CSListRoute extends Route {
     constructor() {
-        super("CSList", false);
+        super("cs-List", false);
     }
 
     protected async httpGet(request: Request, response: Response): Promise<void> {
@@ -20,7 +20,7 @@ export default class CSListRoute extends Route {
 
         logger.log("Test to check the type of the parameters: " + typeof request.query.locationLatitude);
 
-        if (checkUndefinedParams(response, locationLatitude, locationLongitude, locationRange, priceLowerBound, priceUpperBound)) return;
+        if (checkNaN(response, locationLatitude, locationLongitude, locationRange, priceLowerBound, priceUpperBound)) return;
 
         if (!CSID) {
             let error  = "";

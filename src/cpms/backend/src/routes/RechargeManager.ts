@@ -1,4 +1,4 @@
-import { badRequest, checkUndefinedParams, internalServerError, success } from "../helper/http";
+import {badRequest, checkNaN, internalServerError, success} from "../helper/http";
 import Route from "../Route";
 import { Request, Response } from "express";
 import { CSDB } from "../model/CSConnection";
@@ -7,14 +7,14 @@ import logger from "../helper/logger";
 
 export default class RechargeManager extends Route {
     constructor() {
-        super("CSList", false);
+        super("recharge-manager", false);
     }
 
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const CSID: number = parseInt(request.query.CSID as string);
         const socketID: number = parseInt(request.query.socketID as string);
 
-        if (checkUndefinedParams(response, CSID, socketID)) return;
+        if (checkNaN(response, CSID, socketID)) return;
 
         const connection = CSDB.shared.getConnectionToCSWithID(CSID);
         if (!connection) {
@@ -35,7 +35,7 @@ export default class RechargeManager extends Route {
                 state: socket.state,
                 currentPower: socket.currentPower,
                 maxPower: socket.maxPower,
-                connectedCar: socket.connectCar(),
+                connectedCar: socket.connectedCar,
                 estimatedTimeRemaining: socket.getEstimatedTimeRemaining()
             };
             success(response, respObject);
@@ -50,7 +50,7 @@ export default class RechargeManager extends Route {
         const socketID = request.body.socketID;
         const action = request.body.action;
 
-        if (checkUndefinedParams(response, CSID, socketID, action)) return;
+        if (checkNaN(response, CSID, socketID, action)) return;
 
         let axiosResponse;
         try {
