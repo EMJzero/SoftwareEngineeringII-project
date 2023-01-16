@@ -1,26 +1,48 @@
+export class CSDB {
+
+    static readonly shared = new CSDB();
+    private connections: CSConnection[] = [];
+
+    public registerCS(connection: CSConnection) {
+        this.connections.push(connection);
+    }
+
+    public getConnectionToCSWithID(csID: string): CSConnection | undefined {
+        return this.connections.find((conn) => conn.id == csID);
+    }
+}
+
 export default class CSConnection {
 
-    private id: string;
-    private sockets: SocketMachine[];
+    private readonly _id: string;
+    private readonly _sockets: SocketMachine[];
 
     constructor(id: string, socketTypes: SocketType[], socketSpeeds: ChargeSpeedPower[]) {
-        this.id = id;
-        this.sockets = [];
+        this._id = id;
+        this._sockets = [];
         for (let i = 0; i < socketTypes.length; i++) {
-            this.sockets.push(new SocketMachine(id, socketTypes[i], socketSpeeds[i]));
+            this._sockets.push(new SocketMachine(id, socketTypes[i], socketSpeeds[i]));
         }
     }
 
     public startCharge(socketIndex: number) {
-        this.sockets[socketIndex].chargeCar();
+        this._sockets[socketIndex].chargeCar();
     }
 
     public stopCharge(socketIndex: number) {
-        this.sockets[socketIndex].stopChargeCar();
+        this._sockets[socketIndex].stopChargeCar();
     }
 
     public getTimeRemaining(socketIndex: number): number {
-        return this.sockets[socketIndex].getEstimatedTimeRemaining();
+        return this._sockets[socketIndex].getEstimatedTimeRemaining();
+    }
+
+    get id(): string {
+        return this._id;
+    }
+
+    get sockets(): SocketMachine[] {
+        return this._sockets;
     }
 }
 
