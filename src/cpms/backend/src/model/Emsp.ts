@@ -10,15 +10,27 @@ export class Emsp {
         this.APIKey = APIKey;
     }
 
-    public static async checkCredentials(APIKey: string): Promise<boolean> {
+    public static async checkCredentials(APIKey: string): Promise<number> {
         const connection = await DBAccess.getConnection();
 
-        const [result, _]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
+        const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
             "SELECT id FROM emsps WHERE APIKey = ?",
             [APIKey]);
 
         connection.release();
 
-        return result.length != 0;
+        return result[0].id;
+    }
+
+    public static async getNotificationEndpoint(eMSPId: number): Promise<string> {
+        const connection = await DBAccess.getConnection();
+
+        const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
+            "SELECT NotificationEndpoint AS nep FROM emsps WHERE id = ?",
+            [eMSPId]);
+
+        connection.release();
+
+        return result[0].nep;
     }
 }
