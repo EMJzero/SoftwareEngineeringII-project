@@ -10,6 +10,8 @@ if (process.env.NODE_ENV != "testing")
 interface EnvVariables {
     // Port where the app server will run
     PORT: number,
+    // Port where the WebSocket server will run
+    WS_PORT: number;
     // Relative URL where all routes will start from, this MUST be a relative URL
     BASE_URL: string,
     // Flag representing if we are in a production environment
@@ -38,6 +40,7 @@ interface EnvVariables {
 // Default values for some of the env variables
 const defaults = {
     PORT: 8000,
+    WS_PORT: 3000,
     BASE_URL: "/api/",
     SALT_ROUNDS: 1,
     JWT_SECRET: "this_is_an_insecure_secret",

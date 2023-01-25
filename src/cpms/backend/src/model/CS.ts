@@ -1,5 +1,5 @@
 import { DBAccess } from "../DBAccess";
-import { FieldPacket, RowDataPacket } from "mysql2/promise";
+import mysql, { FieldPacket, RowDataPacket } from "mysql2/promise";
 
 export class CS {
     id: number;
@@ -49,6 +49,22 @@ export class CS {
 
         return cs;
     }
+
+    public static async verifyCSandSockets(CSID: number, SocketIDs: number[]): Promise<boolean> {
+        const connection = await DBAccess.getConnection();
+
+        //const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT count(*) AS res FROM cs c JOIN cssockets s ON c.id = s.csid WHERE c.id = ? AND s.id IN (?)",
+        //[CSID, SocketIDs.map((id) => id.toString()).reduce((acc, id) => acc += ", " + id)]);
+        //[CSID, SocketIDs]);
+        
+        const sql = mysql.format("SELECT count(*) AS res FROM cs c JOIN cssockets s ON c.id = s.csid WHERE c.id = ? AND s.id IN (?)",
+            [CSID, SocketIDs]);
+        const [result]: [RowDataPacket[], FieldPacket[]] = await connection.query(sql);
+
+        connection.release();
+
+        return result[0].res == SocketIDs.length;
+    }
 }
 
 class Socket {
@@ -79,6 +95,13 @@ class SocketType {
 );*/
 
 /*CS.getCSDetails(1).then(
+    async (result) => {
+        console.log(result);
+        await DBAccess.closePool();
+    }
+);*/
+
+/*CS.verifyCSandSockets(1, [1, 2]).then(
     async (result) => {
         console.log(result);
         await DBAccess.closePool();
