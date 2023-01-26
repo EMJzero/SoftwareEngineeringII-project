@@ -1,6 +1,6 @@
 import { DBAccess } from "../DBAccess";
 import { FieldPacket, RowDataPacket } from "mysql2/promise";
-import {hashSync} from "bcrypt";
+import { hashSync } from "bcrypt";
 import env from "../helper/env";
 
 export interface IUser {
@@ -20,7 +20,7 @@ export class User {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT * FROM Users WHERE username = ?",
+            "SELECT * FROM users WHERE userName = ?",
             [username]);
 
         connection.release();
@@ -30,13 +30,13 @@ export class User {
         }
         return {
             id: result[0].id,
-            creditCardBillingName: result[0].creditCardBillingName,
-            creditCardCVV: result[0].creditCardCVV,
-            creditCardExpiration: result[0].creditCardExpiration,
-            creditCardNumber: result[0].creditCardNumber,
+            creditCardBillingName: result[0].paymentCardOwnerName,
+            creditCardCVV: result[0].paymentCardCvv,
+            creditCardExpiration: result[0].paymentCardExpirationDate,
+            creditCardNumber: result[0].paymentCardNumber,
             email: result[0].email,
             password: result[0].password,
-            username: result[0].username
+            username: result[0].userName
         };
     }
 
@@ -61,8 +61,8 @@ export class User {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "INSERT INTO Users VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [user.username, user.email, user.password, user.creditCardNumber, user.creditCardCVV, user.creditCardExpiration, user.creditCardBillingName]);
+            "INSERT INTO users VALUES (default, ?, ?, ?, ?, ?, ?)",
+            [user.username, user.email, user.password, user.creditCardNumber, user.creditCardCVV, user.creditCardExpiration.replace("/", ""), user.creditCardBillingName]);
 
         connection.release();
 

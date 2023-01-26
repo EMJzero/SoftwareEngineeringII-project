@@ -1,8 +1,8 @@
 import Route from "../Route";
 import { Request, Response } from "express";
-import {checkUndefinedParams, success} from "../helper/http";
-import {CPMS} from "../model/CPMS";
-import {getReqHttp} from "../helper/misc";
+import { checkUndefinedParams, success } from "../helper/http";
+import { CPMS } from "../model/CPMS";
+import { getReqHttp } from "../helper/misc";
 import logger from "../helper/logger";
 
 export default class SearchCSRoute extends Route {
@@ -24,7 +24,7 @@ export default class SearchCSRoute extends Route {
         }
 
         const allCPMS = await CPMS.findAll();
-        let stations = [];
+        const stations = [];
         for (const cpms of allCPMS) {
             try {
                 const axiosResponse = await getReqHttp(cpms.endpoint + "/cs-list", null, {
@@ -33,7 +33,7 @@ export default class SearchCSRoute extends Route {
                     locationRange: filterRadius,
                     priceLowerBound,
                     priceUpperBound
-                })
+                });
                 const responseCS = JSON.parse(axiosResponse?.data).CSList as any[];
                 stations.push(responseCS.map((cs) => {
                     const csRecord: Record<string, unknown> = cs;
@@ -47,6 +47,6 @@ export default class SearchCSRoute extends Route {
 
         success(response, {
             retrievedStations: stations
-        })
+        });
     }
 }

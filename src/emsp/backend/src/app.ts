@@ -37,8 +37,6 @@ class BackendApp {
     readonly port: number;
     // Base url where REST endpoints will be registered, relative to the address, default is '/api/'
     readonly baseURL: string;
-    // Connection string for a MongoDB database instance
-    readonly dbString: string;
     // Express application server
     readonly express: Express;
 
@@ -51,7 +49,6 @@ class BackendApp {
         this.deploymentURL = env.DEPLOYMENT_URL;
         this.port = env.PORT;
         this.baseURL = env.BASE_URL;
-        this.dbString = env.DB_STRING;
 
         // Create and configure Express app
         this.express = this.createExpressApp();
@@ -70,6 +67,8 @@ class BackendApp {
 
         // We need to configure our app for CORS requests.
         // The environment variable FRONTEND_URL should be the URL of the frontend that is making the requests
+
+        logger.info(env.FRONTEND_URL);
 
         // Configure CORS for preflight requests
         app.options(

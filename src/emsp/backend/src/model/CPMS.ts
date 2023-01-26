@@ -14,7 +14,7 @@ export class CPMS {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT * FROM CPMS WHERE name = ?",
+            "SELECT * FROM cpmses WHERE name = ?",
             [name]);
 
         connection.release();
@@ -25,8 +25,8 @@ export class CPMS {
         return {
             id: result[0].id,
             name: result[0].name,
-            endpoint: result[0].endpoint,
-            apiKey: result[0].apiKey
+            endpoint: result[0].APIendpoint,
+            apiKey: result[0].APIkey
         };
     }
 
@@ -34,7 +34,7 @@ export class CPMS {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT * FROM CPMS");
+            "SELECT * FROM cpmses");
 
         connection.release();
 
@@ -45,9 +45,9 @@ export class CPMS {
             return {
                 id: resultItem.id,
                 name: resultItem.name,
-                endpoint: resultItem.endpoint,
-                apiKey: resultItem.apiKey
-            }
+                endpoint: resultItem.APIendpoint,
+                apiKey: resultItem.APIkey
+            };
         });
     }
 }
