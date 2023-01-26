@@ -4,6 +4,7 @@ import { badRequest, internalServerError, success } from "../../helper/http";
 import Route from "../../Route";
 import { Request, Response } from "express";
 import { checkUndefinedParams } from "../../helper/http";
+import {User} from "../../model/User";
 
 export default class LoginRoute extends Route {
     constructor() {
@@ -16,9 +17,8 @@ export default class LoginRoute extends Route {
 
         if (checkUndefinedParams(response, username, password)) return;
 
-        //TODO: Retrieve user from DB!
-        const user = { username: "DummyUser", password: "aiusvfaiulfsvfwu2F14C3f4egfas4s5fea3", email: "test.email@mail.com" };//await User.findByUsername(username);
-        if (user == null) {
+        const user = await User.findByUsername(username);
+        if (!user) {
             badRequest(response, "The username or password is invalid");
             return;
         }

@@ -15,20 +15,19 @@ declare global {
         interface Request {
             /**
              * The id of the user that sent this request.
-             * Optionally set by PrivTAP eMSP Authentication middleware if JWT cookie is provided and valid. Can be used by other middleware.
+             * Optionally set by eMSP Authentication middleware if JWT cookie is provided and valid. Can be used by other middleware.
              */
             userId: string;
             /**
-             * The activation status of the user that sent this request.
-             * Optionally set by PrivTAP eMSP Authentication middleware if JWT cookie is provided and valid. Can be used by other middleware.
+             * The username of the registered and logged-in user.
              */
-            userActive: boolean;
+            username: string;
         }
     }
 }
 
 /**
- * Represents the PrivTAP backend application. Contains useful configuration data and exposes methods to connect
+ * Represents the backend application. Contains useful configuration data and exposes methods to connect
  * to the database and start the application server.
  */
 class BackendApp {
