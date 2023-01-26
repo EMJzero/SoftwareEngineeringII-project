@@ -1,5 +1,6 @@
 import { CookieOptions, NextFunction, Request, Response } from "express";
 import { verify, sign, JwtPayload } from "jsonwebtoken";
+import * as crypto from "crypto";
 import {
     badRequest,
     forbiddenUserError,

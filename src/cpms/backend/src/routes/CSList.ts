@@ -1,4 +1,4 @@
-import { badRequest, checkUndefinedParams, success } from "../helper/http";
+import { badRequest, checkNaN, checkUndefinedParams, success } from "../helper/http";
 import Route from "../Route";
 import { Request, Response } from "express";
 import { CS } from "../model/CS";
@@ -6,23 +6,23 @@ import logger from "../helper/logger";
 
 export default class CSListRoute extends Route {
     constructor() {
-        super("CSList", false);
+        super("cs-list", false);
     }
 
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const CSID: number = parseInt(request.query.CSID as string);
 
-        const locationLatitude: number = parseFloat(request.query.locationLatitude as string);
-        const locationLongitude: number = parseFloat(request.query.locationLongitude as string);
-        const locationRange: number = parseFloat(request.query.locationRange as string);
-        const priceLowerBound: number = parseFloat(request.query.priceLowerBound as string);
-        const priceUpperBound: number = parseFloat(request.query.priceUpperBound as string);
-
-        logger.log("Test to check the type of the parameters: " + typeof request.query.locationLatitude);
-
-        if (checkUndefinedParams(response, locationLatitude, locationLongitude, locationRange, priceLowerBound, priceUpperBound)) return;
-
         if (!CSID) {
+            const locationLatitude: number = parseFloat(request.query.locationLatitude as string);
+            const locationLongitude: number = parseFloat(request.query.locationLongitude as string);
+            const locationRange: number = parseFloat(request.query.locationRange as string);
+            const priceLowerBound: number = parseFloat(request.query.priceLowerBound as string);
+            const priceUpperBound: number = parseFloat(request.query.priceUpperBound as string);
+
+            logger.log("Test to check the type of the parameters: " + typeof request.query.locationLatitude);
+
+            if (checkNaN(response, locationLatitude, locationLongitude, locationRange, priceLowerBound, priceUpperBound)) return;
+
             let error  = "";
             if (locationLatitude < -90 || locationLatitude > 90)
                 error += "\nInvalid latitude";

@@ -1,3 +1,5 @@
+import * as WebSocket from "ws";
+
 export class CSDB {
 
     static readonly shared = new CSDB();
@@ -5,6 +7,10 @@ export class CSDB {
 
     public registerCS(connection: CSConnection) {
         this.connections.push(connection);
+    }
+
+    public unregisterCS(connection: CSConnection) {
+        this.connections.splice(this.connections.indexOf(connection), 1);
     }
 
     public getConnectionToCSWithID(csID: number): CSConnection | undefined {
@@ -15,65 +21,81 @@ export class CSDB {
 export default class CSConnection {
 
     private readonly _id: number;
-    private readonly _sockets: SocketMachine[];
+    private readonly _websocket: WebSocket;
+    private _sockets: SocketMachine[];
 
-    constructor(id: number, socketIds: number[], socketTypes: SocketType[], socketSpeeds: ChargeSpeedPower[]) {
+    constructor(id: number, websocket: WebSocket) {
         this._id = id;
         this._sockets = [];
-        for (let i = 0; i < socketTypes.length; i++) {
-            this._sockets.push(new SocketMachine(id, socketIds[i], socketTypes[i], socketSpeeds[i]));
-        }
+        this._websocket = websocket;
     }
 
-    public async startCharge(socketId: number): Promise<boolean> {
-        const socket = (await this.sockets()).find((sc) => sc.socketId == socketId);
+    public startCharge(socketId: number): boolean {
+        const socket = (this.sockets()).find((sc) => sc.socketId == socketId);
         if (socket) {
-            socket.chargeCar();
+            const request = {
+                request: "startCharge",
+                socketId: socketId
+            };
+            this._websocket.send(JSON.stringify(request));
             return true;
         }
         return false;
     }
 
-    public async stopCharge(socketId: number): Promise<boolean> {
-        const socket = (await this.sockets()).find((sc) => sc.socketId == socketId);
+    public stopCharge(socketId: number): boolean {
+        const socket = (this.sockets()).find((sc) => sc.socketId == socketId);
         if (socket) {
-            socket.stopChargeCar();
+            const request = {
+                request: "stopCharge",
+                socketId: socketId
+            };
+            this._websocket.send(JSON.stringify(request));
             return true;
         }
         return false;
     }
 
-    public async getTimeRemaining(socketID: number): Promise<number | undefined> {
-        return (await this.sockets()).find((sc) => sc.socketId == socketID)?.getEstimatedTimeRemaining();
+    public getTimeRemaining(socketID: number): number | undefined {
+        return (this.sockets()).find((sc) => sc.socketId == socketID)?.getEstimatedTimeRemaining();
     }
 
     get id(): number {
         return this._id;
     }
 
-    public async getSocket(socketId: number): Promise<SocketMachine | undefined> {
-        return (await this.sockets()).find(sc => sc.socketId == socketId);
+    public getSocket(socketId: number): SocketMachine | undefined {
+        return (this.sockets()).find(sc => sc.socketId == socketId);
     }
 
-    public async sockets(): Promise<SocketMachine[]> {
+    public sockets(): SocketMachine[] {
         //TODO: Query socket state from the CS on the fly
         return this._sockets;
     }
+
+    public static webSocketListener(message: string, connection: CSConnection) {
+        const msg = JSON.parse(message);
+
+        if(msg.type != undefined && msg.type == "socketsStatus") {
+            msg.sockets.forEach((socket: any) => Object.setPrototypeOf(socket, SocketMachine.prototype));
+            connection._sockets = msg.sockets;
+        }
+    }
 }
 
-enum SocketType {
-    TypeA = 50,
-    TypeB = 30,
-    TypeC = 60
+export enum SocketType {
+    Type1 = 50,
+    Type2 = 30,
+    Type3 = 60
 }
 
-enum ChargeSpeedPower {
-    Slow = 20,
+export enum ChargeSpeedPower {
+    Slow = 10,
     Fast = 40,
     UltraFast = 60
 }
 
-class SocketMachine {
+export class SocketMachine {
 
     private csId: number;
     private _socketId: number;
@@ -91,6 +113,7 @@ class SocketMachine {
     public connectCar() {
         if (this._state == 0) {
             this._state = 1;
+            this._connectedCar = this.getCarData();
         } else {
             throw "Cannot connect a new car: a car is already connected!";
         }
@@ -100,6 +123,7 @@ class SocketMachine {
         if (this._state == 1) {
             this._state = 0;
             this._currentPower = 0;
+            this._connectedCar = undefined;
         } else {
             throw "Cannot disconnect a car";
         }
@@ -108,7 +132,6 @@ class SocketMachine {
     public chargeCar() {
         if (this._state == 1) {
             this._state = 2;
-            this._connectedCar = getCarData();
             if (!this._connectedCar) {
                 throw "Cannot start a charge without getting car data first!";
             }
@@ -135,6 +158,15 @@ class SocketMachine {
         }
     }
 
+    private getCarData(): CarData {
+        const carDB = [new CarData("Tesla", 100, 30, 300),
+            new CarData("Volkswagen", 80, 60, 150),
+            new CarData("Toyota", 120, 90, 90),
+            new CarData("Honda", 60, 55, 90),
+            new CarData("Lexus", 300, 90, 400)];
+        return carDB[Math.round(Math.random() * 4)];
+    }
+
     get socketId(): number {
         return this._socketId;
     }
@@ -154,9 +186,18 @@ class SocketMachine {
     get connectedCar(): CarData {
         return <CarData>this._connectedCar;
     }
+
+    public toString(): string {
+        return "" +
+            "\nid: " + this._socketId +
+            "\nstate: " + this.state +
+            "\ncurPower: " + this.currentPower +
+            "\nmaxPower: " + this.maxPower +
+            "\ncar: " + (this._connectedCar == undefined ? "none" : this._connectedCar.manufacturer);
+    }
 }
 
-class CarData {
+export class CarData {
     private readonly _manufacturer: string;
     private readonly _batteryCapacityKWh: number;
     private readonly _remainingCapacityKWh: number;
@@ -186,11 +227,3 @@ class CarData {
     }
 }
 
-function getCarData(): CarData {
-    const carDB = [new CarData("Tesla", 100, 30, 300),
-        new CarData("Volkswagen", 80, 60, 150),
-        new CarData("Toyota", 120, 90, 90),
-        new CarData("Honda", 60, 55, 90),
-        new CarData("Lexus", 300, 90, 400)];
-    return carDB[Math.round(Math.random() * 4)];
-}

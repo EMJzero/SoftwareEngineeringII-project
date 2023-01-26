@@ -1,5 +1,6 @@
 import "mysql2/promise";
 import mysql, { Pool, PoolConnection } from "mysql2/promise";
+import env from "./helper/env";
 
 export class DBAccess {
     static pool: Pool | null;
@@ -7,10 +8,10 @@ export class DBAccess {
     public static async getConnection(): Promise<PoolConnection> {
         if(this.pool == null) {
             this.pool = await mysql.createPool({
-                host: "localhost",
-                user: "root",
-                password: "Doberman180",
-                database: "cpms_db",
+                host: env.DB_HOST,
+                user: env.DB_USER,
+                password: env.DB_PASSWORD,
+                database: env.DB_DATABASE,
                 waitForConnections: true,
                 connectionLimit: 2,
                 queueLimit: 0,

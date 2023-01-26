@@ -10,6 +10,8 @@ if (process.env.NODE_ENV != "testing")
 interface EnvVariables {
     // Port where the app server will run
     PORT: number,
+    // Port where the WebSocket server will run
+    WS_PORT: number;
     // Relative URL where all routes will start from, this MUST be a relative URL
     BASE_URL: string,
     // Flag representing if we are in a production environment
@@ -28,20 +30,28 @@ interface EnvVariables {
     FRONTEND_URL: string,
     // The minimum level of messages to log
     LOG_LEVEL: "log"|"trace"|"debug"|"info"|"warn"|"error"|"fatal",
-    // The database connection string for our database
-    DB_STRING: string
+    // The database connection strings for our database
+    DB_HOST: string,
+    DB_USER: string,
+    DB_PASSWORD: string,
+    DB_DATABASE: string
 }
 
 // Default values for some of the env variables
 const defaults = {
     PORT: 8000,
+    WS_PORT: 3000,
     BASE_URL: "/api/",
     SALT_ROUNDS: 1,
     JWT_SECRET: "this_is_an_insecure_secret",
     JWT_EXPIRE: 86400,
     DEPLOYMENT_URL: "https://privtap.it",
     FRONTEND_URL: "http://127.0.0.1:5173",
-    LOG_LEVEL: "info"
+    LOG_LEVEL: "info",
+    DB_HOST: "localhost",
+    DB_USER: "root",
+    DB_PASSWORD: "Doberman180",
+    DB_DATABASE: "cpms_db"
 };
 
 /**
@@ -77,8 +87,8 @@ function loadEnvVariables(): EnvVariables {
     res.DEV = process.env.NODE_ENV == "development";
 
     // Check if the DB connection string is set, if not throw an error
-    res.DB_STRING = process.env.DB_STRING || "";
-    if (res.DB_STRING == "")
+    res.DB_HOST = process.env.DB_HOST || "";
+    if (res.DB_HOST == "")
         throw Error("Database connection string environment variable is not set");
 
     // Force the cast of res to EnvVariables before returning it
