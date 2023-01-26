@@ -8,7 +8,7 @@ import {User} from "../../model/User";
 
 export default class LoginRoute extends Route {
     constructor() {
-        super("login", false, false);
+        super("login", false);
     }
 
     protected async httpPost(request: Request, response: Response): Promise<void> {

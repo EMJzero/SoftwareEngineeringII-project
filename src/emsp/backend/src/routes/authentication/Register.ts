@@ -8,7 +8,7 @@ import {IUser, User} from "../../model/User";
 
 export default class RegisterRoute extends Route {
     constructor() {
-        super("register", false, false);
+        super("register", false);
     }
     protected async httpPost(request: Request, response: Response): Promise<void> {
         const username = request.body.username;

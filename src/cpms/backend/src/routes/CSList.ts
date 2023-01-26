@@ -1,4 +1,4 @@
-import { badRequest, checkNaN, checkUndefinedParams, success } from "../helper/http";
+import { badRequest, checkNaN, success } from "../helper/http";
 import Route from "../Route";
 import { Request, Response } from "express";
 import { CS } from "../model/CS";

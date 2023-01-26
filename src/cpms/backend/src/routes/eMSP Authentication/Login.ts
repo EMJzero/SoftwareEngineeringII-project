@@ -1,4 +1,3 @@
-import { compareSync } from "bcrypt";
 import Authentication from "../../helper/authentication";
 import { badRequest, internalServerError, success } from "../../helper/http";
 import Route from "../../Route";

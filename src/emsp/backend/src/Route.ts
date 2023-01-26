@@ -10,25 +10,18 @@ export default class Route {
     readonly endpointName: string;
     // Flag that indicates if this API route requires user eMSP Authentication
     readonly requiresAuth: boolean;
-    // Flag that indicates if this API route requires that the user is confirmed
-    readonly requiresActivation: boolean;
     // Router responsible for this API route
     readonly router: Router;
 
-    constructor(endpointName="", requiresAuth=true, requiresValidation=true) {
+    constructor(endpointName="", requiresAuth=true) {
         this.endpointName = endpointName;
         this.requiresAuth = requiresAuth;
-        this.requiresActivation = requiresValidation;
         // Creates a new Router
         this.router = Router();
 
         // If this endpoint requires eMSP Authentication, register the eMSP Authentication middleware to the Router
-        if (requiresAuth || requiresValidation)
+        if (requiresAuth)
             this.router.use(Authentication.checkAuthentication);
-
-        // If this endpoint requires eMSP Authentication, register the confirmation middleware to the Router
-        if (requiresValidation)
-            this.router.use(Authentication.checkActivation);
 
         // If the subclass implements http methods handlers, register them to the Router
         if (this.httpGet)
