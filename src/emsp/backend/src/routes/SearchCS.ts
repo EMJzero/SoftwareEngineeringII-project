@@ -16,6 +16,8 @@ export default class SearchCSRoute extends Route {
         const filterLatitude = request.query.latitude as string;
         const filterLongitude = request.query.longitude as string;
         const filterRadius = request.query.radius as (string | undefined);
+        const priceLowerBound = request.query.priceMin as (string | undefined);
+        const priceUpperBound = request.query.priceMax as (string | undefined);
 
         if (checkUndefinedParams(response, filterLatitude, filterLongitude)) {
             return;
@@ -28,7 +30,9 @@ export default class SearchCSRoute extends Route {
                 const axiosResponse = await getReqHttp(cpms.endpoint + "/cs-list", null, {
                     locationLatitude: filterLatitude,
                     locationLongitude: filterLongitude,
-                    locationRange: filterRadius
+                    locationRange: filterRadius,
+                    priceLowerBound,
+                    priceUpperBound
                 })
                 const responseCS = JSON.parse(axiosResponse?.data).CSList as unknown[];
                 stations.push(responseCS);
