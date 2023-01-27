@@ -16,7 +16,7 @@ class RecentBookingsController extends GenericController<BookingModel[] | null> 
             referenceDate: Date.now(),
             intervalDays: 1
         };
-        const res = await super.get<BookingModel[]>("/bookings", { query: body, message: "Hello" });
+        const res = await super.get<BookingModel[]>("/bookings", { query: body });
         this.setBookings(res);
         return res;
     }
