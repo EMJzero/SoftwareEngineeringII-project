@@ -1,5 +1,5 @@
 <template>
-  <button class=" rounded-lg bg-blue-600 py-5 px-16 font-normal text-white hover:bg-blue-700">
+  <button class=" rounded-lg bg-blue-600 py-3 px-16 font-normal text-white hover:bg-blue-700">
     {{ text }}
   </button>
 </template>

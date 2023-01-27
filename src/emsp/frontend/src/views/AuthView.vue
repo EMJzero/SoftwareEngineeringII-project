@@ -197,7 +197,7 @@ async function _signUp() {
   await auth_controller
     .register(username.value, email.value, password.value, creditCardBillingName.value, creditCardNumber.value, creditCardCVV.value, creditCardExpiration.value)
     .then((res) => {
-      if (res === true) {
+      if (res) {
         changeView();
       }
     });

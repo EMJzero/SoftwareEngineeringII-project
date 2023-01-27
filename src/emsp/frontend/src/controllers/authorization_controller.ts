@@ -8,11 +8,14 @@ let reference = ref<UserModel | null>(null);
 interface IAuthController {
     login(username: string, password: string): Promise<UserModel | null>;
     logout(): Promise<boolean>;
-    activate(token: String): Promise<boolean>;
     register(
         username: string,
         email: string,
-        password: string
+        password: string,
+        creditCardBillingName: string,
+        creditCardNumber: string,
+        creditCardCVV: string,
+        creditCardExpiration: string
     ): Promise<boolean>;
     setUser(newUser: UserModel | null): void;
 }

@@ -10,14 +10,14 @@ const router = createRouter({
             name: "base",
             redirect: "/auth",
         },
-        /*{
+        {
             path: RoutingPath.HOME,
             name: "home",
             component: () => import("../views/HomeView.vue"),
             meta: {
                 requireAuth: true,
             },
-        },*/
+        },
         {
             path: RoutingPath.AUTH,
             name: "auth",
@@ -33,10 +33,6 @@ const router = createRouter({
 
 /// Router guard to check if user is authenticated
 router.beforeEach((to, from, next) => {
-
-    if (to.query.activate) {
-        auth_controller.activate(to.query.activate as string);
-    }
 
     let isAutheticated = auth_controller.isAuthenticated.value;
     console.log("isAutheticatedGuard", isAutheticated);
