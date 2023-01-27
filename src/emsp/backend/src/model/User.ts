@@ -61,7 +61,7 @@ export class User {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "INSERT INTO users VALUES (default, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO users VALUES (default, ?, ?, ?, ?, ?, ?, ?)",
             [user.username, user.email, user.password, user.creditCardNumber, user.creditCardCVV, user.creditCardExpiration.replace("/", ""), user.creditCardBillingName]);
 
         connection.release();

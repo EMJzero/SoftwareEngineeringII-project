@@ -10,8 +10,8 @@
     <div class="text-center items-center justify-center justify-items-center pt-10">
       <p class="text-white text-3xl font-semibold pb-3">Upcoming Bookings</p>
       <p v-if="isLoading" class="text-grey font-semibold text-2xl space-x-16 pt-20">Loading Upcoming Bookings...</p>
-      <ul v-if="!isLoading && bookings && bookings.length > 0" class="list-disc pl-4 text-stone-400 text-lg">
-        <TriggerCard v-for="booking in bookings" :tag="booking.id" :booking="booking"/>
+      <ul v-if="!isLoading && bookings && bookings.length > 0" class="list-none pl-4 text-stone-400 text-lg" style="max-width: 500px; margin-left: auto; margin-right: auto">
+        <BookingChip v-for="booking in bookings" :tag="booking.id" :booking="booking"/>
       </ul>
       <p v-if="!isLoading && (!bookings || bookings.length === 0)" class="text-grey font-semibold text-2xl space-x-16 pt-20">No Upcoming Bookings</p>
       <div class="text-white font-semibold text-xl space-x-16 pt-20">

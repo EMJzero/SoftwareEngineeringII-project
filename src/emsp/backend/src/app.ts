@@ -17,7 +17,7 @@ declare global {
              * The id of the user that sent this request.
              * Optionally set by eMSP Authentication middleware if JWT cookie is provided and valid. Can be used by other middleware.
              */
-            userId: string;
+            userId: number;
             /**
              * The username of the registered and logged-in user.
              */

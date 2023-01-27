@@ -54,7 +54,7 @@ export default abstract class Authentication {
      * @throws Error if the JWT_SECRET env variable is not defined
      * @return Returns the userId and the activation status
      */
-    static checkJWT(request: Request): { userId: string, username: string } {
+    static checkJWT(request: Request): { userId: number, username: string } {
         const secret = env.JWT_SECRET;
 
         const cookieJWT: string | undefined = request.cookies?.__session;
@@ -82,7 +82,7 @@ export default abstract class Authentication {
 
         const userId = decoded["userId"];
         const username = decoded["username"];
-        if (!userId || typeof userId != "string" || !username || typeof username != "string") {
+        if (!userId || typeof userId != "number" || !username || typeof username != "string") {
             throw new AuthError("JWT Cookie is invalid");
         }
 
