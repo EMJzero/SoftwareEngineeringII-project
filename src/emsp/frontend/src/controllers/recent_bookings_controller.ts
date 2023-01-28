@@ -12,8 +12,14 @@ interface IRecentBookingsController {
 class RecentBookingsController extends GenericController<BookingModel[] | null> implements IRecentBookingsController {
 
     async getUpcomingBookings(): Promise<BookingModel[] | null> {
+        const now = new Date();
+        const month = now.getUTCMonth() + 1; //months from 1-12
+        const day = now.getUTCDate();
+        const year = now.getUTCFullYear();
         const body = {
-            referenceDate: Date.now(),
+            referenceDateDay: day,
+            referenceDateMoth: month,
+            referenceDateYear: year,
             intervalDays: 1
         };
         const res = await super.get<BookingModel[]>("/bookings", { query: body });
