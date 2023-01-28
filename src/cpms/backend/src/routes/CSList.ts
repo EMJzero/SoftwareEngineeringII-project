@@ -19,8 +19,6 @@ export default class CSListRoute extends Route {
             const priceLowerBound: number = parseFloat(request.query.priceLowerBound as string);
             const priceUpperBound: number = parseFloat(request.query.priceUpperBound as string);
 
-            logger.log("Test to check the type of the parameters: " + typeof request.query.locationLatitude);
-
             if (checkNaN(response, locationLatitude, locationLongitude, locationRange, priceLowerBound, priceUpperBound)) return;
 
             let error  = "";

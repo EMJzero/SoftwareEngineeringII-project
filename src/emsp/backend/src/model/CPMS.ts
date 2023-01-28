@@ -30,6 +30,26 @@ export class CPMS {
         };
     }
 
+    public static async findById(id: number): Promise<ICPMS | null> {
+        const connection = await DBAccess.getConnection();
+
+        const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
+            "SELECT * FROM cpmses WHERE id = ?",
+            [id]);
+
+        connection.release();
+
+        if (result.length == 0 || !result) {
+            return null;
+        }
+        return {
+            id: result[0].id,
+            name: result[0].name,
+            endpoint: result[0].APIendpoint,
+            apiKey: result[0].APIkey
+        };
+    }
+
     public static async findAll(): Promise<ICPMS[]> {
         const connection = await DBAccess.getConnection();
 

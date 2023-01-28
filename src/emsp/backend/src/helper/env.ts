@@ -32,7 +32,9 @@ interface EnvVariables {
     DB_HOST: string,
     DB_USER: string,
     DB_PASSWORD: string,
-    DB_DATABASE: string
+    DB_DATABASE: string,
+    // Size of the minimum timeslot that can be booked
+    TIME_SLOT_SIZE: number
 }
 
 // Default values for some of the env variables
@@ -48,7 +50,8 @@ const defaults = {
     DB_HOST: "localhost",
     DB_USER: "root",
     DB_PASSWORD: "Doberman180",
-    DB_DATABASE: "cpms_db"
+    DB_DATABASE: "cpms_db",
+    TIME_SLOT_SIZE: 60
 };
 
 /**

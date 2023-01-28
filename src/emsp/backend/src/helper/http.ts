@@ -31,10 +31,25 @@ export class APIResponse {
  * @returns true if one of the parameters is undefined, false otherwise
  */
 
-export function checkUndefinedParams(response: Response, ...params: (string | string[] | undefined)[]): boolean {
+export function checkUndefinedParams(response: Response, ...params: (unknown | undefined)[]): boolean {
     for (const param of params) {
         if (param === undefined) {
             badRequest(response, "One of the parameters is missing");
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Checks if one of the specified parameters is NaN, sending a 400 bad request if so.
+ * @param response The Express response to reply to
+ * @param params The list of parameters to check
+ */
+export function checkNaN(response: Response, ...params: (number)[]): boolean {
+    for (const param of params) {
+        if (isNaN(param)) {
+            badRequest(response, "One of the parameters is NaN");
             return true;
         }
     }
@@ -55,8 +70,8 @@ export function success(response: Response, data?: object , message = "") {
  * Sends to the client a response signalling a generic "500 Internal Server Error".
  * @param response The Express response used to send the error to
  */
-export function internalServerError(response: Response) {
-    response.status(500).json(new APIResponse(false, "Internal server error"));
+export function internalServerError(response: Response, message = "Internal server error") {
+    response.status(500).json(new APIResponse(false, message));
 }
 
 /**

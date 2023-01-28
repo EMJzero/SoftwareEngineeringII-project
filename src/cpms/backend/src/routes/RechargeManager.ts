@@ -10,6 +10,7 @@ export default class RechargeManager extends Route {
         super("recharge-manager", false);
     }
 
+    // Provides the status of a CS
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const CSID: number = parseInt(request.query.CSID as string);
         const socketID: number = parseInt(request.query.socketID as string);
@@ -45,6 +46,7 @@ export default class RechargeManager extends Route {
         }
     }
 
+    // Start/Stop charging process
     protected async httpPost(request: Request, response: Response): Promise<void> {
         const CSID = request.body.CSID;
         const socketID = request.body.socketID;

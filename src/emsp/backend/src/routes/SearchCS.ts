@@ -38,6 +38,7 @@ export default class SearchCSRoute extends Route {
                 stations.push(responseCS.map((cs) => {
                     const csRecord: Record<string, unknown> = cs;
                     csRecord.ownerCPMS = cpms.name;
+                    csRecord.ownerCPMSId = cpms.id;
                     return csRecord;
                 }));
             } catch (e) {

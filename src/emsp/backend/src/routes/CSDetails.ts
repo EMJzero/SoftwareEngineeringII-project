@@ -4,6 +4,7 @@ import { badRequest, checkUndefinedParams, internalServerError, success } from "
 import { CPMS } from "../model/CPMS";
 import { getReqHttp } from "../helper/misc";
 import logger from "../helper/logger";
+import { Booking } from "../model/Booking";
 
 export default class CSDetails extends Route {
 
@@ -30,8 +31,15 @@ export default class CSDetails extends Route {
             const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
                 CSID: stationID
             });
+
+            if(JSON.parse(axiosResponse?.data).CSList != undefined) {
+                badRequest(response, "Invalid stationID provided");
+            }
+
+            // Responds with both the details of the CS and its available time slots!
             success(response, {
-                stationData: JSON.parse(axiosResponse?.data).CSList
+                stationData: JSON.parse(axiosResponse?.data).CSList,
+                availableTimeSlots: Booking.getAvailableTimeSlots(ownerCPMS.id, parseInt(stationID))
             });
         } catch (e) {
             logger.log("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);
