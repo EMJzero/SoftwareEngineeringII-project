@@ -1,4 +1,4 @@
-import {badRequest, checkNaN, checkUndefinedParams, internalServerError, success} from "../helper/http";
+import { badRequest, checkNaN, checkUndefinedParams, internalServerError, success } from "../helper/http";
 import Route from "../Route";
 import { Request, Response } from "express";
 import { CSDB } from "../model/CSConnection";
