@@ -4,7 +4,7 @@ import type BookingModel from "@/model/booking_model";
 
 let reference = ref<BookingModel[] | null>(null);
 
-interface IBookingsController {
+export interface IBookingsController {
     getBookings(): Promise<BookingModel[] | null>;
     deleteBooking(booking: BookingModel): Promise<boolean>;
     startChargeBooking(booking: BookingModel): Promise<boolean>;
@@ -19,7 +19,7 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
             bookingId: booking.id
             } });
         if (res) {
-            reference.value?.filter((b) => b.id != booking.id);
+            reference.value = reference.value?.filter((b) => b.id != booking.id) ?? null;
         }
         return res;
     }

@@ -12,15 +12,15 @@
       <div class="pt-8 pb-2">
         <button class="text-left rounded-lg pt-2 pb-4 px-9 text-lg font-medium text-white">  </button>
         <button v-if="booking.isActive && isBookingLive()" class="text-left rounded-lg bg-blue-600 py-2 px-9 text-lg font-medium text-white hover:bg-blue-700"
-                @click="router.push(RoutingPath.CREATE_RULE_PAGE)">
+                @click="bookings_controller.stopChargeBooking(booking)">
           Stop Charge
         </button>
         <button v-if="!booking.isActive && isBookingLive()" class="text-left rounded-lg bg-green-600 py-2 px-9 text-lg font-medium text-white hover:bg-green-700" style="float: left"
-                @click="router.push(RoutingPath.CREATE_RULE_PAGE)">
+                @click="bookings_controller.startChargeBooking(booking)">
           Start Charge
         </button>
         <button v-if="(new Date()).toISOString() < (new Date(getStartDate())).toISOString()" class="text-right rounded-lg bg-red-600 py-2 px-9 text-lg font-medium text-white hover:bg-red-700" style="float: right"
-                @click="router.push(RoutingPath.CREATE_RULE_PAGE)">
+                @click="bookings_controller.deleteBooking(booking)">
           Delete
         </button>
       </div>
@@ -34,6 +34,7 @@ import ModalComponent from '@/components/ModalComponent.vue';
 import type BookingModel from '@/model/booking_model';
 import {convertSQLStringToDateTimeString} from "@/helpers/converters";
 import PrimaryButton from "@/components/PrimaryButton.vue";
+import bookings_controller from "@/controllers/bookings_controller";
 
 const props = defineProps<{
   booking: BookingModel;
