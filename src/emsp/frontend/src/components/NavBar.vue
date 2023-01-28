@@ -1,7 +1,7 @@
 
 <template>
   <nav v-if="isAuth" class="flex justify-between pt-5 pl-6">
-    <img class="h-24" :src="logo" @click="router.push(RoutingPath.HOME)" />
+    <button class="h-24 text-left font-bold text-3xl" @click="router.push(RoutingPath.HOME)"> eMall 🚗 </button>
     <div class="flex pr-10 space-x-5 text-center items-center">
       <button
         class="rounded-lg py-2 px-8 font-semibold text-blue-500 ring-blue-500 ring-[3px] hover:text-blue-400 hover:ring-blue-400"
