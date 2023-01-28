@@ -57,15 +57,45 @@ export default class Bookings extends Route {
     }
 
     // Start/Stop charging process
+    // BookingID can be omitted as a required parameter here, but it is better to require it in order to force the client to know which booking it is getting activated
     protected async httpPost(request: Request, response: Response): Promise<void>{
         const userID = request.userId;
+        const bookingID = request.body.bookingId as number;
+        // Valid values: startCharge = "start", stopCharge = "stop"
+        const action = request.body.action;
 
-        const currentBooking = await Booking.findCurrentByUser(userID);
-        if(currentBooking == null) {
-            badRequest(response, "You have no booking for the current time frame");
+        if (checkUndefinedParams(response, bookingID, action)) return;
+
+        const booking = await Booking.findCurrentByUser(userID);
+        if(booking == null || booking.id != bookingID) {
+            badRequest(response, "Invalid booking Id");
             return;
         }
 
-        //TODO...
+        const ownerCPMS = await CPMS.findById(booking.cpmsId);
+        if (!ownerCPMS) {
+            internalServerError(response);
+            return;
+        }
+
+        try {
+            const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/recharge-manager", null, {
+                CSID: booking.csId,
+                socketID: booking.socketId,
+                action: action
+            });
+
+            const parsedResponse = JSON.parse(axiosResponse?.data);
+
+            if(axiosResponse?.status != 200) {
+                badRequest(response, parsedResponse);
+                return;
+            }
+
+            success(response);
+        } catch (e) {
+            logger.log("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);
+            internalServerError(response);
+        }
     }
 }

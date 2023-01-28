@@ -1,10 +1,10 @@
 import { DBAccess } from "../DBAccess";
-import { FieldPacket, RowDataPacket } from "mysql2/promise";
+import { FieldPacket, RowDataPacket, ResultSetHeader } from "mysql2/promise";
 import env from "../helper/env";
 
-//TODO: Simple template for Bookings. Currently extracts all bookings of a user, need to complete with all other methods
-//TODO: You should also send the socket info when retrieving the booking data before sending it to the client
-//TODO: Add image URL as string in the DB to display images in the bookings list, and CS name to reflect the DD??
+// Simple template for Bookings. Currently extracts all bookings of a user, need to complete with all other methods
+// You should also send the socket info when retrieving the booking data before sending it to the client
+// Add image URL as string in the DB to display images in the bookings list, and CS name to reflect the DD??
 export class Booking {
     private _id: number;
     private _userId: number;
@@ -50,6 +50,31 @@ export class Booking {
                 resultItem.socketId
             );
         });
+    }
+
+    public static async findBookingById(bookingId: number): Promise<Booking | null> {
+        const connection = await DBAccess.getConnection();
+
+        const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
+            "SELECT * FROM bookings WHERE id = ?",
+            [bookingId]);
+
+        connection.release();
+
+        if (result.length == 0 || !result) {
+            return null;
+        }
+
+        return new Booking(
+            result[0].id,
+            result[0].userId,
+            result[0].startDate,
+            result[0].endDate,
+            result[0].isActive,
+            result[0].cpmsId,
+            result[0].csId,
+            result[0].socketId
+        );
     }
 
     public static async getAvailableTimeSlots(cpmsID: number, csID: number): Promise<DateIntervalPerSocket[]> {
@@ -147,19 +172,18 @@ export class Booking {
         );
     }
 
-    public static async deleteBooking(userId: number, startDate: Date, endDate: Date, cpmsID: number, csID: number, socketID: number): Promise<boolean> {
+    public static async deleteBooking(userId: number, bookingId: number): Promise<boolean> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "DELETE FROM bookings WHERE userId = ? AND startDate = ? AND endDate = ? AND cpmsId = ? AND csId = ? AND socketId = ?",
-            [userId, startDate, endDate, cpmsID, csID, socketID]);
+            "DELETE FROM bookings WHERE userId = ? AND id = ?",
+            [userId, bookingId]);
 
         connection.release();
 
-        console.log(result);
+        const json: any = result;
 
-        //TODO: IMPLEMENT THIS CHECK with something like affectedRows!
-        return true;
+        return json.affectedRows == 1;
     }
 
     public static async createBooking(userId: number, startDate: Date, endDate: Date, cpmsID: number, csID: number, socketID: number): Promise<boolean> {
@@ -186,10 +210,9 @@ export class Booking {
 
         connection.release();
 
-        console.log(result);
+        const json: any = result;
 
-        //TODO: IMPLEMENT THIS CHECK with something like affectedRows!
-        return true;
+        return json.affectedRows == 1;
     }
 
     get id(): number {

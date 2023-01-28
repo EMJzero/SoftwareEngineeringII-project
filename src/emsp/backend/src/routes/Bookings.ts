@@ -42,27 +42,16 @@ export default class Bookings extends Route {
     // To delete a booking
     protected async httpDelete(request: Request, response: Response): Promise<void>{
         const userID = request.userId;
-        const startDateDay = request.body.startDateDay as number;
-        const startDateMonth = request.body.startDateMonth as number;
-        const startDateYear = request.body.startDateYear as number;
-        const endDateDay = request.body.endDateDay as number;
-        const endDateMonth = request.body.endDateMonth as number;
-        const endDateYear = request.body.endDateYear as number;
-        const cpmsID = request.body.cpmsID as number;
-        const csID = request.body.csID as number;
-        const socketID = request.body.socketID as number;
+        const bookingID = request.body.bookingId as number;
 
-        if (checkUndefinedParams(response, startDateDay, startDateMonth, startDateYear, endDateDay, endDateMonth, endDateYear, cpmsID, csID, socketID)) return;
+        if (checkUndefinedParams(response, bookingID)) return;
 
-        const startDate = new Date(startDateYear, startDateMonth, startDateDay);
-        const endDate = new Date(endDateYear, endDateMonth, endDateDay);
-
-        if(await Booking.deleteBooking(userID, startDate, endDate, cpmsID, csID, socketID)) {
+        if(await Booking.deleteBooking(userID, bookingID)) {
             success(response, {
                 result: "ok"
             });
         } else {
-            badRequest(response, "No booking found with given parameters");
+            badRequest(response, "No booking found with given Id");
         }
     }
 
