@@ -28,7 +28,16 @@ class RecentBookingsController extends GenericController<BookingModel[] | null> 
     }
 
     setBookings(bookings: BookingModel[] | null) {
-        reference.value = bookings;
+        reference.value = [{
+            id: "1",
+            name: "Tokyo Tower Hub",
+            socketSpeed: "Ultra Fast",
+            socketType: "Type A",
+            startDate: "2023-30-01T22:13:00",
+            endDate: "2023-31-01T23:13:00",
+            imageURL: "https://www.japan-guide.com/g18/3003_01.jpg",
+            isActive: false
+        }];
     }
 
     /**

@@ -27,15 +27,16 @@ export abstract class GenericController<T> {
         }
     }
 
-    protected async delete(path: string, config?: { body?: object, message?: string }) {
+    protected async delete(path: string, config?: { body?: object, message?: string }): Promise<boolean> {
         try {
             await axiosInstance.delete(path, { data: config?.body });
             if (config?.message != undefined)
                 useToast().success(config.message);
+            return true;
         } catch (error) {
             axiosCatch(error);
+            return false;
         }
-
     }
 
     protected async post<T>(path: string, config?: { body?: object, message?: string }): Promise<T | null> {
