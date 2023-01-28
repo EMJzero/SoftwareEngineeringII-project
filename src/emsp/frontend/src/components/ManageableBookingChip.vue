@@ -10,12 +10,12 @@
       <p class="text-left text-sm font-weight-regular text-white pt-5">Starts: {{ getStartDate() }} </p>
       <p class="text-left text-sm font-weight-regular text-white">Ends: {{ getEndDate() }} </p>
       <div class="pt-8 pb-2">
-        <button class="text-left rounded-lg py-2 px-9 text-lg font-medium text-white">  </button>
-        <button v-if="booking.isActive" class="text-left rounded-lg bg-blue-600 py-2 px-9 text-lg font-medium text-white hover:bg-blue-700"
+        <button class="text-left rounded-lg pt-2 pb-4 px-9 text-lg font-medium text-white">  </button>
+        <button v-if="booking.isActive && isBookingLive()" class="text-left rounded-lg bg-blue-600 py-2 px-9 text-lg font-medium text-white hover:bg-blue-700"
                 @click="router.push(RoutingPath.CREATE_RULE_PAGE)">
           Stop Charge
         </button>
-        <button v-if="!booking.isActive" class="text-left rounded-lg bg-green-600 py-2 px-9 text-lg font-medium text-white hover:bg-green-700" style="float: left"
+        <button v-if="!booking.isActive && isBookingLive()" class="text-left rounded-lg bg-green-600 py-2 px-9 text-lg font-medium text-white hover:bg-green-700" style="float: left"
                 @click="router.push(RoutingPath.CREATE_RULE_PAGE)">
           Start Charge
         </button>
@@ -45,6 +45,10 @@ function getStartDate(): string {
 
 function getEndDate(): string {
   return convertSQLStringToDateTimeString(props.booking.endDate);
+}
+
+function isBookingLive(): boolean {
+  return (new Date()).toISOString() < (new Date(getEndDate())).toISOString() && (new Date()).toISOString() >= (new Date(getStartDate())).toISOString()
 }
 
 </script>
