@@ -35,7 +35,7 @@ export default class SearchCSRoute extends Route {
                     priceLowerBound,
                     priceUpperBound
                 });
-                const responseCS = JSON.parse(axiosResponse?.data.data).CSList as any[];
+                const responseCS = axiosResponse?.data.data.CSList as any[];
                 stations.push(responseCS.map((cs) => {
                     const csRecord: Record<string, unknown> = cs;
                     csRecord.ownerCPMS = cpms.name;
@@ -46,8 +46,6 @@ export default class SearchCSRoute extends Route {
                 logger.log("Axios call to" + cpms.endpoint + "failed with error" + e);
             }
         }
-
-        console.log(stations);
         success(response, stations);
     }
 }
