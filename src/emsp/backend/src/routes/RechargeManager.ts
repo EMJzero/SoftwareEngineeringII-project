@@ -6,7 +6,7 @@ import { getReqHttp } from "../helper/misc";
 import logger from "../helper/logger";
 import { Booking } from "../model/Booking";
 
-export default class Bookings extends Route {
+export default class RechargeManager extends Route {
 
     constructor() {
         super("recharge-manager", true);
@@ -16,14 +16,21 @@ export default class Bookings extends Route {
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const userID = request.userId;
 
-        const activeBooking = await Booking.findActiveByUser(userID);
-        if(activeBooking == null) {
-            badRequest(response, "No currently active booking");
-            return;
-        }
+        let activeBooking, ownerCPMS;
+        try {
+            activeBooking = await Booking.findActiveByUser(userID);
+            if (activeBooking == null) {
+                badRequest(response, "No currently active booking");
+                return;
+            }
 
-        const ownerCPMS = await CPMS.findById(activeBooking.cpmsId);
-        if (!ownerCPMS) {
+            ownerCPMS = await CPMS.findById(activeBooking.cpmsId);
+            if (!ownerCPMS) {
+                internalServerError(response);
+                return;
+            }
+        } catch (e) {
+            logger.log("DB access for Booking failed");
             internalServerError(response);
             return;
         }
@@ -66,13 +73,28 @@ export default class Bookings extends Route {
 
         if (checkUndefinedParams(response, bookingID, action)) return;
 
-        const booking = await Booking.findCurrentByUser(userID);
+        let booking;
+        try {
+            booking = await Booking.findCurrentByUser(userID);
+        } catch (e) {
+            logger.log("DB access for Bookings failed");
+            internalServerError(response);
+            return;
+        }
+
         if(booking == null || booking.id != bookingID) {
             badRequest(response, "Invalid booking Id");
             return;
         }
 
-        const ownerCPMS = await CPMS.findById(booking.cpmsId);
+        let ownerCPMS;
+        try {
+            ownerCPMS = await CPMS.findById(booking.cpmsId);
+        } catch (e) {
+            logger.log("DB access for CPMSs failed");
+            internalServerError(response);
+            return;
+        }
         if (!ownerCPMS) {
             internalServerError(response);
             return;
