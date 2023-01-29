@@ -1,4 +1,4 @@
-import { badRequest, checkNaN, internalServerError, success } from "../helper/http";
+import { badRequest, checkNaN, checkUndefinedParams, internalServerError, success } from "../helper/http";
 import Route from "../Route";
 import { Request, Response } from "express";
 import { CSDB } from "../model/CSConnection";
@@ -52,7 +52,7 @@ export default class RechargeManager extends Route {
         const socketID = request.body.socketID;
         const action = request.body.action;
 
-        if (checkNaN(response, CSID, socketID, action)) return;
+        if (checkUndefinedParams(response, CSID, socketID, action)) return;
 
         let axiosResponse;
         try {

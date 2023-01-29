@@ -9,8 +9,9 @@ export class CS {
     userPrice: number;
     offerExpirationDate: Date | null;
     sockets: Socket[] | null;
+    imageURL: string;
 
-    constructor(id: number, locationLatitude: number, locationLongitude: number, nominalPrice: number, userPrice: number, offerExpirationDate: Date, sockets: null | Socket[]) {
+    constructor(id: number, locationLatitude: number, locationLongitude: number, nominalPrice: number, userPrice: number, offerExpirationDate: Date, sockets: null | Socket[], imageURL: string) {
         this.id = id;
         this.locationLatitude = locationLatitude;
         this.locationLongitude = locationLongitude;
@@ -18,6 +19,7 @@ export class CS {
         this.userPrice = userPrice;
         this.offerExpirationDate = offerExpirationDate;
         this.sockets = sockets;
+        this.imageURL = imageURL;
     }
 
     public static async getCSList(locationLatitude: number, locationLongitude: number, locationRange: number, priceLowerBound: number, priceUpperBound: number): Promise<CS[]> {
@@ -28,7 +30,7 @@ export class CS {
 
         connection.release();
 
-        return result.map((cs) => new CS(cs.id, cs.locationLatitude, cs.locationLongitude, cs.nominalPrice, cs.userPrice, cs.offerExpirationDate, null));
+        return result.map((cs) => new CS(cs.id, cs.locationLatitude, cs.locationLongitude, cs.nominalPrice, cs.userPrice, cs.offerExpirationDate, null, cs.imageURL));
     }
 
     public static async getCSDetails(CSID: number): Promise<CS> {
@@ -43,7 +45,7 @@ export class CS {
             [CSID]);
 
         const cs = new CS(resultCS[0].id, resultCS[0].locationLatitude, resultCS[0].locationLongitude, resultCS[0].nominalPrice, resultCS[0].userPrice, resultCS[0].offerExpirationDate,
-            resultSockets.map((socket) => new Socket(socket.id, new SocketType(socket.connector, socket.maxpower))));
+            resultSockets.map((socket) => new Socket(socket.id, new SocketType(socket.connector, socket.maxpower))), resultCS[0].imageURL);
 
         connection.release();
 
