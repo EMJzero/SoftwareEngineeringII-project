@@ -147,7 +147,7 @@ export class Booking {
         );
     }
 
-    public static async findActiveByUser(userId: number): Promise<Booking | null> {
+    public static async findActiveByUser(userId: number): Promise<Booking | undefined> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
@@ -157,7 +157,7 @@ export class Booking {
         connection.release();
 
         if (result.length == 0 || !result) {
-            return null;
+            return undefined;
         }
 
         return new Booking(

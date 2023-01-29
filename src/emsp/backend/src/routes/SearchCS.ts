@@ -4,6 +4,7 @@ import { checkUndefinedParams, success } from "../helper/http";
 import { CPMS } from "../model/CPMS";
 import { getReqHttp } from "../helper/misc";
 import logger from "../helper/logger";
+import {stat} from "fs";
 
 export default class SearchCSRoute extends Route {
 
@@ -46,8 +47,7 @@ export default class SearchCSRoute extends Route {
             }
         }
 
-        success(response, {
-            retrievedStations: stations
-        });
+        console.log(stations);
+        success(response, stations);
     }
 }
