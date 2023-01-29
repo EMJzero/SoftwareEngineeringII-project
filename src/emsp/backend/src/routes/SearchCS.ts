@@ -1,10 +1,10 @@
 import Route from "../Route";
 import { Request, Response } from "express";
-import { checkUndefinedParams, success } from "../helper/http";
+import { checkUndefinedParams, internalServerError, success } from "../helper/http";
 import { CPMS } from "../model/CPMS";
 import { getReqHttp } from "../helper/misc";
 import logger from "../helper/logger";
-import {stat} from "fs";
+import { stat } from "fs";
 
 export default class SearchCSRoute extends Route {
 
@@ -24,7 +24,15 @@ export default class SearchCSRoute extends Route {
             return;
         }
 
-        const allCPMS = await CPMS.findAll();
+        let allCPMS;
+        try {
+            allCPMS = await CPMS.findAll();
+        } catch (e) {
+            logger.log("DB access to find all CPMSs failed");
+            internalServerError(response);
+            return;
+        }
+
         const stations = [];
         for (const cpms of allCPMS) {
             try {
@@ -47,6 +55,7 @@ export default class SearchCSRoute extends Route {
                 }
             } catch (e) {
                 logger.log("Axios call to" + cpms.endpoint + "failed with error" + e);
+                internalServerError(response);
             }
         }
         success(response, stations);

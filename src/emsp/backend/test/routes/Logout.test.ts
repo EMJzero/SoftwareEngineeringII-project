@@ -4,7 +4,6 @@ import { createSandbox, SinonStub } from "sinon";
 import sinonChai = require("sinon-chai");
 import app from "../../src/app";
 import Authentication from "../../src/helper/authentication";
-import Logger from "../../src/helper/logger";
 import { beforeEach } from "mocha";
 
 use(chaiHttp);
@@ -25,14 +24,19 @@ describe("/logout endpoint", () => {
         requester.close();
     });
 
+    beforeEach(() => {
+        checkJWTStub = sandbox.stub(Authentication, "checkJWT");
+    });
+
     afterEach(() => {
         sandbox.restore();
     });
 
     describe("GET /", () => {
         it("should succeed", async () => {
-            checkJWTStub = sandbox.stub(Authentication, "checkJWT");
-            checkJWTStub.returns("userId");
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
             const res = await requester.get("/logout");
             expect(res).to.have.status(200);
         });

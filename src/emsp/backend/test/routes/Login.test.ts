@@ -1,12 +1,11 @@
-/*import { use, expect, request } from "chai";
+import { use, expect, request } from "chai";
 import chaiHttp = require("chai-http");
 import { createSandbox, SinonStub } from "sinon";
 import sinonChai = require("sinon-chai");
 import app from "../../src/app";
-import User from "../../src/model/User";
+import { User } from "../../src/model/User";
 import bcrypt = require( "bcrypt");
-import Authentication from "../../src/helper/eMSP Authentication";
-import Logger from "../../src/helper/logger";
+import Authentication from "../../src/helper/authentication";
 import { beforeEach } from "mocha";
 
 use(chaiHttp);
@@ -14,7 +13,7 @@ use(sinonChai);
 
 const sandbox = createSandbox();
 
-describe("/login endpoint", () => {
+describe("/login", () => {
 
     let requester: ChaiHttp.Agent;
     let queryUserStub: SinonStub;
@@ -61,7 +60,6 @@ describe("/login endpoint", () => {
             expect(res).to.have.status(400);
         });
 
-
         // NOT WORKING
         // Bypass compareSync stub
         it("should fail if the password is not correct", async () => {
@@ -101,4 +99,4 @@ describe("/login endpoint", () => {
             expect(res.body).to.be.eql(expectedBody);
         });
     });
-});*/
+});

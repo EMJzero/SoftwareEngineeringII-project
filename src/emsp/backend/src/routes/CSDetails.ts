@@ -21,7 +21,14 @@ export default class CSDetails extends Route {
             return;
         }
 
-        const ownerCPMS = await CPMS.findByName(cpmsName);
+        let ownerCPMS;
+        try {
+            ownerCPMS = await CPMS.findByName(cpmsName);
+        } catch (e) {
+            logger.log("DB access for CPMSs failed");
+            internalServerError(response);
+            return;
+        }
         if (!ownerCPMS) {
             badRequest(response, "Owner CPMS could not be found");
             return;
@@ -32,7 +39,7 @@ export default class CSDetails extends Route {
                 CSID: stationID
             });
 
-            if(JSON.parse(axiosResponse?.data.data).CSList != undefined) {
+            if(JSON.parse(axiosResponse?.data.data).CSList == undefined) {
                 badRequest(response, "Invalid stationID provided");
             }
 

@@ -74,7 +74,8 @@ export class User {
 
         connection.release();
 
-        return !(result.length == 0 || !result);
+        const json: any = result;
 
+        return json.affectedRows == 1;
     }
 }

@@ -22,14 +22,19 @@ export default class Bookings extends Route {
         const intervalDays = parseInt(request.query.intervalDays as string);
         const retrieveActiveBooking = request.query.retrieveActiveBooking;
 
-        if(retrieveActiveBooking != undefined) {
-            success(response, await Booking.findActiveByUser(userID));
-        } else if(!isNaN(referenceDateDay)) {
-            const referenceDate = new Date(referenceDateYear, referenceDateMonth, referenceDateDay);
-            if (checkNaN(response, referenceDateDay, referenceDateMonth, referenceDateYear, intervalDays)) return;
-            success(response, await Booking.findByUserFiltered(userID, referenceDate, intervalDays));
-        } else {
-            success(response, await Booking.findByUser(userID));
+        try {
+            if (retrieveActiveBooking != undefined) {
+                success(response, await Booking.findActiveByUser(userID));
+            } else if (!isNaN(referenceDateDay)) {
+                const referenceDate = new Date(referenceDateYear, referenceDateMonth, referenceDateDay);
+                if (checkNaN(response, referenceDateDay, referenceDateMonth, referenceDateYear, intervalDays)) return;
+                success(response, await Booking.findByUserFiltered(userID, referenceDate, intervalDays));
+            } else {
+                success(response, await Booking.findByUser(userID));
+            }
+        } catch (e) {
+            logger.log("DB access for Booking failed");
+            internalServerError(response);
         }
     }
 
@@ -52,29 +57,35 @@ export default class Bookings extends Route {
     // To create a new booking
     protected async httpPost(request: Request, response: Response): Promise<void>{
         const userID = request.userId;
-        const startDateDay = request.body.startDateDay as number;
-        const startDateMonth = request.body.startDateMonth as number;
-        const startDateYear = request.body.startDateYear as number;
-        const endDateDay = request.body.endDateDay as number;
-        const endDateMonth = request.body.endDateMonth as number;
-        const endDateYear = request.body.endDateYear as number;
+        const startUnixTime = request.body.startUnixTime as number;
+        const endUnixTime = request.body.endUnixTime as number;
         const cpmsID = request.body.cpmsID as number;
         const csID = request.body.csID as number;
         const socketID = request.body.socketID as number;
 
-        if (checkUndefinedParams(response, startDateDay, startDateMonth, startDateYear, endDateDay, endDateMonth, endDateYear, cpmsID, csID, socketID)) return;
+        if (checkUndefinedParams(response, startUnixTime, endUnixTime, cpmsID, csID, socketID)) return;
 
-        const startDate = new Date(startDateYear, startDateMonth, startDateDay);
-        const endDate = new Date(endDateYear, endDateMonth, endDateDay);
+        const startDate = new Date(startUnixTime);
+        const endDate = new Date(endUnixTime);
 
-        const tmpDate = new Date(startDateYear, startDateMonth, startDateDay);
+        const tmpDate = new Date(startUnixTime);
         tmpDate.setMinutes(tmpDate.getMinutes() + env.TIME_SLOT_SIZE);
         if(tmpDate > endDate) {
             badRequest(response, "Invalid dates, minimum timeslot size of " + env.TIME_SLOT_SIZE + "min violated");
             return;
+        } else if(endDate.valueOf() - startDate.valueOf() > 24*60*60*1000) {
+            badRequest(response, "Invalid dates, maximum timeslot available is 1 day");
+            return;
         }
 
-        const ownerCPMS = await CPMS.findById(cpmsID);
+        let ownerCPMS;
+        try {
+            ownerCPMS = await CPMS.findById(cpmsID);
+        } catch (e) {
+            logger.log("DB access for CPMSs failed");
+            internalServerError(response);
+            return;
+        }
         if (!ownerCPMS) {
             badRequest(response, "Owner CPMS could not be found");
             return;

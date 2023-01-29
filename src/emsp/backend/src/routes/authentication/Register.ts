@@ -4,7 +4,7 @@ import { badRequest, checkUndefinedParams, internalServerError, success } from "
 import { hashSync } from "bcrypt";
 import env from "../../helper/env";
 import logger from "../../helper/logger";
-import {IUser, User} from "../../model/User";
+import { IUser, User } from "../../model/User";
 
 export default class RegisterRoute extends Route {
     constructor() {
