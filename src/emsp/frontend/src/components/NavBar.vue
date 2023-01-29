@@ -5,12 +5,12 @@
     <div class="flex pr-10 space-x-5 text-center items-center">
       <button
         class="rounded-lg py-2 px-8 font-semibold text-blue-500 ring-blue-500 ring-[3px] hover:text-blue-400 hover:ring-blue-400"
-        @click="router.push(RoutingPath.SERVICES_PAGE)">
-        Services
+        @click="router.push(RoutingPath.BOOKINGLIST)">
+        Bookings
       </button>
-      <button class="rounded-lg bg-blue-600 py-2 px-9 text-lg font-medium text-white hover:bg-blue-700"
-        @click="router.push(RoutingPath.CREATE_RULE_PAGE)">
-        Create
+      <button class="rounded-lg py-2 px-9 font-semibold text-blue-500 ring-blue-500 ring-[3px] hover:text-blue-400 hover:ring-blue-400"
+        @click="router.push(RoutingPath.SEARCH)">
+        Stations
       </button>
 
       <v-menu min-width="200px" rounded>
@@ -36,16 +36,8 @@
                 {{ user?.email }}
               </p>
               <v-divider class="mt-3"></v-divider>
-              <v-btn rounded variant="plain" @click="router.push(RoutingPath.PERSONAL_PAGE)">
-                My Rules
-              </v-btn>
-              <v-divider></v-divider>
-              <v-btn rounded variant="plain" @click="router.push(RoutingPath.OSP_PERSONAL_PAGE)">
-                OSP Page
-              </v-btn>
-              <v-divider></v-divider>
               <v-btn class="mt-3" rounded variant="text" color="red" @click="auth_controller.logout()">
-                Disconnect
+                Logout
               </v-btn>
             </div>
           </v-card-text>
