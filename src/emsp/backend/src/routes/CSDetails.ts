@@ -32,13 +32,13 @@ export default class CSDetails extends Route {
                 CSID: stationID
             });
 
-            if(JSON.parse(axiosResponse?.data).CSList != undefined) {
+            if(JSON.parse(axiosResponse?.data.data).CSList != undefined) {
                 badRequest(response, "Invalid stationID provided");
             }
 
             // Responds with both the details of the CS and its available time slots!
             success(response, {
-                stationData: JSON.parse(axiosResponse?.data).CSList,
+                stationData: JSON.parse(axiosResponse?.data.data).CSList,
                 availableTimeSlots: Booking.getAvailableTimeSlots(ownerCPMS.id, parseInt(stationID))
             });
         } catch (e) {

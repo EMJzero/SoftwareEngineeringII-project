@@ -91,7 +91,7 @@ export default class Bookings extends Route {
                 CSID: csID
             });
 
-            if(JSON.parse(axiosResponse?.data).CSList == undefined)
+            if(JSON.parse(axiosResponse?.data.data).CSList == undefined)
                 badRequest(response, "Invalid csID");
         } catch (e) {
             logger.log("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);

@@ -39,7 +39,7 @@ export default class Bookings extends Route {
                 return;
             }
 
-            const parsedResponse = JSON.parse(axiosResponse?.data);
+            const parsedResponse = JSON.parse(axiosResponse?.data.data);
 
             success(response, {
                 csID: activeBooking.csId,
@@ -85,7 +85,7 @@ export default class Bookings extends Route {
                 action: action
             });
 
-            const parsedResponse = JSON.parse(axiosResponse?.data);
+            const parsedResponse = JSON.parse(axiosResponse?.data.data);
 
             if(axiosResponse?.status != 200) {
                 badRequest(response, parsedResponse);
