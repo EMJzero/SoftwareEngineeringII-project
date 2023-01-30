@@ -4,7 +4,7 @@
       <img class="rounded-md bg-no-repeat bg-cover bg-white aspect-square" style="object-fit: cover" :src="station.imageURL" alt="Thumbnail">
     </div>
     <div style="">
-      <p class="text-left text-xl font-bold text-white"> {{ station.name ?? "No Name" }} </p>
+      <p class="text-left text-xl font-bold text-light-blue-accent-1" style="text-decoration: none"> {{ station.name ?? "No Name" }} </p>
       <p class="text-left text-sm font-weight-regular text-white">  </p>
       <p class="text-left text-sm font-weight-regular text-white pt-5">Price: {{ station.userPrice }} €/Wh </p>
       <p v-if="station.offerExpirationDate != null" class="text-left text-sm font-weight-regular text-white">Offer ends: {{ getEndDate() }} </p>

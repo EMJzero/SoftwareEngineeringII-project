@@ -34,6 +34,11 @@ const router = createRouter({
             component: () => import("../views/SearchView.vue"),
         },
         {
+            path: RoutingPath.CSDETAILS,
+            name: "cs-details",
+            component: () => import("../views/CSDetailsView.vue"),
+        },
+        {
             path: "/:pathMatch(.*)*",
             name: "not-found",
             redirect: "/home",
