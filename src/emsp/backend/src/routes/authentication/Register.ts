@@ -36,10 +36,15 @@ export default class RegisterRoute extends Route {
             return;
         }
 
-        if (!(await User.registerNewUser(newUser))) {
-            internalServerError(response);
-        }
+        try {
+            if (!(await User.registerNewUser(newUser))) {
+                internalServerError(response);
+            }
 
-        success(response);
+            success(response);
+        } catch (error) {
+            logger.error(error);
+            badRequest(response, "Could not register the new user");
+        }
     }
 }
