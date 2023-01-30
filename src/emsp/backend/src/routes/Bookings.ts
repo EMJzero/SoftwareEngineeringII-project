@@ -91,16 +91,18 @@ export default class Bookings extends Route {
             return;
         }
 
-        try {
-            const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
-                CSID: csID
-            });
+        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
+            CSID: csID
+        });
 
-            if(axiosResponse?.data.data.CSList == undefined)
-                badRequest(response, "Invalid csID");
-        } catch (e) {
-            logger.error("Axios call to" + ownerCPMS.endpoint + " failed with error" + e);
+        if(axiosResponse == null) {
             internalServerError(response);
+            return;
+        }
+
+        if(axiosResponse?.data.data.CSList == undefined) {
+            badRequest(response, "Invalid csID");
+            return;
         }
 
         if(await Booking.createBooking(userID, startDate, endDate, cpmsID, csID, socketID)) {

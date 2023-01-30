@@ -1,6 +1,6 @@
 import Route from "../Route";
 import { Request, Response } from "express";
-import { badRequest, checkUndefinedParams, internalServerError, success } from "../helper/http";
+import {badRequest, checkNaN, checkUndefinedParams, internalServerError, success} from "../helper/http";
 import { CPMS } from "../model/CPMS";
 import { getReqHttp } from "../helper/misc";
 import logger from "../helper/logger";
@@ -15,15 +15,15 @@ export default class CSDetails extends Route {
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const userID = request.userId;
         const stationID = request.query.stationID as string;
-        const cpmsName = request.query.cpmsName as string;
+        const cpmsId = parseInt(request.query.cpmsId as string);
 
-        if (checkUndefinedParams(response, stationID, cpmsName)) {
+        if (checkUndefinedParams(response, stationID) || checkNaN(response, cpmsId)) {
             return;
         }
 
         let ownerCPMS;
         try {
-            ownerCPMS = await CPMS.findByName(cpmsName);
+            ownerCPMS = await CPMS.findById(cpmsId);
         } catch (e) {
             logger.error("DB access for CPMSs failed");
             internalServerError(response);
@@ -34,23 +34,24 @@ export default class CSDetails extends Route {
             return;
         }
 
-        try {
-            const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
-                CSID: stationID
-            });
+        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
+            CSID: stationID
+        });
 
-            if (axiosResponse?.data.data.CSList == undefined) {
-                badRequest(response, "Invalid stationID provided");
-            }
-
-            // Responds with both the details of the CS and its available time slots!
-            success(response, {
-                stationData: axiosResponse?.data.data.CSList,
-                availableTimeSlots: await Booking.getAvailableTimeSlots(ownerCPMS.id, parseInt(stationID))
-            });
-        } catch (e) {
-            logger.error("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);
+        if(axiosResponse == null) {
             internalServerError(response);
+            return;
         }
+
+        if (axiosResponse?.data.data.CSList == undefined) {
+            badRequest(response, "Invalid stationID provided");
+            return;
+        }
+
+        // Responds with both the details of the CS and its available time slots!
+        success(response, {
+            stationData: axiosResponse?.data.data.CSList,
+            availableTimeSlots: await Booking.getAvailableTimeSlots(ownerCPMS.id, parseInt(stationID))
+        });
     }
 }

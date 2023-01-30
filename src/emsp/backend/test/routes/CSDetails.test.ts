@@ -7,6 +7,7 @@ import { beforeEach } from "mocha";
 import axios from "axios";
 import Authentication from "../../src/helper/authentication";
 import { CPMS } from "../../src/model/CPMS";
+import { Booking } from "../../src/model/Booking";
 
 use(chaiHttp);
 use(sinonChai);
@@ -19,6 +20,7 @@ describe("/details endpoint", () => {
     let axiosGetStub: SinonStub;
     let checkJWTStub: SinonStub;
     let CPMSStub: SinonStub;
+    let availableTimeSlotsStub: SinonStub;
 
     before(() => {
         requester = request(app.express).keepOpen();
@@ -31,7 +33,8 @@ describe("/details endpoint", () => {
     beforeEach(() => {
         axiosGetStub = sandbox.stub(axios, "get");
         checkJWTStub = sandbox.stub(Authentication, "checkJWT");
-        CPMSStub = sandbox.stub(CPMS, "findByName");
+        CPMSStub = sandbox.stub(CPMS, "findById");
+        availableTimeSlotsStub = sandbox.stub(Booking, "getAvailableTimeSlots");
     });
 
     afterEach(() => {
@@ -54,7 +57,7 @@ describe("/details endpoint", () => {
             );
             CPMSStub.throws("No CPMS for you!");
             const res = await requester.get("/details?stationID=1" +
-                "&cpmsName=\"testName\"");
+                "&cpmsId=1");
             expect(res).to.have.status(500);
         });
 
@@ -64,7 +67,7 @@ describe("/details endpoint", () => {
             );
             CPMSStub.resolves(null);
             const res = await requester.get("/details?stationID=1" +
-                "&cpmsName=\"testName\"");
+                "&cpmsId=1");
             expect(res).to.have.status(400);
         });
 
@@ -75,7 +78,7 @@ describe("/details endpoint", () => {
             CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
             axiosGetStub.throws("Sorry, I failed MyLord");
             const res = await requester.get("/details?stationID=1" +
-                "&cpmsName=\"testName\"");
+                "&cpmsId=1");
             expect(res).to.have.status(500);
         });
 
@@ -86,7 +89,7 @@ describe("/details endpoint", () => {
             CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
             axiosGetStub.resolves({ data: { data: {} } } );
             const res = await requester.get("/details?stationID=1" +
-                "&cpmsName=\"testName\"");
+                "&cpmsId=1");
             expect(res).to.have.status(400);
         });
 
@@ -96,8 +99,9 @@ describe("/details endpoint", () => {
             );
             CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
             axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
+            availableTimeSlotsStub.resolves( { data: "NothingImportant" } );
             const res = await requester.get("/details?stationID=1" +
-                "&cpmsName=\"testName\"");
+                "&cpmsId=1");
             expect(res).to.have.status(200);
         });
     });

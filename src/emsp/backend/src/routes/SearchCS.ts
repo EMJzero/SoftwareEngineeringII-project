@@ -35,27 +35,28 @@ export default class SearchCSRoute extends Route {
 
         const stations = [];
         for (const cpms of allCPMS) {
-            try {
-                const axiosResponse = await getReqHttp(cpms.endpoint + "/cs-list", null, {
-                    locationLatitude: filterLatitude,
-                    locationLongitude: filterLongitude,
-                    locationRange: filterRadius,
-                    priceLowerBound,
-                    priceUpperBound
-                });
-                const responseCS = axiosResponse?.data.data.CSList as any[];
-                const resultCSes = responseCS.map((cs) => {
-                    const csRecord: Record<string, unknown> = cs;
-                    csRecord.ownerCPMSName = cpms.name;
-                    csRecord.ownerCPMSId = cpms.id;
-                    return csRecord;
-                });
-                for (const resultCS of resultCSes) {
-                    stations.push(resultCS);
-                }
-            } catch (e) {
-                logger.error("Axios call to" + cpms.endpoint + "failed with error" + e);
+            const axiosResponse = await getReqHttp(cpms.endpoint + "/cs-list", null, {
+                locationLatitude: filterLatitude,
+                locationLongitude: filterLongitude,
+                locationRange: filterRadius,
+                priceLowerBound,
+                priceUpperBound
+            });
+
+            if(axiosResponse == null) {
                 internalServerError(response);
+                return;
+            }
+
+            const responseCS = axiosResponse?.data.data.CSList as any[];
+            const resultCSes = responseCS.map((cs) => {
+                const csRecord: Record<string, unknown> = cs;
+                csRecord.ownerCPMSName = cpms.name;
+                csRecord.ownerCPMSId = cpms.id;
+                return csRecord;
+            });
+            for (const resultCS of resultCSes) {
+                stations.push(resultCS);
             }
         }
         success(response, stations);

@@ -35,32 +35,32 @@ export default class RechargeManager extends Route {
             return;
         }
 
-        try {
-            const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
-                CSID: activeBooking.csId,
-                socketID: activeBooking.socketId
-            });
+        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
+            CSID: activeBooking.csId,
+            socketID: activeBooking.socketId
+        });
 
-            if(axiosResponse?.status != 200) {
-                badRequest(response, "Invalid csID or socketID for the given cpms");
-                return;
-            }
-
-            const parsedResponse = axiosResponse?.data.data;
-
-            success(response, {
-                csID: activeBooking.csId,
-                socketID: activeBooking.socketId,
-                state: parsedResponse.state,
-                currentPower: parsedResponse.currentPower,
-                maxPower: parsedResponse.maxPower,
-                connectedCar: parsedResponse.connectedCar,
-                estimatedTimeRemaining: parsedResponse.estimatedTimeRemaining
-            });
-        } catch (e) {
-            logger.error("Axios call to" + ownerCPMS.endpoint + " failed with error" + e);
-            internalServerError(response);
+        if(axiosResponse?.status != 200) {
+            badRequest(response, "Invalid csID or socketID for the given cpms");
+            return;
         }
+
+        if(axiosResponse == null) {
+            internalServerError(response);
+            return;
+        }
+
+        const parsedResponse = axiosResponse?.data.data;
+
+        success(response, {
+            csID: activeBooking.csId,
+            socketID: activeBooking.socketId,
+            state: parsedResponse.state,
+            currentPower: parsedResponse.currentPower,
+            maxPower: parsedResponse.maxPower,
+            connectedCar: parsedResponse.connectedCar,
+            estimatedTimeRemaining: parsedResponse.estimatedTimeRemaining
+        });
     }
 
     // Start/Stop charging process
@@ -100,24 +100,24 @@ export default class RechargeManager extends Route {
             return;
         }
 
-        try {
-            const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/recharge-manager", null, {
-                CSID: booking.csId,
-                socketID: booking.socketId,
-                action: action
-            });
+        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/recharge-manager", null, {
+            CSID: booking.csId,
+            socketID: booking.socketId,
+            action: action
+        });
 
-            const parsedResponse = axiosResponse?.data.data;
-
-            if(axiosResponse?.status != 200) {
-                badRequest(response, parsedResponse);
-                return;
-            }
-
-            success(response);
-        } catch (e) {
-            logger.error("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);
+        if(axiosResponse == null) {
             internalServerError(response);
+            return;
         }
+
+        const parsedResponse = axiosResponse?.data.data;
+
+        if(axiosResponse?.status != 200) {
+            badRequest(response, parsedResponse);
+            return;
+        }
+
+        success(response);
     }
 }
