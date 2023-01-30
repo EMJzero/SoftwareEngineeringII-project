@@ -3,6 +3,7 @@ import mysql, { FieldPacket, RowDataPacket } from "mysql2/promise";
 
 export class CS {
     id: number;
+    name: string;
     locationLatitude: number;
     locationLongitude: number;
     nominalPrice: number;
@@ -11,8 +12,9 @@ export class CS {
     sockets: Socket[] | null;
     imageURL: string;
 
-    constructor(id: number, locationLatitude: number, locationLongitude: number, nominalPrice: number, userPrice: number, offerExpirationDate: Date, sockets: null | Socket[], imageURL: string) {
+    constructor(id: number, name: string, locationLatitude: number, locationLongitude: number, nominalPrice: number, userPrice: number, offerExpirationDate: Date, sockets: null | Socket[], imageURL: string) {
         this.id = id;
+        this.name = name;
         this.locationLatitude = locationLatitude;
         this.locationLongitude = locationLongitude;
         this.nominalPrice = nominalPrice;
@@ -30,7 +32,7 @@ export class CS {
 
         connection.release();
 
-        return result.map((cs) => new CS(cs.id, cs.locationLatitude, cs.locationLongitude, cs.nominalPrice, cs.userPrice, cs.offerExpirationDate, null, cs.imageURL));
+        return result.map((cs) => new CS(cs.id, cs.name, cs.locationLatitude, cs.locationLongitude, cs.nominalPrice, cs.userPrice, cs.offerExpirationDate, null, cs.imageURL));
     }
 
     public static async getCSDetails(CSID: number): Promise<CS> {
@@ -44,7 +46,7 @@ export class CS {
         const [resultSockets]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT s.id, t.connector, t.maxpower FROM cssockets s JOIN socketstype t ON s.typeid = t.id WHERE s.csid = ?",
             [CSID]);
 
-        const cs = new CS(resultCS[0].id, resultCS[0].locationLatitude, resultCS[0].locationLongitude, resultCS[0].nominalPrice, resultCS[0].userPrice, resultCS[0].offerExpirationDate,
+        const cs = new CS(resultCS[0].id, resultCS[0].name, resultCS[0].locationLatitude, resultCS[0].locationLongitude, resultCS[0].nominalPrice, resultCS[0].userPrice, resultCS[0].offerExpirationDate,
             resultSockets.map((socket) => new Socket(socket.id, new SocketType(socket.connector, socket.maxpower))), resultCS[0].imageURL);
 
         connection.release();

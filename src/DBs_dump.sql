@@ -182,6 +182,7 @@ DROP TABLE IF EXISTS `cs`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cs` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
   `locationLatitude` double NOT NULL,
   `locationLongitude` double NOT NULL,
   `nominalPrice` decimal(6,2) NOT NULL,
@@ -198,7 +199,7 @@ CREATE TABLE `cs` (
 
 LOCK TABLES `cs` WRITE;
 /*!40000 ALTER TABLE `cs` DISABLE KEYS */;
-INSERT INTO `cs` VALUES (1,35.702662,139.774413,12.00,12.00,NULL,'/images/image1.png'),(2,35.702662,139.776447,11.00,11.00,NULL,'/images/image1.png');
+INSERT INTO `cs` VALUES (1,'Tokyo Tower Hub',35.702662,139.774413,12.00,12.00,NULL,'http://www.widest.com/wp-content/uploads/Tokyo-Tower-in-Tokyo-Japan.jpg'),(2,'Akiba Bolt',35.702662,139.776447,11.00,11.00,NULL,'https://www.japan-guide.com/g18/3003_01.jpg');
 /*!40000 ALTER TABLE `cs` ENABLE KEYS */;
 UNLOCK TABLES;
 
