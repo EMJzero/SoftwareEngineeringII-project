@@ -1,6 +1,6 @@
 import Route from "../Route";
 import { Request, Response } from "express";
-import {badRequest, checkNaN, checkUndefinedParams, internalServerError, success} from "../helper/http";
+import { badRequest, checkNaN, checkUndefinedParams, internalServerError, success } from "../helper/http";
 import { CPMS } from "../model/CPMS";
 import { getReqHttp } from "../helper/misc";
 import logger from "../helper/logger";

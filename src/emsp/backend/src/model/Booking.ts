@@ -52,7 +52,7 @@ export class Booking {
         });
     }
 
-    public static async findBookingById(bookingId: number): Promise<Booking | null> {
+    /*public static async findBookingById(bookingId: number): Promise<Booking | null> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
@@ -75,7 +75,7 @@ export class Booking {
             result[0].csId,
             result[0].socketId
         );
-    }
+    }*/
 
     public static async getAvailableTimeSlots(cpmsID: number, csID: number): Promise<DateIntervalPerSocket[]> {
         const connection = await DBAccess.getConnection();
@@ -207,6 +207,20 @@ export class Booking {
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
             "INSERT INTO bookings VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             [userId, startDate, endDate, cpmsID, csID, socketID]);
+
+        connection.release();
+
+        const json: any = result;
+
+        return json.affectedRows == 1;
+    }
+
+    public static async activateBooking(userId: number, bookingId: number): Promise<boolean> {
+        const connection = await DBAccess.getConnection();
+
+        const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
+            "UPDATE bookings SET isActive = true WHERE userId = ? AND id = ?",
+            [userId, bookingId]);
 
         connection.release();
 

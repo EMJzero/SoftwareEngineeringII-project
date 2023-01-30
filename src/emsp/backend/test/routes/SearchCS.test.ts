@@ -8,6 +8,7 @@ import { beforeEach } from "mocha";
 import axios from "axios";
 import Authentication from "../../src/helper/authentication";
 import { CPMS } from "../../src/model/CPMS";
+import { DBAccess } from "../../src/DBAccess";
 
 use(chaiHttp);
 use(sinonChai);
@@ -19,7 +20,8 @@ describe("/search endpoint", () => {
     let requester: ChaiHttp.Agent;
     let axiosGetStub: SinonStub;
     let checkJWTStub: SinonStub;
-    let CPMSStub: SinonStub;
+    //let CPMSStub: SinonStub;
+    let DBStub: SinonStub;
 
     before(() => {
         requester = request(app.express).keepOpen();
@@ -32,7 +34,8 @@ describe("/search endpoint", () => {
     beforeEach(() => {
         axiosGetStub = sandbox.stub(axios, "get");
         checkJWTStub = sandbox.stub(Authentication, "checkJWT");
-        CPMSStub = sandbox.stub(CPMS, "findAll");
+        //CPMSStub = sandbox.stub(CPMS, "findAll");
+        DBStub = sandbox.stub(DBAccess, "getConnection");
     });
 
     afterEach(() => {
@@ -50,20 +53,22 @@ describe("/search endpoint", () => {
         });
 
         it("should fail if the DB access for CPMS fails", async () => {
+            DBStub.throws("Sorry, I am not good at my job :(");
             checkJWTStub.returns(
                 { userId: 1, username: "userName" }
             );
-            CPMSStub.throws("No CPMSs for you!");
+            //CPMSStub.throws("No CPMSs for you!");
             const res = await requester.get("/search?latitude=\"12.255\"" +
                 "&longitude=\"58.626\"");
             expect(res).to.have.status(500);
         });
 
         it("should fail if the axios call fails", async () => {
+            DBStub.resolves(new Test1());
             checkJWTStub.returns(
                 { userId: 1, username: "userName" }
             );
-            CPMSStub.resolves([ { name: "testName", id: 1 } ]);
+            //CPMSStub.resolves([ { name: "testName", id: 1 } ]);
             axiosGetStub.throws("Sorry master, I failed you!");
             const res = await requester.get("/search?latitude=\"12.255\"" +
                 "&longitude=\"58.626\"");
@@ -71,10 +76,11 @@ describe("/search endpoint", () => {
         });
 
         it("should succeed when all the parameters are well defined", async () => {
+            DBStub.resolves(new Test1());
             checkJWTStub.returns(
                 { userId: 1, username: "userName" }
             );
-            CPMSStub.resolves([ { name: "testName", id: 1 } ]);
+            //CPMSStub.resolves([ { name: "testName", id: 1 } ]);
             axiosGetStub.resolves({ data: { data: { CSList: [{ name: "testName", id: 1 }] } } });
             const res = await requester.get("/search?latitude=\"12.255\"" +
                 "&longitude=\"58.626\"");
@@ -82,3 +88,15 @@ describe("/search endpoint", () => {
         });
     });
 });
+
+class Test1 {
+    public async execute(sql: string, values: any) : Promise<[any[], any[]]> {
+        if(sql == "SELECT * FROM cpmses")
+            return [[{ start: 123, end: 10000000, socketId: 1 }], []];
+        return [[], []];
+    }
+
+    public release() {
+        return;
+    }
+}

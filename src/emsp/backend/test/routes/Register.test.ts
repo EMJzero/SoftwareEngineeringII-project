@@ -5,6 +5,7 @@ import sinonChai = require("sinon-chai");
 import app from "../../src/app";
 import { User } from "../../src/model/User";
 import { beforeEach } from "mocha";
+import { DBAccess } from "../../src/DBAccess";
 
 use(chaiHttp);
 use(sinonChai);
@@ -14,7 +15,8 @@ const sandbox = createSandbox();
 describe("/register endpoint", () => {
 
     let requester: ChaiHttp.Agent;
-    let registerNewUserStub: SinonStub;
+    //let registerNewUserStub: SinonStub;
+    let DBStub: SinonStub;
 
     before(() => {
         requester = request(app.express).keepOpen();
@@ -25,7 +27,8 @@ describe("/register endpoint", () => {
     });
 
     beforeEach(() => {
-        registerNewUserStub = sandbox.stub(User, "registerNewUser");
+        //registerNewUserStub = sandbox.stub(User, "registerNewUser");
+        DBStub = sandbox.stub(DBAccess, "getConnection");
     });
 
     afterEach(() => {
@@ -70,7 +73,8 @@ describe("/register endpoint", () => {
         });
 
         it ("should fail if the registration of the user in the DB fails", async () => {
-            registerNewUserStub.resolves(false);
+            DBStub.resolves(new Test1());
+            //registerNewUserStub.resolves(false);
             const res = await requester.post("/register").send({
                 username : "someUsername",
                 email: "someEmail@gmail.com",
@@ -84,7 +88,8 @@ describe("/register endpoint", () => {
         });
 
         it ("should succeed when all the parameters are well defined", async () => {
-            registerNewUserStub.resolves(true);
+            DBStub.resolves(new Test2());
+            //registerNewUserStub.resolves(true);
             const res = await requester.post("/register").send({
                 username : "someUsername",
                 email: "someEmail@gmail.com",
@@ -98,3 +103,27 @@ describe("/register endpoint", () => {
         });
     });
 });
+
+class Test1 {
+    public async execute(sql: string, values: any) : Promise<[any[], any[]]> {
+        if(sql == "INSERT INTO users VALUES (default, ?, ?, ?, ?, ?, ?, ?)")
+            return [({ affectedRows: 0 } as unknown as any[]), []];
+        return [[], []];
+    }
+
+    public release() {
+        return;
+    }
+}
+
+class Test2 {
+    public async execute(sql: string, values: any) : Promise<[any[], any[]]> {
+        if(sql == "INSERT INTO users VALUES (default, ?, ?, ?, ?, ?, ?, ?)")
+            return [({ affectedRows: 1 } as unknown as any[]), []];
+        return [[], []];
+    }
+
+    public release() {
+        return;
+    }
+}

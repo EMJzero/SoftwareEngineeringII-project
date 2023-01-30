@@ -1,4 +1,4 @@
-/*import Authentication from "../../src/helper/eMSP Authentication";
+import Authentication from "../../src/helper/authentication";
 import { expect } from "chai";
 import * as sinon from "sinon";
 import { IUser } from "../../src/model/User";
@@ -11,14 +11,15 @@ const sandbox = sinon.createSandbox();
 describe("Authentication helper module", () => {
 
     const testUser = {
-        _id: "ARandomId",
+        id: "ARandomId",
         username: "TestMan",
-        password: "TestManPassword",
         email: "test@man.com",
-        registrationDate: new Date(),
-        isActive: true,
-        activationToken: "ActivationToken"
-    } as IUser;
+        password: "TestManPassword",
+        creditCardNumber: "1231123112311231",
+        creditCardCVV: "123",
+        creditCardExpiration: "1225",
+        creditCardBillingName: "Pippo Pluto"
+    } as unknown as IUser;
 
     const mockResponse: Partial<Response> = {
         statusCode: 200,
@@ -60,7 +61,7 @@ describe("Authentication helper module", () => {
         Authentication.checkAuthentication(mockRequest, mockResponse, () => {
             expect(mockResponse.statusCode).to.be.not.equal(401);
             expect(mockResponse.statusCode).to.be.not.equal(500);
-            expect(mockRequest.userId).to.be.equal(testUser._id);
+            expect(mockRequest.userId).to.be.equal(testUser.id);
         });
     });
 
@@ -101,7 +102,7 @@ describe("Authentication helper module", () => {
         });
         expect(responseCode).to.be.equal(401);
         expect(mockRequest.userId).to.be.undefined;
-    });*/
+    });
 
     /*it("should throw internal user error", () => {
         const mockRequest = {
@@ -121,4 +122,4 @@ describe("Authentication helper module", () => {
 
         process.env.JWT_SECRET = originalJWTSECRET;
     });*/
-//});
+});

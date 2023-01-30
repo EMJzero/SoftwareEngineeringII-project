@@ -118,6 +118,26 @@ export default class RechargeManager extends Route {
             return;
         }
 
+        if(action == "start") {
+            try {
+                if(!await Booking.activateBooking(userID, bookingID))
+                    throw "Booking activation failed...";
+            } catch (e) {
+                logger.error("DB access for Booking failed");
+                internalServerError(response);
+                return;
+            }
+        } else {
+            try {
+                if(!await Booking.deleteBooking(userID, bookingID))
+                    throw "Booking deletion failed...";
+            } catch (e) {
+                logger.error("DB access for Booking failed");
+                internalServerError(response);
+                return;
+            }
+        }
+
         success(response);
     }
 }

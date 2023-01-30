@@ -10,7 +10,7 @@ export interface ICPMS {
 
 export class CPMS {
 
-    public static async findByName(name: string): Promise<ICPMS | null> {
+    /*public static async findByName(name: string): Promise<ICPMS | null> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
@@ -28,7 +28,7 @@ export class CPMS {
             endpoint: result[0].APIendpoint,
             apiKey: result[0].APIkey
         };
-    }
+    }*/
 
     public static async findById(id: number): Promise<ICPMS | null> {
         const connection = await DBAccess.getConnection();
@@ -42,6 +42,7 @@ export class CPMS {
         if (result.length == 0 || !result) {
             return null;
         }
+
         return {
             id: result[0].id,
             name: result[0].name,
