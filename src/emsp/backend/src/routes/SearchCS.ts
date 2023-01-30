@@ -46,7 +46,7 @@ export default class SearchCSRoute extends Route {
                 const responseCS = axiosResponse?.data.data.CSList as any[];
                 const resultCSes = responseCS.map((cs) => {
                     const csRecord: Record<string, unknown> = cs;
-                    csRecord.ownerCPMS = cpms.name;
+                    csRecord.ownerCPMSName = cpms.name;
                     csRecord.ownerCPMSId = cpms.id;
                     return csRecord;
                 });

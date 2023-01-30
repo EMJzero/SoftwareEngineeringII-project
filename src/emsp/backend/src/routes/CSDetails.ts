@@ -25,7 +25,7 @@ export default class CSDetails extends Route {
         try {
             ownerCPMS = await CPMS.findByName(cpmsName);
         } catch (e) {
-            logger.log("DB access for CPMSs failed");
+            logger.error("DB access for CPMSs failed");
             internalServerError(response);
             return;
         }
@@ -39,17 +39,17 @@ export default class CSDetails extends Route {
                 CSID: stationID
             });
 
-            if(JSON.parse(axiosResponse?.data.data).CSList == undefined) {
+            if (axiosResponse?.data.data.CSList == undefined) {
                 badRequest(response, "Invalid stationID provided");
             }
 
             // Responds with both the details of the CS and its available time slots!
             success(response, {
-                stationData: JSON.parse(axiosResponse?.data.data).CSList,
+                stationData: axiosResponse?.data.data.CSList,
                 availableTimeSlots: Booking.getAvailableTimeSlots(ownerCPMS.id, parseInt(stationID))
             });
         } catch (e) {
-            logger.log("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);
+            logger.error("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);
             internalServerError(response);
         }
     }
