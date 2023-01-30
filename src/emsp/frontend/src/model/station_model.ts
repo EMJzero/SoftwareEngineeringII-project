@@ -2,16 +2,18 @@ import type Socket from "@/model/socket_model";
 
 export default class StationModel {
     id: number;
+    name: string = "Unknown";
     locationLatitude: number;
     locationLongitude: number;
     nominalPrice: number;
     userPrice: number;
-    offerExpirationDate: Date | null;
+    offerExpirationDate: string | null;
     sockets: Socket[] | null;
     imageURL: string;
 
-    constructor(id: number, locationLatitude: number, locationLongitude: number, nominalPrice: number, userPrice: number, offerExpirationDate: Date | null, sockets: Socket[] | null, imageURL: string) {
+    constructor(id: number, name: string, locationLatitude: number, locationLongitude: number, nominalPrice: number, userPrice: number, offerExpirationDate: string | null, sockets: Socket[] | null, imageURL: string) {
         this.id = id;
+        this.name = name;
         this.locationLatitude = locationLatitude;
         this.locationLongitude = locationLongitude;
         this.nominalPrice = nominalPrice;

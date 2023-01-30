@@ -20,3 +20,12 @@ export default defineComponent({
   }
 })
 </script>
+
+<style>
+
+#map_root {
+  width: 100%;
+  height: 100%;
+}
+
+</style>
