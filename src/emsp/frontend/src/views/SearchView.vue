@@ -7,11 +7,11 @@
     <div class="wrapper">
       <MapComponent></MapComponent>
       <div class="overlay rounded-lg">
-        <p v-if="isLoading" class="text-grey font-semibold text-2xl space-x-16 pt-20">Loading Nearby Stations...</p>
+        <p v-if="isLoading" class="text-grey-lighten-60 text-center font-semibold text-3xl space-x-16 pt-20">Loading Nearby Stations...</p>
         <ul v-if="!isLoading && stations && stations.length > 0" class="list-none pl-4 text-stone-400 text-lg" style="max-width: 500px; margin-left: auto; margin-right: auto">
           <NearbyStationCell v-for="station in stations" :tag="station.id" :station="station"/>
         </ul>
-        <p v-if="!isLoading && (!stations || stations.length === 0)" class="text-grey font-semibold text-2xl space-x-16 pt-20">No Stations Nearby</p>
+        <p v-if="!isLoading && (!stations || stations.length === 0)" class="text-grey-lighten-60 text-center font-semibold text-3xl space-x-16 pt-20">No Stations Nearby</p>
       </div>
     </div>
   </div>
