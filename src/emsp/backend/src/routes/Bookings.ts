@@ -33,7 +33,7 @@ export default class Bookings extends Route {
                 success(response, await Booking.findByUser(userID));
             }
         } catch (e) {
-            logger.log("DB access for Booking failed");
+            logger.error("DB access for Booking failed");
             internalServerError(response);
         }
     }
@@ -82,7 +82,7 @@ export default class Bookings extends Route {
         try {
             ownerCPMS = await CPMS.findById(cpmsID);
         } catch (e) {
-            logger.log("DB access for CPMSs failed");
+            logger.error("DB access for CPMSs failed");
             internalServerError(response);
             return;
         }
@@ -96,10 +96,10 @@ export default class Bookings extends Route {
                 CSID: csID
             });
 
-            if(JSON.parse(axiosResponse?.data.data).CSList == undefined)
+            if(axiosResponse?.data.data.CSList == undefined)
                 badRequest(response, "Invalid csID");
         } catch (e) {
-            logger.log("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);
+            logger.error("Axios call to" + ownerCPMS.endpoint + " failed with error" + e);
             internalServerError(response);
         }
 

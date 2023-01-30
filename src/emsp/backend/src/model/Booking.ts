@@ -87,7 +87,7 @@ export class Booking {
         connection.release();
 
         // Here we exclude intervals that violate the env.TIME
-        return result.map((res) => new DateIntervalPerSocket(res.start, res.end, res.socketId))
+        return result.map((res) => new DateIntervalPerSocket(new Date(res.start), new Date(res.end), res.socketId))
             .filter((res) => res.endDate.valueOf() - res.startDate.valueOf() >= env.TIME_SLOT_SIZE * 60 * 1000);
     }
 

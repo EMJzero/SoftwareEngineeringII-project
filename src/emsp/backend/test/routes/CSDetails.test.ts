@@ -84,7 +84,7 @@ describe("/details endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
-            axiosGetStub.resolves({ data: { data: JSON.stringify({}) } } );
+            axiosGetStub.resolves({ data: { data: {} } } );
             const res = await requester.get("/details?stationID=1" +
                 "&cpmsName=\"testName\"");
             expect(res).to.have.status(400);
@@ -95,7 +95,7 @@ describe("/details endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
-            axiosGetStub.resolves({ data: { data: JSON.stringify({ CSList: "Not Undefined" }) } } );
+            axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
             const res = await requester.get("/details?stationID=1" +
                 "&cpmsName=\"testName\"");
             expect(res).to.have.status(200);

@@ -1,6 +1,6 @@
 import Route from "../Route";
 import { Request, Response } from "express";
-import { badRequest, checkNaN, checkUndefinedParams, internalServerError, success } from "../helper/http";
+import { badRequest, checkUndefinedParams, internalServerError, success } from "../helper/http";
 import { CPMS } from "../model/CPMS";
 import { getReqHttp } from "../helper/misc";
 import logger from "../helper/logger";
@@ -30,7 +30,7 @@ export default class RechargeManager extends Route {
                 return;
             }
         } catch (e) {
-            logger.log("DB access for Booking failed");
+            logger.error("DB access for Booking failed");
             internalServerError(response);
             return;
         }
@@ -46,7 +46,7 @@ export default class RechargeManager extends Route {
                 return;
             }
 
-            const parsedResponse = JSON.parse(axiosResponse?.data.data);
+            const parsedResponse = axiosResponse?.data.data;
 
             success(response, {
                 csID: activeBooking.csId,
@@ -58,7 +58,7 @@ export default class RechargeManager extends Route {
                 estimatedTimeRemaining: parsedResponse.estimatedTimeRemaining
             });
         } catch (e) {
-            logger.log("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);
+            logger.error("Axios call to" + ownerCPMS.endpoint + " failed with error" + e);
             internalServerError(response);
         }
     }
@@ -77,7 +77,7 @@ export default class RechargeManager extends Route {
         try {
             booking = await Booking.findCurrentByUser(userID);
         } catch (e) {
-            logger.log("DB access for Bookings failed");
+            logger.error("DB access for Bookings failed");
             internalServerError(response);
             return;
         }
@@ -91,7 +91,7 @@ export default class RechargeManager extends Route {
         try {
             ownerCPMS = await CPMS.findById(booking.cpmsId);
         } catch (e) {
-            logger.log("DB access for CPMSs failed");
+            logger.error("DB access for CPMSs failed");
             internalServerError(response);
             return;
         }
@@ -107,7 +107,7 @@ export default class RechargeManager extends Route {
                 action: action
             });
 
-            const parsedResponse = JSON.parse(axiosResponse?.data.data);
+            const parsedResponse = axiosResponse?.data.data;
 
             if(axiosResponse?.status != 200) {
                 badRequest(response, parsedResponse);
@@ -116,7 +116,7 @@ export default class RechargeManager extends Route {
 
             success(response);
         } catch (e) {
-            logger.log("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);
+            logger.error("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);
             internalServerError(response);
         }
     }

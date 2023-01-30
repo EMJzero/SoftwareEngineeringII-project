@@ -170,7 +170,7 @@ describe("/bookings endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
-            axiosGetStub.resolves({ data: { data: JSON.stringify({}) } } );
+            axiosGetStub.resolves({ data: { data: {} } } );
             const res = await requester.post("/bookings").send({
                 startUnixTime : new Date().valueOf(),
                 endUnixTime: new Date().valueOf() + 2*60*60*1000,
@@ -186,7 +186,7 @@ describe("/bookings endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
-            axiosGetStub.resolves({ data: { data: JSON.stringify({ CSList: "Not Undefined" }) } } );
+            axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
             createBookingStub.resolves(false);
             const res = await requester.post("/bookings").send({
                 startUnixTime : new Date().valueOf(),
@@ -203,7 +203,7 @@ describe("/bookings endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
-            axiosGetStub.resolves({ data: { data: JSON.stringify({ CSList: "Not Undefined" }) } } );
+            axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
             createBookingStub.resolves(true);
             const res = await requester.post("/bookings").send({
                 startUnixTime : new Date().valueOf(),

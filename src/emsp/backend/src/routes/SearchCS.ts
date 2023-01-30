@@ -28,7 +28,7 @@ export default class SearchCSRoute extends Route {
         try {
             allCPMS = await CPMS.findAll();
         } catch (e) {
-            logger.log("DB access to find all CPMSs failed");
+            logger.error("DB access to find all CPMSs failed");
             internalServerError(response);
             return;
         }
@@ -54,7 +54,7 @@ export default class SearchCSRoute extends Route {
                     stations.push(resultCS);
                 }
             } catch (e) {
-                logger.log("Axios call to" + cpms.endpoint + "failed with error" + e);
+                logger.error("Axios call to" + cpms.endpoint + "failed with error" + e);
                 internalServerError(response);
             }
         }

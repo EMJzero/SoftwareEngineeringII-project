@@ -46,7 +46,7 @@ export default class CSDetails extends Route {
             // Responds with both the details of the CS and its available time slots!
             success(response, {
                 stationData: axiosResponse?.data.data.CSList,
-                availableTimeSlots: Booking.getAvailableTimeSlots(ownerCPMS.id, parseInt(stationID))
+                availableTimeSlots: await Booking.getAvailableTimeSlots(ownerCPMS.id, parseInt(stationID))
             });
         } catch (e) {
             logger.error("Axios call to" + ownerCPMS.endpoint + "failed with error" + e);

@@ -98,13 +98,13 @@ describe("/recharge-manager endpoint", () => {
             );
             findActiveByUserStub.resolves({ csId: 1, socketId: 1 });
             findByIdStub.resolves({ endpoint: "SaySomethingFunny" });
-            axiosGetStub.resolves( { status: 200, data: { data: JSON.stringify({
+            axiosGetStub.resolves( { status: 200, data: { data: {
                 state: 1,
                 currentPower: 1,
                 maxPower: 1,
                 connectedCar: 1,
                 estimatedTimeRemaining: 1
-            }) } } );
+            } } } );
             const res = await requester.get("/recharge-manager");
             expect(res).to.have.status(200);
         });
@@ -179,7 +179,7 @@ describe("/recharge-manager endpoint", () => {
             );
             findCurrentByUserStub.resolves( { id: 1 } );
             findByIdStub.resolves( { endpoint: "ThisIsAnEndpoint_Yes?" } );
-            axiosGetStub.resolves( { status: 400, data: { data: JSON.stringify({}) } } );
+            axiosGetStub.resolves( { status: 400, data: { data: {} } } );
             const res = await requester.post("/recharge-manager").send({
                 bookingId: 1,
                 action: "start",
@@ -193,7 +193,7 @@ describe("/recharge-manager endpoint", () => {
             );
             findCurrentByUserStub.resolves( { id: 1 } );
             findByIdStub.resolves( { endpoint: "ThisIsAnEndpoint_Yes?" } );
-            axiosGetStub.resolves( { status: 200, data: { data: JSON.stringify({ nothingHere: null }) } } );
+            axiosGetStub.resolves( { status: 200, data: { data: { nothingHere: null } } } );
             const res = await requester.post("/recharge-manager").send({
                 bookingId: 1,
                 action: "start",
