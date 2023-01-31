@@ -39,6 +39,11 @@ const router = createRouter({
             component: () => import("../views/CSDetailsView.vue"),
         },
         {
+            path: RoutingPath.BOOKING,
+            name: "booking",
+            component: () => import("../views/BookingCreateView.vue"),
+        },
+        {
             path: "/:pathMatch(.*)*",
             name: "not-found",
             redirect: "/home",

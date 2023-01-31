@@ -17,7 +17,6 @@ class StationDetailsController extends GenericController<StationDetailsModel | n
         const res = await super.get<StationDetailsModel>("/details", { query: {
             cpmsId: cpmsId, stationID: stationId
             } });
-        console.log(res);
         this.setStation(res);
         return res;
     }
