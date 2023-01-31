@@ -43,7 +43,7 @@ export default class CSDetails extends Route {
 
         // Responds with both the details of the CS and its available time slots!
         try {
-            success(response, Booking.getAvailableTimeSlots(ownerCPMS.id, stationID, socketID, startDate, endDate));
+            success(response, await Booking.getAvailableTimeSlots(ownerCPMS.id, stationID, socketID, startDate, endDate));
         } catch (e) {
             internalServerError(response);
             return;

@@ -97,12 +97,13 @@ export class Booking {
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
             "WITH timeSlots(start, end) AS (SELECT b1.endDate, b2.startDate FROM bookings b1 JOIN bookings b2 ON b1.cpmsId = b2.cpmsId AND b1.csId = b2.csId AND b1.socketId = b2.socketId\n" +
-            "WHERE b1.endDate < b2.startDate AND cpmsId = ? AND csId = ? AND socketId = ? AND b1.endDate >= ? AND b2.startDate <= ? AND NOT EXISTS " +
-            "(SELECT * FROM bookings b3 WHERE b1.cpmsId = b3.cpmsId AND b1.csId = b3.csId AND b1.socketId = b3.socketId AND (b3.startDate BETWEEN b1.endDate AND b2.startDate OR b3.startDate BETWEEN b1.endDate AND b2.startDate)) " +
-            "UNION " +
-            "(SELECT endDate, ? FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND endDate < ? GROUP BY endDate DESC LIMIT 1) " +
-            "UNION " +
-            "(SELECT ?, startDate FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND startDate > ? ORDER BY startDate ASC LIMIT 1)) " +
+            "WHERE b1.endDate < b2.startDate AND b1.cpmsId = ? AND b1.csId = ? AND b1.socketId = ? AND b1.endDate >= ? AND b2.startDate <= ? AND\n" +
+            "NOT EXISTS\n" +
+            "(SELECT * FROM bookings b3 WHERE b1.cpmsId = b3.cpmsId AND b1.csId = b3.csId AND b1.socketId = b3.socketId AND (b3.startDate BETWEEN b1.endDate AND b2.startDate OR b3.endDate BETWEEN b1.endDate AND b2.startDate))\n" +
+            "UNION\n" +
+            "(SELECT endDate, ? FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND endDate < ? ORDER BY endDate DESC LIMIT 1)\n" +
+            "UNION\n" +
+            "(SELECT ?, startDate FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND startDate > ? ORDER BY startDate ASC LIMIT 1))\n" +
             "SELECT * FROM timeSlots",
             [cpmsID, csID, socketID, startDate, endDate,
                 endDate, cpmsID, csID, socketID, endDate,
