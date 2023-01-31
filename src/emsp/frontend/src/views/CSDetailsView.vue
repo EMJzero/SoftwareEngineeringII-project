@@ -17,7 +17,7 @@
           {{ getOfferEndDate() }} </p>
         <p v-if="!stationDetails?.stationData.offerExpirationDate" class="text-white text-xl font-weight-regular py-2"> No Offers Available </p>
         <div class="text-white font-semibold text-xl space-x-16 pt-10">
-          <PrimaryButton text="Book a Charge" :onClick="() => router.push(RoutingPath.BOOKING)" />
+          <PrimaryButton text="Book a Charge" :onClick="() => router.push(RoutingPath.BOOKING + '?cpms=' + station_details_controller.getRef().value.stationData.ownerCPMSId + '&sid=' + station_details_controller.getRef().value.stationData.id)" />
         </div>
       </div>
     </div>
