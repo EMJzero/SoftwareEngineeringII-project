@@ -12,7 +12,9 @@
         <img class="rounded-md bg-no-repeat bg-cover bg-white aspect-video" style="object-fit: cover; margin-right: auto; margin-left: auto; max-width: 50%" :src="stationDetails?.imageURL" alt="Thumbnail">
         <p class="text-white text-3xl font-semibold pt-12 pb-3"> {{stationDetails?.name}} </p>
         <p class="text-white text-xl font-weight-regular py-2"> {{ stationDetails?.getAggregatedSocketSpeeds() }} Available </p>
-        <p class="text-white text-xl font-weight-regular py-2"> Socket Types: {{ stationDetails?.getAggregatedSocketTypes() }} ({{ stationDetails?.sockets.length }} Total) </p>
+        <p class="text-white text-xl font-weight-regular py-2"> Socket Types: {{ stationDetails?.getAggregatedSocketTypes() }} ({{ (stationDetails?.sockets ?? []).length }} Total) </p>
+        <p v-if="stationDetails?.offerExpirationDate" class="text-white text-xl font-weight-regular py-2"> Offers Available Until:
+          {{ stationDetails?.getOfferEndDate() }} </p>
         <div class="text-white font-semibold text-xl space-x-16 pt-20">
           <PrimaryButton text="Book a Charge" :onClick="() => router.push(RoutingPath.BOOKING)" />
         </div>
@@ -31,6 +33,7 @@ import BookingChip from "@/components/BookingChip.vue";
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import station_details_controller from "@/controllers/station_details_controller";
+import {convertSQLStringToDateTimeString} from "@/helpers/converters";
 
 const dialog = ref(false);
 const isLoading = ref(true);
@@ -46,7 +49,7 @@ async function onClose(){
 // On Mounted page, collect the bookings data to display
 onMounted(async () => {
   isLoading.value = true;
-  await station_details_controller.getStationDetails(route.query.cpms as string, parseInt(route.query.sid as string));
+  await station_details_controller.getStationDetails(parseInt(route.query.cpms as string), parseInt(route.query.sid as string));
   isLoading.value = false;
 });
 

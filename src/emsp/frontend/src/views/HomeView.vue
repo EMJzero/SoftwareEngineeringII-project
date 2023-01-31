@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import draw from "@/assets/images/draw.svg";
 import { useRouter } from "vue-router";
 import RoutingPath from "../router/routing_path";
 import OutilinedButton from "../components/OutlinedButton.vue";

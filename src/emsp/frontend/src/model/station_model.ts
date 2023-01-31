@@ -1,4 +1,6 @@
 import type Socket from "@/model/socket_model";
+import {convertSQLStringToDateTimeString} from "@/helpers/converters";
+import {SocketType} from "@/model/socket_model";
 
 export default class StationModel {
     id: number;
@@ -31,7 +33,7 @@ export default class StationModel {
         let speeds = "";
         let set: Set<string> = new Set<string>();
         for (const socket of this.sockets ?? []) {
-            set.add(socket.type.getChargeSpeed());
+            set.add(SocketType.getChargeSpeed(socket.type));
         }
         for (const speed of set) {
             if (speeds == "") {
@@ -57,5 +59,12 @@ export default class StationModel {
             }
         }
         return types;
+    }
+
+    getOfferEndDate(): string {
+        if (this.offerExpirationDate) {
+            return convertSQLStringToDateTimeString(this.offerExpirationDate);
+        }
+        return "No Offers";
     }
 }

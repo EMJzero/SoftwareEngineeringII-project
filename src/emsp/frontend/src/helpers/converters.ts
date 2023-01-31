@@ -1,4 +1,5 @@
 export function convertSQLStringToDateTimeString(sqlString: string): string {
+    console.log(sqlString);
     const [dateComponents, timeComponents] = sqlString.split('T');
 
     const [year, day, month] = dateComponents.split('-');

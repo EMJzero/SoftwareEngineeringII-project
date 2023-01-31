@@ -17,10 +17,10 @@ export class SocketType {
         this.maxPower = maxPower;
     }
 
-    getChargeSpeed(): string {
-        if (this.maxPower < 3) { //3kW
+    static getChargeSpeed(socketType: SocketType): string {
+        if (socketType.maxPower < 3) { //3kW
             return "Normal";
-        } else if (this.maxPower < 30) {
+        } else if (socketType.maxPower < 30) {
             return "Fast";
         } else {
             return "Ultra Fast";

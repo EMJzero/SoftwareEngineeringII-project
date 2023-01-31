@@ -18,7 +18,7 @@ import { defineProps, ref } from 'vue';
 import ModalComponent from '@/components/ModalComponent.vue';
 import type BookingModel from '@/model/booking_model';
 import {convertSQLStringToDateTimeString} from "@/helpers/converters";
-import StationModel from "@/model/station_model";
+import type StationModel from "@/model/station_model";
 import station_map_controller from "@/controllers/station_map_controller";
 
 const props = defineProps<{
