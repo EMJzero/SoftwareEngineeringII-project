@@ -67,6 +67,12 @@ export default class RechargeManager extends Route {
             return;
         }
 
+        if(axiosResponse?.status != 200) {
+            logger.debug("Axios response status =", axiosResponse?.status);
+            internalServerError(response);
+            return;
+        }
+
         success(response);
     }
 }

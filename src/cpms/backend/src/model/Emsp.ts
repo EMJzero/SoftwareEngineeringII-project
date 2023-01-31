@@ -10,7 +10,7 @@ export class Emsp {
         this.APIKey = APIKey;
     }
 
-    public static async checkCredentials(APIKey: string): Promise<number> {
+    public static async checkCredentials(APIKey: string): Promise<number | null> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
@@ -18,6 +18,9 @@ export class Emsp {
             [APIKey]);
 
         connection.release();
+
+        if(result.length == 0)
+            return null;
 
         return result[0].id;
     }

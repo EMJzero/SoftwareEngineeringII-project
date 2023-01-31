@@ -33,7 +33,7 @@ describe("/logout endpoint", () => {
         it("should succeed", async () => {
             checkJWTStub = sandbox.stub(Authentication, "checkJWT");
             checkJWTStub.returns("userId");
-            const res = await requester.get("/logout");
+            const res = await requester.get("/logout-emsp");
             expect(res).to.have.status(200);
         });
     });

@@ -77,6 +77,12 @@ rl.on("line", (input) => {
                         socket.disconnectCar();
                 });
                 break;
+            case "fullyCharge":
+                sockets.forEach((socket) => {
+                    if (socket.socketId == parseInt(inputs[1]))
+                        socket.fullyChargeCar();
+                });
+                break;
             default:
                 console.log("Invalid command...\n");
             }
