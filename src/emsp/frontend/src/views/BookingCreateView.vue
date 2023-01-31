@@ -1,7 +1,7 @@
 <template>
   <div class="relative w-full items-center justify-center">
     <div class="text-center items-center justify-center justify-items-center pt-10">
-      <p class="text-white font-semibold text-4xl pt-5 pb-3">Create a Booking - {{"ADD CS NAME"}} </p>
+      <p class="text-white font-semibold text-4xl pt-5 pb-3">Create a Booking - {{booking_create_controller.getRef().value.stationData.name}} </p>
       <p class="text-white font-semibold text-2xl pt-2 pb-8">Choose a Socket and Time Slot </p>
       <p v-if="isLoading" class="text-grey font-semibold text-2xl space-x-16 pt-20">Loading Availability...</p>
     </div>
