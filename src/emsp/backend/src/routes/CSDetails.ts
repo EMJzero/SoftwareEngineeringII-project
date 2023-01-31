@@ -49,8 +49,12 @@ export default class CSDetails extends Route {
         }
 
         // Responds with both the details of the CS and its available time slots!
+        const responseCS = axiosResponse?.data.data.CSList as any;
+        const csRecord: Record<string, unknown> = responseCS;
+        csRecord.ownerCPMSName = ownerCPMS.name;
+        csRecord.ownerCPMSId = ownerCPMS.id;
         success(response, {
-            stationData: axiosResponse?.data.data.CSList,
+            stationData: csRecord,
         });
     }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { watch } from "vue";
+import {onMounted, watch} from "vue";
 import { RouterView, useRouter } from "vue-router";
 import NavBar from "./components/NavBar.vue";
 import RoutingPath from "./router/routing_path";

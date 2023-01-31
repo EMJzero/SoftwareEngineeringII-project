@@ -1,8 +1,11 @@
-/** @type {import('tailwindcss').Config} */
+/** @type {DefaultColors} */
+const colors = require("tailwindcss/colors");
 module.exports = {
+  darkMode: ['class', '[data-mode="dark"]'],
   content: [
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
+    "./node_modules/vue-tailwind-datepicker/**/*.js"
   ],
   theme: {
     extend: {
@@ -15,5 +18,5 @@ module.exports = {
        },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/forms')],
 }
