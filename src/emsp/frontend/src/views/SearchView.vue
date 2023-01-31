@@ -65,7 +65,7 @@ const router = useRouter();
   right: 0;
   width: 20%;
   height: 100%;
-  background-color: rgba(23, 23, 23, 0.3);
+  background-color: rgba(23, 23, 23, 0.5);
   backdrop-filter: blur(10px);
 }
 
