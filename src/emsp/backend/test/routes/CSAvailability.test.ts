@@ -15,10 +15,9 @@ use(sinonChai);
 
 const sandbox = createSandbox();
 
-describe("/details endpoint", () => {
+describe("/cs-availability endpoint", () => {
 
     let requester: ChaiHttp.Agent;
-    let axiosGetStub: SinonStub;
     let checkJWTStub: SinonStub;
     //let CPMSStub: SinonStub;
     //let availableTimeSlotsStub: SinonStub;
@@ -34,7 +33,6 @@ describe("/details endpoint", () => {
     });
 
     beforeEach(() => {
-        axiosGetStub = sandbox.stub(axios, "get");
         checkJWTStub = sandbox.stub(Authentication, "checkJWT");
         //CPMSStub = sandbox.stub(CPMS, "findById");
         //availableTimeSlotsStub = sandbox.stub(Booking, "getAvailableTimeSlots");
@@ -52,7 +50,11 @@ describe("/details endpoint", () => {
             checkJWTStub.returns(
                 { userId: 1, username: "userName" }
             );
-            const res = await requester.get("/details?stationID=1");
+            const res = await requester.get("/cs-availability?stationID=1" +
+                "&socketID=1" +
+                "&cpmsID=1" +
+                "&referenceDateDay=13" +
+                "&referenceDateYear=2023");
             expect(res).to.have.status(400);
         });
 
@@ -62,8 +64,12 @@ describe("/details endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.throws("No CPMS for you!");
-            const res = await requester.get("/details?stationID=1" +
-                "&cpmsId=1");
+            const res = await requester.get("/cs-availability?stationID=1" +
+                "&socketID=1" +
+                "&cpmsID=1" +
+                "&referenceDateDay=13" +
+                "&referenceDateMonth=7" +
+                "&referenceDateYear=2023");
             expect(res).to.have.status(500);
         });
 
@@ -73,33 +79,29 @@ describe("/details endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves(null);
-            const res = await requester.get("/details?stationID=1" +
-                "&cpmsId=1");
+            const res = await requester.get("/cs-availability?stationID=1" +
+                "&socketID=1" +
+                "&cpmsID=1" +
+                "&referenceDateDay=13" +
+                "&referenceDateMonth=7" +
+                "&referenceDateYear=2023");
             expect(res).to.have.status(400);
         });
 
-        it("should fail if the axios call fails", async () => {
+        it("should return nothing if the stationID is invalid", async () => {
             DBStub.resolves(new Test1());
             checkJWTStub.returns(
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
-            axiosGetStub.throws("Sorry, I failed MyLord");
-            const res = await requester.get("/details?stationID=1" +
-                "&cpmsId=1");
-            expect(res).to.have.status(500);
-        });
-
-        it("should fail if the stationID is invalid", async () => {
-            DBStub.resolves(new Test1());
-            checkJWTStub.returns(
-                { userId: 1, username: "userName" }
-            );
-            //CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
-            axiosGetStub.resolves({ data: { data: {} } } );
-            const res = await requester.get("/details?stationID=1" +
-                "&cpmsId=1");
-            expect(res).to.have.status(400);
+            const res = await requester.get("/cs-availability?stationID=1" +
+                "&socketID=1" +
+                "&cpmsID=1" +
+                "&referenceDateDay=13" +
+                "&referenceDateMonth=7" +
+                "&referenceDateYear=2023");
+            expect(res.body).to.be.eql({ "data": {}, "message": "", "status": true });
+            expect(res).to.have.status(200);
         });
 
         it("should succeed when all the parameters are well defined", async () => {
@@ -108,11 +110,12 @@ describe("/details endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
-            axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
-            //availableTimeSlotsStub.resolves( { data: "NothingImportant" } );
-            //executeStub.resolves([[{ start: 123, end: 10000000, socketId: 1 }]]);
-            const res = await requester.get("/details?stationID=1" +
-                "&cpmsId=1");
+            const res = await requester.get("/cs-availability?stationID=1" +
+                "&socketID=1" +
+                "&cpmsID=1" +
+                "&referenceDateDay=13" +
+                "&referenceDateMonth=7" +
+                "&referenceDateYear=2023");
             expect(res).to.have.status(200);
         });
     });
@@ -122,6 +125,15 @@ class Test1 {
     public async execute(sql: string, values: any) : Promise<[any[], any[]]> {
         if(sql == "SELECT * FROM cpmses WHERE id = ?")
             return [[{ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" }], []];
+        if(sql == "WITH timeSlots(start, end) AS (SELECT b1.endDate, b2.startDate FROM bookings b1 JOIN bookings b2 ON b1.cpmsId = b2.cpmsId AND b1.csId = b2.csId AND b1.socketId = b2.socketId\n" +
+            "WHERE b1.endDate < b2.startDate AND cpmsId = ? AND csId = ? AND socketId = ? AND b1.endDate >= ? AND b2.startDate <= ? AND NOT EXISTS " +
+            "(SELECT * FROM bookings b3 WHERE b1.cpmsId = b3.cpmsId AND b1.csId = b3.csId AND b1.socketId = b3.socketId AND (b3.startDate BETWEEN b1.endDate AND b2.startDate OR b3.startDate BETWEEN b1.endDate AND b2.startDate)) " +
+            "UNION " +
+            "(SELECT endDate, ? FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND endDate < ? GROUP BY endDate DESC LIMIT 1) " +
+            "UNION " +
+            "(SELECT ?, startDate FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND startDate > ? ORDER BY startDate ASC LIMIT 1)) " +
+            "SELECT * FROM timeSlots")
+            return [[{ start: new Date(0), end: new Date(10000000000) }], []];
         return [[], []];
     }
 

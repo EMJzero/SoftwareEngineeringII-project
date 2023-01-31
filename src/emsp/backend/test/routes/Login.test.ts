@@ -103,7 +103,6 @@ describe("/login", () => {
                 password: "somePassword"
             });
             expect(res).to.have.status(200);
-            console.log(res.body);
             expect(res.body).to.be.eql(expectedBody);
         });
     });

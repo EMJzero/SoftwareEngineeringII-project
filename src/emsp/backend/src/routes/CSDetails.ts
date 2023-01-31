@@ -51,7 +51,6 @@ export default class CSDetails extends Route {
         // Responds with both the details of the CS and its available time slots!
         success(response, {
             stationData: axiosResponse?.data.data.CSList,
-            availableTimeSlots: await Booking.getAvailableTimeSlots(ownerCPMS.id, parseInt(stationID))
         });
     }
 }
