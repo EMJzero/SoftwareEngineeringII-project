@@ -34,24 +34,29 @@ export default class CSDetails extends Route {
             return;
         }
 
-        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
-            CSID: stationID
-        });
+        try {
+            const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
+                CSID: stationID
+            });
 
-        if(axiosResponse == null) {
+            if (axiosResponse == null) {
+                internalServerError(response);
+                return;
+            }
+
+            if (axiosResponse?.data.data.CSList == undefined) {
+                badRequest(response, "Invalid stationID provided");
+                return;
+            }
+
+            // Responds with both the details of the CS and its available time slots!
+            success(response, {
+                stationData: axiosResponse?.data.data.CSList,
+                availableTimeSlots: await Booking.getAvailableTimeSlots(ownerCPMS.id, parseInt(stationID))
+            });
+        } catch (e) {
+            logger.error("Axios call to" + ownerCPMS.endpoint + " failed with error " + e);
             internalServerError(response);
-            return;
         }
-
-        if (axiosResponse?.data.data.CSList == undefined) {
-            badRequest(response, "Invalid stationID provided");
-            return;
-        }
-
-        // Responds with both the details of the CS and its available time slots!
-        success(response, {
-            stationData: axiosResponse?.data.data.CSList,
-            availableTimeSlots: await Booking.getAvailableTimeSlots(ownerCPMS.id, parseInt(stationID))
-        });
     }
 }
