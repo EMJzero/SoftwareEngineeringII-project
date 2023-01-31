@@ -89,7 +89,6 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
             const res = await super.get<StationDetailsModel>("/details", { query: {
                     cpmsId: cpmsAndCs[0], stationID: cpmsAndCs[1]
                 } });
-            console.log(res);
             for (let i = 0; i < result.length; i++) {
                 if (result[i].csId == cpmsAndCs[1] && result[i].cpmsId == cpmsAndCs[0]) {
                     result[i].imageURL = res?.stationData.imageURL ?? "";

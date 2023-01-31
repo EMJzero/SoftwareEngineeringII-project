@@ -28,43 +28,4 @@ export default class StationModel {
         this.sockets = sockets;
         this.imageURL = imageURL;
     }
-
-    getAggregatedSocketSpeeds(): string {
-        let speeds = "";
-        let set: Set<string> = new Set<string>();
-        for (const socket of this.sockets ?? []) {
-            set.add(SocketType.getChargeSpeed(socket.type));
-        }
-        for (const speed of set) {
-            if (speeds == "") {
-                speeds += speed;
-            } else {
-                speeds += ", " + speed;
-            }
-        }
-        return speeds;
-    }
-
-    getAggregatedSocketTypes(): string {
-        let types = "";
-        let set: Set<string> = new Set<string>();
-        for (const socket of this.sockets ?? []) {
-            set.add(socket.type.connector);
-        }
-        for (const connector of set) {
-            if (types == "") {
-                types += connector;
-            } else {
-                types += ", " + connector;
-            }
-        }
-        return types;
-    }
-
-    getOfferEndDate(): string {
-        if (this.offerExpirationDate) {
-            return convertSQLStringToDateTimeString(this.offerExpirationDate);
-        }
-        return "No Offers";
-    }
 }
