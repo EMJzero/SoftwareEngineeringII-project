@@ -9,7 +9,7 @@
       <div class="overlay rounded-lg">
         <p v-if="isLoading" class="text-grey-lighten-60 text-center font-semibold text-3xl space-x-16 pt-20">Loading Nearby Stations...</p>
         <ul v-if="!isLoading && stations && stations.length > 0" class="list-none pl-4 text-stone-400 text-lg" style="max-width: 500px; margin-left: auto; margin-right: auto">
-          <NearbyStationCell v-for="station in stations" :tag="station.id" :station="station" @click="router.push(RoutingPath.CSDETAILS + '?cpms=' + station.ownerCPMSName + '&sid=' + station.id)"/>
+          <NearbyStationCell v-for="station in stations" :tag="station.id" :station="station" @click="router.push(RoutingPath.CSDETAILS + '?cpms=' + station.ownerCPMSId + '&sid=' + station.id)"/>
         </ul>
         <p v-if="!isLoading && (!stations || stations.length === 0)" class="text-grey-lighten-60 text-center font-semibold text-3xl space-x-16 pt-20">No Stations Nearby</p>
       </div>
@@ -65,7 +65,7 @@ const router = useRouter();
   right: 0;
   width: 20%;
   height: 100%;
-  background-color: rgba(23, 23, 23, 0.3);
+  background-color: rgba(23, 23, 23, 0.5);
   backdrop-filter: blur(10px);
 }
 

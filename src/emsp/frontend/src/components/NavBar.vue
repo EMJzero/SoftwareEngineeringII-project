@@ -48,7 +48,6 @@
 </template>
 
 <script setup lang="ts">
-import logo from '@/assets/images/logo_dark.svg';
 import { useRouter } from 'vue-router';
 import RoutingPath from '@/router/routing_path';
 import auth_controller from '@/controllers/authorization_controller';
