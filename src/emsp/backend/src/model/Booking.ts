@@ -6,24 +6,24 @@ import env from "../helper/env";
 // You should also send the socket info when retrieving the booking data before sending it to the client
 // Add image URL as string in the DB to display images in the bookings list, and CS name to reflect the DD??
 export class Booking {
-    private _id: number;
-    private _userId: number;
-    private _startDate: string;
-    private _endDate: string;
-    private _isActive: boolean;
-    private _cpmsId: number;
-    private _csId: number;
-    private _socketId: number;
+    id: number;
+    userId: number;
+    startDate: string;
+    endDate: string;
+    isActive: boolean;
+    cpmsId: number;
+    csId: number;
+    socketId: number;
 
     constructor(id: number, userId: number, startDate: string, endDate: string, isActive: boolean, cpmsId: number, csId: number, socketId: number) {
-        this._id = id;
-        this._userId = userId;
-        this._startDate = startDate;
-        this._endDate = endDate;
-        this._isActive = isActive;
-        this._cpmsId = cpmsId;
-        this._csId = csId;
-        this._socketId = socketId;
+        this.id = id;
+        this.userId = userId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.isActive = isActive;
+        this.cpmsId = cpmsId;
+        this.csId = csId;
+        this.socketId = socketId;
     }
 
     public static async findByUser(userId: number): Promise<Booking[]> {
@@ -38,7 +38,7 @@ export class Booking {
         if (result.length == 0 || !result) {
             return [];
         }
-        return result.map((resultItem) => {
+        const r = result.map((resultItem) => {
             return new Booking(
                 resultItem.id,
                 resultItem.userId,
@@ -50,6 +50,7 @@ export class Booking {
                 resultItem.socketId
             );
         });
+        return r;
     }
 
     /*public static async findBookingById(bookingId: number): Promise<Booking | null> {
@@ -227,38 +228,6 @@ export class Booking {
         const json: any = result;
 
         return json.affectedRows == 1;
-    }
-
-    get id(): number {
-        return this._id;
-    }
-
-    get userId(): number {
-        return this._userId;
-    }
-
-    get startDate(): string {
-        return this._startDate;
-    }
-
-    get endDate(): string {
-        return this._endDate;
-    }
-
-    get isActive(): boolean {
-        return this._isActive;
-    }
-
-    get cpmsId(): number {
-        return this._cpmsId;
-    }
-
-    get csId(): number {
-        return this._csId;
-    }
-
-    get socketId(): number {
-        return this._socketId;
     }
 }
 
