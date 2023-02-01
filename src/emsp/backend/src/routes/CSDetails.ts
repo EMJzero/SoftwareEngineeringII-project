@@ -1,10 +1,10 @@
 import Route from "../Route";
-import { Request, Response } from "express";
-import { badRequest, checkNaN, checkUndefinedParams, internalServerError, success } from "../helper/http";
-import { CPMS } from "../model/CPMS";
-import { getReqHttp } from "../helper/misc";
+import {Request, Response} from "express";
+import {badRequest, checkNaN, checkUndefinedParams, internalServerError, success} from "../helper/http";
+import {CPMS} from "../model/CPMS";
+import {getReqHttp} from "../helper/misc";
 import logger from "../helper/logger";
-import { Booking } from "../model/Booking";
+import CPMSAuthentication from "../helper/CPMSAuthentication";
 
 export default class CSDetails extends Route {
 
@@ -34,7 +34,10 @@ export default class CSDetails extends Route {
             return;
         }
 
-        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
+        //Check CPMS authentication and authenticate if needed
+        ownerCPMS = await CPMSAuthentication.getTokenIfNeeded(ownerCPMS);
+
+        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", ownerCPMS.token, {
             CSID: stationID
         });
 
@@ -49,8 +52,7 @@ export default class CSDetails extends Route {
         }
 
         // Responds with both the details of the CS and its available time slots!
-        const responseCS = axiosResponse?.data.data.CSList as any;
-        const csRecord: Record<string, unknown> = responseCS;
+        const csRecord: Record<string, unknown> = axiosResponse?.data.data.CSList as any;
         csRecord.ownerCPMSName = ownerCPMS.name;
         csRecord.ownerCPMSId = ownerCPMS.id;
         success(response, {

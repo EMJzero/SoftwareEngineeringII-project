@@ -5,6 +5,7 @@ import { CPMS } from "../model/CPMS";
 import { getReqHttp } from "../helper/misc";
 import logger from "../helper/logger";
 import { stat } from "fs";
+import CPMSAuthentication from "../helper/CPMSAuthentication";
 
 export default class SearchCSRoute extends Route {
 
@@ -34,8 +35,10 @@ export default class SearchCSRoute extends Route {
         }
 
         const stations = [];
-        for (const cpms of allCPMS) {
-            const axiosResponse = await getReqHttp(cpms.endpoint + "/cs-list", null, {
+        for (let cpms of allCPMS) {
+            cpms = await CPMSAuthentication.getTokenIfNeeded(cpms);
+
+            const axiosResponse = await getReqHttp(cpms.endpoint + "/cs-list", cpms.token, {
                 locationLatitude: filterLatitude,
                 locationLongitude: filterLongitude,
                 locationRange: filterRadius,

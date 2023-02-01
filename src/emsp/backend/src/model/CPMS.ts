@@ -5,7 +5,8 @@ export interface ICPMS {
     id: number,
     name: string,
     endpoint: string,
-    apiKey: string
+    apiKey: string,
+    token: string | null
 }
 
 export class CPMS {
@@ -47,8 +48,21 @@ export class CPMS {
             id: result[0].id,
             name: result[0].name,
             endpoint: result[0].APIendpoint,
-            apiKey: result[0].APIkey
+            apiKey: result[0].APIkey,
+            token: result[0].token
         };
+    }
+
+    public static async updateToken(id: number, token: string | null) {
+        if (!token) return;
+
+        const connection = await DBAccess.getConnection();
+
+        const result: [RowDataPacket[], FieldPacket[]] = await connection.execute(
+            "UPDATE cpmses SET token = ? WHERE id = ?",
+            [token, id]);
+
+        connection.release();
     }
 
     public static async findAll(): Promise<ICPMS[]> {
@@ -67,7 +81,8 @@ export class CPMS {
                 id: resultItem.id,
                 name: resultItem.name,
                 endpoint: resultItem.APIendpoint,
-                apiKey: resultItem.APIkey
+                apiKey: resultItem.APIkey,
+                token: resultItem.token
             };
         });
     }

@@ -20,7 +20,6 @@ export default class CSDetails extends Route {
         const referenceDateMonth = parseInt(request.query.referenceDateMonth as string);
         const referenceDateYear = parseInt(request.query.referenceDateYear as string);
 
-        console.log(stationID, socketID, cpmsID, referenceDateYear, referenceDateMonth, referenceDateDay);
         if (checkNaN(response, stationID, socketID, cpmsID, referenceDateYear, referenceDateMonth, referenceDateDay)) {
             return;
         }

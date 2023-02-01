@@ -39,7 +39,7 @@ export function checkURL(url: string): boolean {
  */
 export async function getReqHttp(url: string, token: string | null, parameters: object): Promise<AxiosResponse | null> {
     const config = token ? {
-        headers: { "Authorization": `Bearer ${token}` },
+        headers: { "Cookie": [token] },
         params: parameters
     } : { params: parameters };
     let res;
@@ -60,7 +60,7 @@ export async function getReqHttp(url: string, token: string | null, parameters: 
  * @param body the object containing the field and the value of the query string
  */
 export async function postReqHttp(url: string, token: string | null, body: object): Promise<AxiosResponse | null> {
-    const config = token ? { headers: { "Authorization": `Bearer ${token}` } } : undefined;
+    const config = token ? { headers: { "Cookie": [token] } } : undefined;
     let res;
     try {
         res = await axios.post(url, body, config);
@@ -80,7 +80,7 @@ export async function postReqHttp(url: string, token: string | null, body: objec
 export async function deleteReqHttp(url: string, token: string, query: object): Promise<AxiosResponse | null> {
     let res;
     try {
-        const config = { headers: { "Authorization": `Bearer ${token}` }, params: query };
+        const config = { headers: { "Cookie": [token] }, params: query };
         // TODO: manage body
         res = await axios.delete(url, config);
         return res;

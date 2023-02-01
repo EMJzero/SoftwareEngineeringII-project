@@ -23,7 +23,8 @@
     "morgan": "~1.9.1",
     "promisified-pipe": "^1.0.0",
     "mysql2": "^3.0.1",
-    "tracer": "^1.1.6"
+    "tracer": "^1.1.6",
+    "jwt-decode": "^2.2.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

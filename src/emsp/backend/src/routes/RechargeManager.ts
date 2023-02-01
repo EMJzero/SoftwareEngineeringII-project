@@ -6,6 +6,7 @@ import {getReqHttp, postReqHttp} from "../helper/misc";
 import logger from "../helper/logger";
 import { Booking } from "../model/Booking";
 import {use} from "chai";
+import CPMSAuthentication from "../helper/CPMSAuthentication";
 
 export default class RechargeManager extends Route {
 
@@ -36,7 +37,9 @@ export default class RechargeManager extends Route {
             return;
         }
 
-        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
+        ownerCPMS = await CPMSAuthentication.getTokenIfNeeded(ownerCPMS);
+
+        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", ownerCPMS.token, {
             CSID: activeBooking.csId,
             socketID: activeBooking.socketId
         });
@@ -83,7 +86,6 @@ export default class RechargeManager extends Route {
             return;
         }
 
-        console.log(booking, bookingID);
         if(booking == null || booking.id != bookingID) {
             badRequest(response, "Invalid booking Id");
             return;
@@ -102,7 +104,9 @@ export default class RechargeManager extends Route {
             return;
         }
 
-        const axiosResponse = await postReqHttp(ownerCPMS.endpoint + "/recharge-manager", null, {
+        ownerCPMS = await CPMSAuthentication.getTokenIfNeeded(ownerCPMS);
+
+        const axiosResponse = await postReqHttp(ownerCPMS.endpoint + "/recharge-manager", ownerCPMS.token, {
             CSID: booking.csId,
             socketID: booking.socketId,
             action: action
