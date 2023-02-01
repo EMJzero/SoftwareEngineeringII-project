@@ -147,8 +147,8 @@ describe("/bookings endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             const res = await requester.post("/bookings").send({
-                startUnixTime : new Date().valueOf(),
-                endUnixTime: new Date().valueOf() + 1000,
+                startUnixTime : new Date().valueOf()+ 1000000,
+                endUnixTime: new Date().valueOf() + 1000001,
                 cpmsID: 1,
                 csID: 1,
                 socketID: 2
@@ -175,8 +175,8 @@ describe("/bookings endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             const res = await requester.post("/bookings").send({
-                startUnixTime : new Date().valueOf() + 2000,
-                endUnixTime: new Date().valueOf() + 1000,
+                startUnixTime : new Date().valueOf() + 30000000,
+                endUnixTime: new Date().valueOf() + 10000000,
                 cpmsID: 1,
                 csID: 1,
                 socketID: 2
@@ -193,8 +193,8 @@ describe("/bookings endpoint", () => {
             //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
             axiosGetStub.throws("Nope :)");
             const res = await requester.post("/bookings").send({
-                startUnixTime : new Date().valueOf(),
-                endUnixTime: new Date().valueOf() + 2*60*60*1000,
+                startUnixTime : new Date().valueOf() + 10000000,
+                endUnixTime: new Date().valueOf() + 10000000 + 2*60*60*1000,
                 cpmsID: 1,
                 csID: 1,
                 socketID: 2
@@ -210,8 +210,8 @@ describe("/bookings endpoint", () => {
             //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
             axiosGetStub.resolves({ data: { data: {} } } );
             const res = await requester.post("/bookings").send({
-                startUnixTime : new Date().valueOf(),
-                endUnixTime: new Date().valueOf() + 2*60*60*1000,
+                startUnixTime : new Date().valueOf() + 10000000,
+                endUnixTime: new Date().valueOf() + 10000000 + 2*60*60*1000,
                 cpmsID: 1,
                 csID: 1,
                 socketID: 2
@@ -228,8 +228,8 @@ describe("/bookings endpoint", () => {
             axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
             //createBookingStub.resolves(false);
             const res = await requester.post("/bookings").send({
-                startUnixTime : new Date().valueOf(),
-                endUnixTime: new Date().valueOf() + 2*60*60*1000,
+                startUnixTime : new Date().valueOf() + 10000000,
+                endUnixTime: new Date().valueOf() + 10000000 + 2*60*60*1000,
                 cpmsID: 1,
                 csID: 1,
                 socketID: 2
@@ -246,8 +246,8 @@ describe("/bookings endpoint", () => {
             axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
             //createBookingStub.resolves(true);
             const res = await requester.post("/bookings").send({
-                startUnixTime : new Date().valueOf(),
-                endUnixTime: new Date().valueOf() + 2*60*60*1000,
+                startUnixTime : new Date().valueOf() + 10000000,
+                endUnixTime: new Date().valueOf() + 10000000 + 2*60*60*1000,
                 cpmsID: 1,
                 csID: 1,
                 socketID: 2
@@ -310,9 +310,9 @@ class Test1 {
                 socketId: 1 }], []];
         if(sql == "SELECT * FROM cpmses WHERE id = ?")
             return [[{ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" }], []];
-        if(sql == "SELECT id FROM bookings WHERE (startDate BETWEEN ? AND ? OR endDate BETWEEN ? AND ?) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR userId = ?)")
+        if(sql == "SELECT id FROM bookings WHERE ((startDate >= ? AND startDate <= ?) OR (endDate >= ? AND startDate <= ?)) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR (userId = ?))")
             return [[], []];
-        if(sql == "INSERT INTO bookings VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+        if(sql == "INSERT INTO bookings VALUES (default, ?, ?, ?, ?, ?, ?, ?)")
             return [({ affectedRows: 0 } as unknown as any[]), []];
         if(sql == "DELETE FROM bookings WHERE userId = ? AND id = ?")
             return [({ affectedRows: 0 } as unknown as any[]), []];
@@ -339,9 +339,9 @@ class Test2 {
                 socketId: 1 }], []];
         if(sql == "SELECT * FROM cpmses WHERE id = ?")
             return [[{ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" }], []];
-        if(sql == "SELECT id FROM bookings WHERE (startDate BETWEEN ? AND ? OR endDate BETWEEN ? AND ?) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR userId = ?)")
+        if(sql == "SELECT id FROM bookings WHERE ((startDate >= ? AND startDate <= ?) OR (endDate >= ? AND startDate <= ?)) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR (userId = ?))")
             return [[], []];
-        if(sql == "INSERT INTO bookings VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+        if(sql == "INSERT INTO bookings VALUES (default, ?, ?, ?, ?, ?, ?, ?)")
             return [({ affectedRows: 1 } as unknown as any[]), []];
         if(sql == "DELETE FROM bookings WHERE userId = ? AND id = ?")
             return [({ affectedRows: 1 } as unknown as any[]), []];
