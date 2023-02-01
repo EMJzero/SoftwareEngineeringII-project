@@ -42,10 +42,10 @@ client.on("message", (message: string) => {
         console.log("Connection refused, goodbye...");
         process.exit(0);
     } else if(msg.request != undefined && msg.request == "startCharge") {
-        sockets[msg.socketId].chargeCar();
+        sockets[msg.socketId - 1].chargeCar();
         console.log("Sockets updated, press ENTER to refresh prompt....");
     } else if(msg.request != undefined && msg.request == "stopCharge") {
-        sockets[msg.socketId].stopChargeCar();
+        sockets[msg.socketId - 1].stopChargeCar();
         console.log("Sockets updated, press ENTER to refresh prompt....");
     }
 });

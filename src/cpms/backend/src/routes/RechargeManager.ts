@@ -51,12 +51,13 @@ export default class RechargeManager extends Route {
         const CSID = request.body.CSID;
         const socketID = request.body.socketID;
         const action = request.body.action;
-
+        console.log(CSID, socketID, action);
         if (checkUndefinedParams(response, CSID, socketID, action)) return;
 
         let axiosResponse;
+        console.log(request.protocol + "://" + request.get("host") + "/cs-manager");
         try {
-            axiosResponse = await postReqHttp(request.protocol + "://" + request.get("host") + "/cs-manager", {
+            axiosResponse = await postReqHttp(request.protocol + "://" + request.get("host") + "/api/cs-manager", {
                 stationID: CSID,
                 socketID: socketID,
                 chargeCommand: action

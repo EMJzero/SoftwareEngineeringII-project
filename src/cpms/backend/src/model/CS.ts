@@ -32,7 +32,7 @@ export class CS {
 
         connection.release();
 
-        return result.map((cs) => new CS(cs.id, cs.name, cs.locationLatitude, cs.locationLongitude, cs.nominalPrice, cs.userPrice, cs.offerExpirationDate, null, cs.imageURL));
+        return result.map((cs) => new CS(cs.id, cs.name, cs.locationLatitude, cs.locationLongitude, cs.nominalPrice, cs.userPrice, new Date(cs.offerExpirationDate), null, cs.imageURL));
     }
 
     public static async getCSDetails(CSID: number): Promise<CS> {
@@ -46,7 +46,7 @@ export class CS {
         const [resultSockets]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT s.id, t.connector, t.maxpower FROM cssockets s JOIN socketstype t ON s.typeid = t.id WHERE s.csid = ?",
             [CSID]);
 
-        const cs = new CS(resultCS[0].id, resultCS[0].name, resultCS[0].locationLatitude, resultCS[0].locationLongitude, resultCS[0].nominalPrice, resultCS[0].userPrice, resultCS[0].offerExpirationDate,
+        const cs = new CS(resultCS[0].id, resultCS[0].name, resultCS[0].locationLatitude, resultCS[0].locationLongitude, resultCS[0].nominalPrice, resultCS[0].userPrice, new Date(resultCS[0].offerExpirationDate),
             resultSockets.map((socket) => new Socket(socket.id, new SocketType(socket.connector, socket.maxpower))), resultCS[0].imageURL);
 
         connection.release();

@@ -33,12 +33,15 @@ export default class CSConnection {
     public startCharge(socketId: number): boolean {
         const socket = (this.sockets()).find((sc) => sc.socketId == socketId);
         if (socket) {
-            const request = {
-                request: "startCharge",
-                socketId: socketId
-            };
-            this._websocket.send(JSON.stringify(request));
-            return true;
+            console.log("SOCKET STATE: ", socket.state);
+            if (socket.state == 1) {
+                const request = {
+                    request: "startCharge",
+                    socketId: socketId
+                };
+                this._websocket.send(JSON.stringify(request));
+                return true;
+            }
         }
         return false;
     }
@@ -46,12 +49,14 @@ export default class CSConnection {
     public stopCharge(socketId: number): boolean {
         const socket = (this.sockets()).find((sc) => sc.socketId == socketId);
         if (socket) {
-            const request = {
-                request: "stopCharge",
-                socketId: socketId
-            };
-            this._websocket.send(JSON.stringify(request));
-            return true;
+            if (socket.state == 2) {
+                const request = {
+                    request: "stopCharge",
+                    socketId: socketId
+                };
+                this._websocket.send(JSON.stringify(request));
+                return true;
+            }
         }
         return false;
     }
@@ -132,6 +137,7 @@ export class SocketMachine {
     }
 
     public chargeCar() {
+        console.log(this._state);
         if (this._state == 1) {
             this._state = 2;
             if (!this._connectedCar) {
