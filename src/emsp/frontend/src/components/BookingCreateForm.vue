@@ -26,7 +26,7 @@
           </div>
         </div>
         <p v-if="isLoadingDates" class="text-center text-gray-500 font-semibold text-2xl my-8">Loading Available Slots...</p>
-        <p v-if="station_availability_controller.getRef().value != null && station_availability_controller.getRef().value.length === 0 && !isLoadingDates" class="text-center text-gray-500 font-semibold text-2xl my-8">No Slots Available!</p>
+        <p v-if="stationAvailability != null && stationAvailability.length === 0 && !isLoadingDates" class="text-center text-gray-500 font-semibold text-2xl my-8">No Slots Available!</p>
       </div>
     </div>
     <div class="text-center mt-10">
@@ -47,7 +47,6 @@ import AvailableIntervalsModel from "@/model/available_intervals_model";
 const date = ref();
 
 const dateValue = ref(new Date())
-let isLoading = ref(true);
 let stationDetails = booking_create_controller.getRef();
 let selectedConnector = ref(getUniqueConnectors()[0]);
 let selectedChargeSpeed = ref(getUniqueChargeSpeeds()[0]);
