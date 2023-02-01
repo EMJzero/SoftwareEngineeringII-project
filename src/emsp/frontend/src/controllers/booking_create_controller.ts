@@ -13,7 +13,7 @@ let reference = ref<StationDetailsModel | null>(null);
 export interface IBookingCreateController {
     getStationDetails(cpmsId: number, stationId: number): Promise<StationDetailsModel | null>;
     setStationDetails(details: StationDetailsModel | null): void;
-    createBooking(connector: string, powerTier: string, day: Date, timeSlotString: string): Promise<boolean>;
+    createBooking(connector: string, powerTier: string, day: Date, timeSlot: AvailableIntervalsModel): Promise<boolean>;
 }
 
 class BookingCreateController extends GenericController<StationDetailsModel | null> implements IBookingCreateController {
@@ -45,11 +45,10 @@ class BookingCreateController extends GenericController<StationDetailsModel | nu
         reference.value = details;
     }
 
-    async createBooking(connector: string, powerTier: string, day: Date, timeSlotString: string): Promise<boolean> {
+    async createBooking(connector: string, powerTier: string, day: Date, timeSlot: AvailableIntervalsModel): Promise<boolean> {
         //Split the time slot string into start and end hours
-        const [startHrStr, endHrStr] = timeSlotString.split(" - ");
-        const startHr = parseInt(startHrStr);
-        const endHr = parseInt(endHrStr);
+        const startHr = timeSlot.startHour;
+        const endHr = timeSlot.endHour;
 
         //Compute the start and end unix time
         const startDate = new Date(day.getFullYear(), day.getMonth(), day.getDay(), startHr);
@@ -60,7 +59,7 @@ class BookingCreateController extends GenericController<StationDetailsModel | nu
             endUnixTime: endDate.getTime(),
             cpmsID: reference.value?.stationData.ownerCPMSId,
             csID: reference.value?.stationData.id,
-            stationID: reference.value?.stationData.sockets?.find((socket) => socket.type.connector == connector && SocketType.getChargeSpeed(socket.type) == powerTier)?.id
+            socketID: reference.value?.stationData.sockets?.find((socket) => socket.type.connector == connector && SocketType.getChargeSpeed(socket.type) == powerTier)?.id
         }
         const res = await super.post<StationDetailsModel>("/bookings", { body, message: "Booking created successfully!" });
         if (res) {

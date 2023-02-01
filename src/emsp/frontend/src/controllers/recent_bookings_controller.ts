@@ -16,9 +16,9 @@ class RecentBookingsController extends GenericController<BookingModel[] | null> 
 
     async getUpcomingBookings(): Promise<BookingModel[] | null> {
         const now = new Date();
-        const month = now.getUTCMonth() + 1; //months from 1-12
-        const day = now.getUTCDate();
-        const year = now.getUTCFullYear();
+        const month = now.getMonth(); //months from 1-12
+        const day = now.getDate();
+        const year = now.getFullYear();
         const body = {
             referenceDateDay: day,
             referenceDateMonth: month,

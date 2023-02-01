@@ -43,6 +43,8 @@ import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import station_availability_controller from "@/controllers/station_availability_controller";
 import AvailableIntervalsModel from "@/model/available_intervals_model";
+import {useRouter} from "vue-router";
+import RoutingPath from "@/router/routing_path";
 
 const date = ref();
 
@@ -91,8 +93,12 @@ function modelChanged() {
 }
 
 async function submitForm(event: Event) {
+  event.preventDefault();
   event.stopPropagation();
-  console.log("SUBMITTING")
+  const created = await booking_create_controller.createBooking(selectedConnector.value, selectedChargeSpeed.value, dateValue.value, selectedSlot.value);
+  if (created) {
+    await router.push(RoutingPath.BOOKINGLIST);
+  }
 }
 
 onMounted(async () => {
@@ -109,6 +115,7 @@ async function reloadDates() {
   isLoadingDates.value = false;
 }
 
+const router = useRouter();
 </script>
 
 <style scoped>
