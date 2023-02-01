@@ -12,13 +12,14 @@ export default class StationAvailabilityModel {
 
     static convertToHourlyRanges(longRanges: StationAvailabilityModel[], referenceDate: Date): AvailableIntervalsModel[] {
         const result: AvailableIntervalsModel[] = [];
+        const now = new Date();
         for (const longRange of longRanges) {
             //Split into hours
             const startDate = new Date(longRange.startDate);
             const endDate = new Date(longRange.endDate);
             for (let hr = 0; hr < 24; hr++) {
                 const hrDate = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate(), hr);
-                if (hrDate >= startDate && hrDate < endDate) {
+                if (hrDate >= startDate && hrDate < endDate && hrDate >= now) {
                     result.push(new AvailableIntervalsModel(referenceDate, hr, hr + 1));
                 }
             }

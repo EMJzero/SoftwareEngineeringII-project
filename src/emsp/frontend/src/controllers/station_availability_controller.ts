@@ -34,7 +34,6 @@ class StationAvailabilityController extends GenericController<AvailableIntervals
 
     setAvailableSlots(slots: StationAvailabilityModel[] | null, referenceDate: Date) {
         if (slots) {
-            console.log(referenceDate);
             const hourlySlots = StationAvailabilityModel.convertToHourlyRanges(slots, referenceDate);
             console.log(hourlySlots)
             if (reference.value) {

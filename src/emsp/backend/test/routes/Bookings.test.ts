@@ -156,6 +156,34 @@ describe("/bookings endpoint", () => {
             expect(res).to.have.status(400);
         });
 
+        it("should fail when the start date is in the past", async () => {
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            const res = await requester.post("/bookings").send({
+                startUnixTime : new Date().valueOf() - 1000,
+                endUnixTime: new Date().valueOf() + 1000,
+                cpmsID: 1,
+                csID: 1,
+                socketID: 2
+            });
+            expect(res).to.have.status(400);
+        });
+
+        it("should fail when the start date is after the end date", async () => {
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            const res = await requester.post("/bookings").send({
+                startUnixTime : new Date().valueOf() + 2000,
+                endUnixTime: new Date().valueOf() + 1000,
+                cpmsID: 1,
+                csID: 1,
+                socketID: 2
+            });
+            expect(res).to.have.status(400);
+        });
+
         it("should fail when the axios call fails", async () => {
             DBStub.resolves(new Test1());
             checkJWTStub.returns(

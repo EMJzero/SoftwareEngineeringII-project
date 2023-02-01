@@ -76,6 +76,9 @@ export default class Bookings extends Route {
         } else if(endDate.valueOf() - startDate.valueOf() > 24*60*60*1000) {
             badRequest(response, "Invalid dates, maximum timeslot available is 1 day");
             return;
+        } else if (startDate < new Date()) {
+            badRequest(response, "You cannot create a booking in the past!");
+            return;
         }
 
         let ownerCPMS;

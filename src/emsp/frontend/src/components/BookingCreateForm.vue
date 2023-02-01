@@ -1,31 +1,36 @@
 <template>
-  <form class="flex flex-row">
-    <div class="basis-1/4 mx-4 px-4">
-      <p class="text-grey-darken-1 font-semibold text-2xl">Socket Type</p>
-      <div v-for="connector in getUniqueConnectors()" class="bordered rounded-lg py-4 my-4 px-6" :class="{'border-blue-600': connector === selectedConnector, 'border-gray-400': connector !== selectedConnector}">
-        <input ref="inputButton" type="radio" :id="connector" :name="connectorID" :checked="connector === selectedConnector" @click="changeSelectedConnector(connector)">
-        <label :for="connector" class="text-white font-semibold text-lg px-4"> {{connector}} </label>
-      </div>
-    </div>
-    <div class="basis-1/4 mx-4 px-4">
-      <p class="text-grey-darken-1 font-semibold text-2xl">Charge Speed</p>
-      <div v-for="chargeSpeed in getUniqueChargeSpeeds()" class="bordered rounded-lg py-4 my-4 px-6" :class="{'border-blue-600': chargeSpeed === selectedChargeSpeed, 'border-gray-400': chargeSpeed !== selectedChargeSpeed}">
-        <input ref="inputButton" type="radio" :id="chargeSpeed" :name="chargeSpeedID" :checked="chargeSpeed === selectedChargeSpeed" @click="changeSelectedChargeSpeed(chargeSpeed)">
-        <label :for="chargeSpeed" class="text-white font-semibold text-lg px-4"> {{chargeSpeed}} </label>
-      </div>
-    </div>
-    <div class="basis-1/2 mx-4 px-4">
-      <p class="text-grey-darken-1 font-semibold text-2xl">Time Slot</p>
-      <!--<vue-tailwind-datepicker as-single :formatter="formatter" v-model="dateValue" style="max-width: 50%; margin-left: auto; margin-right: auto"/>-->
-      <Datepicker :dark="true" :format="format" v-model="dateValue" class="py-4" style="max-width: 50%; margin-left: auto; margin-right: auto" @update:model-value="modelChanged"></Datepicker>
-      <div class="grid grid-cols-4 gap-8 mt-4 mx-3">
-        <div v-for="availableSlot in stationAvailability" class="bordered rounded-lg py-4 my-4 px-6" :class="{'border-blue-600': availableSlot === selectedSlot, 'border-gray-400': availableSlot !== selectedSlot}">
-          <input ref="inputButton" type="radio" :id="availableSlot" :name="timeSlotID" :checked="availableSlot === selectedSlot" @click="changeSelectedTimeSlot(availableSlot)">
-          <label :for="availableSlot" class="text-white font-semibold text-lg px-4"> {{availableSlot.startHour}} - {{availableSlot.endHour}} </label>
+  <form @submit="submitForm">
+    <div class="flex flex-row">
+      <div class="basis-1/4 mx-4 px-4">
+        <p class="text-grey-darken-1 font-semibold text-2xl">Socket Type</p>
+        <div v-for="connector in getUniqueConnectors()" class="bordered rounded-lg py-4 my-4 px-6" :class="{'border-blue-600': connector === selectedConnector, 'border-gray-400': connector !== selectedConnector}">
+          <input ref="inputButton" type="radio" :id="connector" :name="connectorID" :checked="connector === selectedConnector" @click="changeSelectedConnector(connector)">
+          <label :for="connector" class="text-white font-semibold text-lg px-4"> {{connector}} </label>
         </div>
       </div>
-      <p v-if="isLoadingDates" class="text-center text-gray-500 font-semibold text-2xl my-8">Loading Available Slots...</p>
-      <p v-if="station_availability_controller.getRef().value != null && station_availability_controller.getRef().value.length === 0 && !isLoadingDates" class="text-center text-gray-500 font-semibold text-2xl my-8">No Slots Available!</p>
+      <div class="basis-1/4 mx-4 px-4">
+        <p class="text-grey-darken-1 font-semibold text-2xl">Charge Speed</p>
+        <div v-for="chargeSpeed in getUniqueChargeSpeeds()" class="bordered rounded-lg py-4 my-4 px-6" :class="{'border-blue-600': chargeSpeed === selectedChargeSpeed, 'border-gray-400': chargeSpeed !== selectedChargeSpeed}">
+          <input ref="inputButton" type="radio" :id="chargeSpeed" :name="chargeSpeedID" :checked="chargeSpeed === selectedChargeSpeed" @click="changeSelectedChargeSpeed(chargeSpeed)">
+          <label :for="chargeSpeed" class="text-white font-semibold text-lg px-4"> {{chargeSpeed}} </label>
+        </div>
+      </div>
+      <div class="basis-1/2 mx-4 px-4">
+        <p class="text-grey-darken-1 font-semibold text-2xl">Time Slot</p>
+        <!--<vue-tailwind-datepicker as-single :formatter="formatter" v-model="dateValue" style="max-width: 50%; margin-left: auto; margin-right: auto"/>-->
+        <Datepicker :dark="true" :format="format" :min-date="new Date()" :prevent-min-max-navigation="true" v-model="dateValue" class="py-4" style="max-width: 50%; margin-left: auto; margin-right: auto" @update:model-value="modelChanged"></Datepicker>
+        <div class="grid grid-cols-4 gap-6 mt-4 mx-3">
+          <div v-for="availableSlot in stationAvailability" class="bordered rounded-lg py-4 px-6" :class="{'border-blue-600': availableSlot === selectedSlot, 'border-gray-400': availableSlot !== selectedSlot}">
+            <input ref="inputButton" type="radio" :id="availableSlot" :name="timeSlotID" :checked="availableSlot === selectedSlot" @click="changeSelectedTimeSlot(availableSlot)">
+            <label :for="availableSlot" class="text-white font-semibold text-lg px-4"> {{availableSlot.startHour}} - {{availableSlot.endHour}} </label>
+          </div>
+        </div>
+        <p v-if="isLoadingDates" class="text-center text-gray-500 font-semibold text-2xl my-8">Loading Available Slots...</p>
+        <p v-if="station_availability_controller.getRef().value != null && station_availability_controller.getRef().value.length === 0 && !isLoadingDates" class="text-center text-gray-500 font-semibold text-2xl my-8">No Slots Available!</p>
+      </div>
+    </div>
+    <div class="text-center mt-10">
+      <input class="rounded-lg bg-blue-600 py-3 px-16 font-medium text-white hover:bg-blue-700" style="margin-right: auto; margin-left: auto" type="submit" value="Create Booking">
     </div>
   </form>
 </template>
@@ -84,6 +89,11 @@ function changeSelectedTimeSlot(timeSlotNew: AvailableIntervalsModel) {
 
 function modelChanged() {
   reloadDates();
+}
+
+async function submitForm(event: Event) {
+  event.stopPropagation();
+  console.log("SUBMITTING")
 }
 
 onMounted(async () => {
