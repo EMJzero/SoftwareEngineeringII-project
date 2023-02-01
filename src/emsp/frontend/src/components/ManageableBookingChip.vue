@@ -11,7 +11,7 @@
       <p class="text-left text-sm font-weight-regular text-white">Ends: {{ getEndDate() }} </p>
       <div class="pt-8 pb-2">
         <button class="text-left rounded-lg pt-2 pb-4 px-9 text-lg font-medium text-white">  </button>
-        <button v-if="booking.isActive && isBookingLive()" class="text-left rounded-lg bg-blue-600 py-2 px-9 text-lg font-medium text-white hover:bg-blue-700"
+        <button v-if="booking.isActive && isBookingLive()" class="text-left rounded-lg bg-blue-600 py-2 px-9 text-lg font-medium text-white hover:bg-blue-700" style="float: left"
                 @click="bookings_controller.stopChargeBooking(booking)">
           Stop Charge
         </button>
@@ -19,7 +19,7 @@
                 @click="bookings_controller.startChargeBooking(booking)">
           Start Charge
         </button>
-        <button v-if="(new Date()).toISOString() < (new Date(getStartDate())).toISOString()" class="text-right rounded-lg bg-red-600 py-2 px-9 text-lg font-medium text-white hover:bg-red-700" style="float: right"
+        <button v-if="isBookingFuture() && !booking.isActive" class="text-right rounded-lg bg-red-600 py-2 px-9 text-lg font-medium text-white hover:bg-red-700" style="float: right"
                 @click="bookings_controller.deleteBooking(booking)">
           Delete
         </button>
@@ -32,7 +32,7 @@
 import { defineProps, ref } from 'vue';
 import ModalComponent from '@/components/ModalComponent.vue';
 import type BookingModel from '@/model/booking_model';
-import {convertSQLStringToDateTimeString} from "@/helpers/converters";
+import {convertSQLStringToDateTimeString, reduceFullDateString} from "@/helpers/converters";
 import PrimaryButton from "@/components/PrimaryButton.vue";
 import bookings_controller from "@/controllers/bookings_controller";
 
@@ -41,15 +41,21 @@ const props = defineProps<{
 }>();
 
 function getStartDate(): string {
-  return convertSQLStringToDateTimeString(props.booking.startDate);
+  return reduceFullDateString(new Date(props.booking.startDate).toString());
 }
 
 function getEndDate(): string {
-  return convertSQLStringToDateTimeString(props.booking.endDate);
+  return reduceFullDateString(new Date(props.booking.endDate).toString());
 }
 
 function isBookingLive(): boolean {
-  return (new Date()).toISOString() < (new Date(getEndDate())).toISOString() && (new Date()).toISOString() >= (new Date(getStartDate())).toISOString()
+  const now = (new Date()).valueOf();
+  return now < props.booking.endDate && now >= props.booking.startDate;
+}
+
+function isBookingFuture(): boolean {
+  const now = (new Date()).valueOf();
+  return now < props.booking.startDate;
 }
 
 </script>

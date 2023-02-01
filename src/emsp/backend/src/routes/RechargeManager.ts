@@ -2,9 +2,10 @@ import Route from "../Route";
 import { Request, Response } from "express";
 import { badRequest, checkUndefinedParams, internalServerError, success } from "../helper/http";
 import { CPMS } from "../model/CPMS";
-import { getReqHttp } from "../helper/misc";
+import {getReqHttp, postReqHttp} from "../helper/misc";
 import logger from "../helper/logger";
 import { Booking } from "../model/Booking";
+import {use} from "chai";
 
 export default class RechargeManager extends Route {
 
@@ -82,6 +83,7 @@ export default class RechargeManager extends Route {
             return;
         }
 
+        console.log(booking, bookingID);
         if(booking == null || booking.id != bookingID) {
             badRequest(response, "Invalid booking Id");
             return;
@@ -100,7 +102,7 @@ export default class RechargeManager extends Route {
             return;
         }
 
-        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/recharge-manager", null, {
+        const axiosResponse = await postReqHttp(ownerCPMS.endpoint + "/recharge-manager", null, {
             CSID: booking.csId,
             socketID: booking.socketId,
             action: action
@@ -138,6 +140,7 @@ export default class RechargeManager extends Route {
             }
         }
 
-        success(response);
+        booking.isActive = action == "start";
+        success(response, booking);
     }
 }

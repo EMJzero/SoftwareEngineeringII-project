@@ -3,15 +3,15 @@ export default class BookingModel {
     name: string;
     socketSpeed: string;
     socketType: string;
-    startDate: string;
-    endDate: string;
+    startDate: number;
+    endDate: number;
     imageURL: string;
     isActive: boolean;
     cpmsId: number;
     csId: number;
     socketId: number;
 
-    constructor(id: string, name: string, socketSpeed: string, socketType: string, startDate: string, endDate: string, imageURL: string, isActive: boolean, cpmsId: number, csId: number, socketId: number) {
+    constructor(id: string, name: string, socketSpeed: string, socketType: string, startDate: number, endDate: number, imageURL: string, isActive: boolean, cpmsId: number, csId: number, socketId: number) {
         this.id = id;
         this.name = name;
         this.socketSpeed = socketSpeed;

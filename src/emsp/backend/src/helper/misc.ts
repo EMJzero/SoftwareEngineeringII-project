@@ -47,6 +47,7 @@ export async function getReqHttp(url: string, token: string | null, parameters: 
         res = await axios.get(url, config);
         return res;
     } catch (e) {
+        logger.error(e);
         logger.error("Axios response status:", res != undefined ? res.status : "undefined");
         return null;
     }

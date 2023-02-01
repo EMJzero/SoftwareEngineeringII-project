@@ -8,14 +8,14 @@ import env from "../helper/env";
 export class Booking {
     id: number;
     userId: number;
-    startDate: string;
-    endDate: string;
+    startDate: number;
+    endDate: number;
     isActive: boolean;
     cpmsId: number;
     csId: number;
     socketId: number;
 
-    constructor(id: number, userId: number, startDate: string, endDate: string, isActive: boolean, cpmsId: number, csId: number, socketId: number) {
+    constructor(id: number, userId: number, startDate: number, endDate: number, isActive: boolean, cpmsId: number, csId: number, socketId: number) {
         this.id = id;
         this.userId = userId;
         this.startDate = startDate;
@@ -42,8 +42,8 @@ export class Booking {
             return new Booking(
                 resultItem.id,
                 resultItem.userId,
-                new Date(resultItem.startDate).toISOString(),
-                new Date(resultItem.endDate).toISOString(),
+                resultItem.startDate,
+                resultItem.endDate,
                 resultItem.isActive,
                 resultItem.cpmsId,
                 resultItem.csId,
@@ -137,8 +137,8 @@ export class Booking {
             return new Booking(
                 resultItem.id,
                 resultItem.userId,
-                (new Date(resultItem.startDate)).toISOString(),
-                (new Date(resultItem.endDate)).toISOString(),
+                resultItem.startDate,
+                resultItem.endDate,
                 resultItem.isActive,
                 resultItem.cpmsId,
                 resultItem.csId,
@@ -151,7 +151,7 @@ export class Booking {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT * FROM bookings WHERE startDate <= current_timestamp() AND endDate > current_timestamp() AND userId = ?",
+            "SELECT * FROM bookings WHERE startDate <= UNIX_TIMESTAMP() * 1000 AND endDate > UNIX_TIMESTAMP() * 1000 AND userId = ?",
             [userId]);
 
         connection.release();
@@ -163,8 +163,8 @@ export class Booking {
         return new Booking(
             result[0].id,
             result[0].userId,
-            new Date(result[0].startDate).toISOString(),
-            new Date(result[0].endDate).toISOString(),
+            result[0].startDate,
+            result[0].endDate,
             result[0].isActive,
             result[0].cpmsId,
             result[0].csId,
@@ -188,8 +188,8 @@ export class Booking {
         return new Booking(
             result[0].id,
             result[0].userId,
-            new Date(result[0].startDate).toISOString(),
-            new Date(result[0].endDate).toISOString(),
+            result[0].startDate,
+            result[0].endDate,
             result[0].isActive,
             result[0].cpmsId,
             result[0].csId,
@@ -249,7 +249,7 @@ export class Booking {
         connection.release();
 
         const json: any = result;
-
+        console.log(result);
         return json.affectedRows == 1;
     }
 }

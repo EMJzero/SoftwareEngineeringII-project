@@ -23,7 +23,10 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
             bookingId: booking.id
             } });
         if (res) {
-            reference.value = reference.value?.filter((b) => b.id != booking.id) ?? null;
+            const idx = reference.value?.findIndex((bookingA) => bookingA.id == booking.id);
+            if (idx != undefined) {
+                reference.value?.splice(idx, 1);//.value = reference.value?.filter((b) => b.id != booking.id) ?? null;
+            }
         }
         return res;
     }
@@ -35,15 +38,17 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
     }
 
     async startChargeBooking(booking: BookingModel): Promise<boolean> {
-        const res = await super.post<BookingModel>("/recharge-manager", { body: {
-            booking, command: "START"
-            } });
+        const body = {
+            bookingId: booking.id,
+            action: "start"
+        }
+        const res = await super.post<BookingModel>("/recharge-manager", { body: body, message: "Charge started!" });
         if (res) {
             const idx = reference.value?.findIndex((bookingA) => bookingA.id == booking.id);
-            if (idx) {
+            if (idx != undefined) {
                 const values = reference.value;
                 if (values) {
-                    (values as BookingModel[])[idx] = res;
+                    (values as BookingModel[])[idx].isActive = true;
                     reference.value = values;
                     return true;
                 }
@@ -53,16 +58,18 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
     }
 
     async stopChargeBooking(booking: BookingModel): Promise<boolean> {
-        const res = await super.post<BookingModel>("/recharge-manager", { body: {
-                booking, command: "STOP"
-            } });
+        const body = {
+            bookingId: booking.id,
+            action: "stop"
+        }
+        const res = await super.post<BookingModel>("/recharge-manager", { body: body, message: "Charge ended!" });
         if (res) {
-            const idx = reference.value?.findIndex((bookingA) => bookingA.id == booking.id);
-            if (idx) {
-                const values = reference.value;
-                if (values) {
-                    (values as BookingModel[])[idx] = res;
-                    reference.value = values;
+            const values = reference.value;
+            if (values) {
+                const idx = reference.value?.findIndex((bookingA) => bookingA.id == booking.id);
+                if (idx != undefined) {
+                    console.log("DELETING AT ", idx);
+                    reference.value?.splice(idx, 1);//.value = reference.value?.filter((b) => b.id != booking.id) ?? null;
                     return true;
                 }
             }
