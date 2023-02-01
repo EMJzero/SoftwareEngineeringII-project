@@ -17,18 +17,18 @@
 import { defineProps, ref } from 'vue';
 import ModalComponent from '@/components/ModalComponent.vue';
 import type BookingModel from '@/model/booking_model';
-import {convertSQLStringToDateTimeString} from "@/helpers/converters";
+import {reduceFullDateString} from "@/helpers/converters";
 
 const props = defineProps<{
   booking: BookingModel;
 }>();
 
 function getStartDate(): string {
-  return convertSQLStringToDateTimeString(props.booking.startDate);
+  return reduceFullDateString(new Date(props.booking.startDate).toString());
 }
 
 function getEndDate(): string {
-  return convertSQLStringToDateTimeString(props.booking.endDate);
+  return reduceFullDateString(new Date(props.booking.endDate).toString());
 }
 
 </script>

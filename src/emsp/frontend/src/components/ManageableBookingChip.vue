@@ -32,7 +32,7 @@
 import { defineProps, ref } from 'vue';
 import ModalComponent from '@/components/ModalComponent.vue';
 import type BookingModel from '@/model/booking_model';
-import {convertSQLStringToDateTimeString, reduceFullDateString} from "@/helpers/converters";
+import {reduceFullDateString} from "@/helpers/converters";
 import PrimaryButton from "@/components/PrimaryButton.vue";
 import bookings_controller from "@/controllers/bookings_controller";
 
