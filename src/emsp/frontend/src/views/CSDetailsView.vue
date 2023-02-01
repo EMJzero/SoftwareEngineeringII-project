@@ -13,9 +13,9 @@
         <p class="text-white text-3xl font-semibold pt-12 pb-3"> {{stationDetails?.stationData.name}} </p>
         <p class="text-white text-xl font-weight-regular py-2"> {{ getAggregatedSocketSpeeds() }} Available </p>
         <p class="text-white text-xl font-weight-regular py-2"> Socket Types: {{ getAggregatedSocketTypes() }} ({{ (stationDetails?.stationData.sockets ?? []).length }} Total) </p>
-        <p v-if="stationDetails?.stationData.offerExpirationDate" class="text-white text-xl font-weight-regular py-2"> Offers Available Until:
+        <p v-if="stationDetails?.stationData.offerExpirationDate && stationDetails?.stationData.offerExpirationDate.valueOf() >= new Date().valueOf()" class="text-white text-xl font-weight-regular py-2"> Offers Available Until:
           {{ getOfferEndDate() }} </p>
-        <p v-if="!stationDetails?.stationData.offerExpirationDate" class="text-white text-xl font-weight-regular py-2"> No Offers Available </p>
+        <p v-if="!(stationDetails?.stationData.offerExpirationDate && stationDetails?.stationData.offerExpirationDate.valueOf() >= new Date().valueOf())" class="text-white text-xl font-weight-regular py-2"> No Offers Available </p>
         <div class="text-white font-semibold text-xl space-x-16 pt-10">
           <PrimaryButton text="Book a Charge" :onClick="() => router.push(RoutingPath.BOOKING + '?cpms=' + station_details_controller.getRef().value.stationData.ownerCPMSId + '&sid=' + station_details_controller.getRef().value.stationData.id)" />
         </div>
