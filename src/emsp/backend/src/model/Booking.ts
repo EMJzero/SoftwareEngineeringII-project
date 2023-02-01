@@ -42,8 +42,8 @@ export class Booking {
             return new Booking(
                 resultItem.id,
                 resultItem.userId,
-                resultItem.startDate,
-                resultItem.endDate,
+                new Date(resultItem.startDate).toISOString(),
+                new Date(resultItem.endDate).toISOString(),
                 resultItem.isActive,
                 resultItem.cpmsId,
                 resultItem.csId,
@@ -105,9 +105,9 @@ export class Booking {
             "UNION\n" +
             "(SELECT ?, startDate FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND startDate > ? ORDER BY startDate ASC LIMIT 1))\n" +
             "SELECT * FROM timeSlots",
-            [cpmsID, csID, socketID, startDate, endDate,
-                endDate, cpmsID, csID, socketID, endDate,
-                startDate, cpmsID, csID, socketID, startDate,]);
+            [cpmsID, csID, socketID, startDate.valueOf(), endDate.valueOf(),
+                endDate.valueOf(), cpmsID, csID, socketID, endDate.valueOf(),
+                startDate.valueOf(), cpmsID, csID, socketID, startDate.valueOf()]);
 
         connection.release();
 
@@ -121,12 +121,12 @@ export class Booking {
 
         const finalDate = new Date(referenceDate);
         finalDate.setDate(finalDate.getDate() + intervalDays);
-
+        console.log(referenceDate, finalDate);
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
             "SELECT * FROM bookings WHERE userId = ? AND startDate >= ? AND endDate <= ?",
             [userId,
-                referenceDate.toISOString().slice(0, 19).replace("T", " "),
-                finalDate.toISOString().slice(0, 19).replace("T", " ")]);
+                referenceDate.valueOf(),
+                finalDate.valueOf()]);
 
         connection.release();
 
@@ -137,8 +137,8 @@ export class Booking {
             return new Booking(
                 resultItem.id,
                 resultItem.userId,
-                resultItem.startDate,
-                resultItem.endDate,
+                (new Date(resultItem.startDate)).toISOString(),
+                (new Date(resultItem.endDate)).toISOString(),
                 resultItem.isActive,
                 resultItem.cpmsId,
                 resultItem.csId,
@@ -151,7 +151,7 @@ export class Booking {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT * FROM bookings WHERE startDate <= curdate() AND endDate > curdate() AND userId = ?",
+            "SELECT * FROM bookings WHERE startDate <= current_timestamp() AND endDate > current_timestamp() AND userId = ?",
             [userId]);
 
         connection.release();
@@ -163,8 +163,8 @@ export class Booking {
         return new Booking(
             result[0].id,
             result[0].userId,
-            result[0].startDate,
-            result[0].endDate,
+            new Date(result[0].startDate).toISOString(),
+            new Date(result[0].endDate).toISOString(),
             result[0].isActive,
             result[0].cpmsId,
             result[0].csId,
@@ -188,8 +188,8 @@ export class Booking {
         return new Booking(
             result[0].id,
             result[0].userId,
-            result[0].startDate,
-            result[0].endDate,
+            new Date(result[0].startDate).toISOString(),
+            new Date(result[0].endDate).toISOString(),
             result[0].isActive,
             result[0].cpmsId,
             result[0].csId,
@@ -215,12 +215,11 @@ export class Booking {
         const connection = await DBAccess.getConnection();
 
         const [check]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT id FROM bookings WHERE (startDate BETWEEN ? AND ? OR endDate BETWEEN ? AND ?) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR userId = ?)",
-            [userId,
-                startDate.toISOString().slice(0, 19).replace("T", " "),
-                endDate.toISOString().slice(0, 19).replace("T", " "),
-                startDate.toISOString().slice(0, 19).replace("T", " "),
-                endDate.toISOString().slice(0, 19).replace("T", " "),
+            "SELECT id FROM bookings WHERE ((startDate >= ? AND startDate <= ?) OR (endDate >= ? AND startDate <= ?)) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR (userId = ?))",
+            [startDate.valueOf(),
+                endDate.valueOf(),
+                startDate.valueOf(),
+                endDate.valueOf(),
                 cpmsID,
                 csID,
                 socketID,
@@ -230,8 +229,8 @@ export class Booking {
             return false;
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "INSERT INTO bookings VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            [userId, startDate, endDate, cpmsID, csID, socketID]);
+            "INSERT INTO bookings VALUES (default, ?, ?, ?, ?, ?, ?, ?)",
+            [userId, startDate.valueOf(), endDate.valueOf(), 0, cpmsID, csID, socketID]);
 
         connection.release();
 

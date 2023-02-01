@@ -43,8 +43,8 @@ DROP TABLE IF EXISTS `bookings`;
 CREATE TABLE `bookings` (
   `id` int NOT NULL AUTO_INCREMENT,
   `userId` int DEFAULT NULL,
-  `startDate` datetime DEFAULT NULL,
-  `endDate` datetime DEFAULT NULL,
+  `startDate` timestamp DEFAULT NULL,
+  `endDate` timestamp DEFAULT NULL,
   `isActive` tinyint(1) DEFAULT NULL,
   `cpmsId` int DEFAULT NULL,
   `csId` int DEFAULT NULL,
@@ -187,7 +187,7 @@ CREATE TABLE `cs` (
   `locationLongitude` double NOT NULL,
   `nominalPrice` decimal(6,2) NOT NULL,
   `userPrice` decimal(6,2) NOT NULL,
-  `offerExpirationDate` datetime DEFAULT NULL,
+  `offerExpirationDate` timestamp DEFAULT NULL,
   `imageURL` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

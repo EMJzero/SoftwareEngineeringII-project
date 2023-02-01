@@ -45,12 +45,16 @@ export default class Bookings extends Route {
 
         if (checkUndefinedParams(response, bookingID)) return;
 
-        if(await Booking.deleteBooking(userID, bookingID)) {
-            success(response, {
-                result: "ok"
-            });
-        } else {
-            badRequest(response, "No booking found with given Id");
+        try {
+            if (await Booking.deleteBooking(userID, bookingID)) {
+                success(response, {
+                    result: "ok"
+                });
+            } else {
+                badRequest(response, "No booking found with given Id");
+            }
+        } catch (e) {
+            internalServerError(response, "Booking deletion failed");
         }
     }
 
@@ -89,6 +93,7 @@ export default class Bookings extends Route {
             internalServerError(response);
             return;
         }
+
         if (!ownerCPMS) {
             badRequest(response, "Owner CPMS could not be found");
             return;
@@ -108,12 +113,17 @@ export default class Bookings extends Route {
             return;
         }
 
-        if(await Booking.createBooking(userID, startDate, endDate, cpmsID, csID, socketID)) {
-            success(response, {
-                result: "ok"
-            });
-        } else {
-            badRequest(response, "Booking creation failed, likely another booking exist within the specified time slot");
+        try {
+            if (await Booking.createBooking(userID, startDate, endDate, cpmsID, csID, socketID)) {
+                success(response, {
+                    result: "ok"
+                });
+            } else {
+                badRequest(response, "Booking creation failed, likely another booking exist within the specified time slot");
+            }
+        } catch (e) {
+            logger.error(e);
+            internalServerError(response, "Booking creation failed");
         }
     }
 }
