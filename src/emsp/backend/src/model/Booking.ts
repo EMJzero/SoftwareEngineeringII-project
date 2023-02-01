@@ -5,6 +5,13 @@ import env from "../helper/env";
 // Simple template for Bookings. Currently extracts all bookings of a user, need to complete with all other methods
 // You should also send the socket info when retrieving the booking data before sending it to the client
 // Add image URL as string in the DB to display images in the bookings list, and CS name to reflect the DD??
+/**
+ * Model class that represents a booking stored within the DB.
+ * It offers all the methods needed to perform predefined queries on the DB and return the desired information
+ * usually in the form of instances of this class.
+ *
+ * @class
+ */
 export class Booking {
     id: number;
     userId: number;
@@ -26,6 +33,11 @@ export class Booking {
         this.socketId = socketId;
     }
 
+    /**
+     * Method to retrieve all bookings made by the provided user.
+     *
+     * @param userId
+     */
     public static async findByUser(userId: number): Promise<Booking[]> {
         const connection = await DBAccess.getConnection();
 
@@ -92,14 +104,25 @@ export class Booking {
             .filter((res) => res.endDate.valueOf() - res.startDate.valueOf() >= env.TIME_SLOT_SIZE * 60 * 1000);
     }*/
 
+    // csID could be omitted as it is already implied by the socketID, kept as a double check.
+    /**
+     * Retrive all the pairs (startTime, endTime) that represent the available timeslots for the specified socket of the indicated CS.
+     * See {@link DateIntervalPerSocket}.
+     *
+     * @param cpmsID
+     * @param csID
+     * @param socketID
+     * @param startDate
+     * @param endDate
+     */
     public static async getAvailableTimeSlots(cpmsID: number, csID: number, socketID: number, startDate: Date, endDate: Date): Promise<DateIntervalPerSocket[]> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
             "WITH timeSlots(start, end) AS (SELECT b1.endDate, b2.startDate FROM bookings b1 JOIN bookings b2 ON b1.cpmsId = b2.cpmsId AND b1.csId = b2.csId AND b1.socketId = b2.socketId\n" +
-            "WHERE b1.endDate < b2.startDate AND b1.cpmsId = ? AND b1.csId = ? AND b1.socketId = ? AND b1.endDate >= ? AND b2.startDate <= ? AND\n" +
+            "WHERE b1.endDate < b2.startDate AND b1.id <> b2.id AND b1.cpmsId = ? AND b1.csId = ? AND b1.socketId = ? AND b1.endDate >= ? AND b2.startDate <= ? AND\n" +
             "NOT EXISTS\n" +
-            "(SELECT * FROM bookings b3 WHERE b1.cpmsId = b3.cpmsId AND b1.csId = b3.csId AND b1.socketId = b3.socketId AND (b3.startDate BETWEEN b1.endDate AND b2.startDate OR b3.endDate BETWEEN b1.endDate AND b2.startDate))\n" +
+            "(SELECT * FROM bookings b3 WHERE b1.cpmsId = b3.cpmsId AND b1.csId = b3.csId AND b1.socketId = b3.socketId AND b1.id <> b3.id AND b2.id <> b3.id AND (b3.startDate BETWEEN b1.endDate AND b2.startDate OR b3.endDate BETWEEN b1.endDate AND b2.startDate))\n" +
             "UNION\n" +
             "(SELECT endDate, ? FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND endDate < ? ORDER BY endDate DESC LIMIT 1)\n" +
             "UNION\n" +
@@ -116,6 +139,13 @@ export class Booking {
             .filter((res) => res.endDate.valueOf() - res.startDate.valueOf() >= env.TIME_SLOT_SIZE * 60 * 1000);
     }
 
+    /**
+     * Method retrieving all the bookings made from a user with extra filters applied regarding their date.
+     *
+     * @param userId
+     * @param referenceDate
+     * @param intervalDays
+     */
     public static async findByUserFiltered(userId: number, referenceDate: Date, intervalDays: number): Promise<Booking[]> {
         const connection = await DBAccess.getConnection();
 
@@ -147,6 +177,12 @@ export class Booking {
         });
     }
 
+    /**
+     * Method retrieving from the DB the booking (its exactly one) that is current for the given user.
+     * "Current" meaning that its start and end date fall before and after the current date respectively.
+     *
+     * @param userId
+     */
     public static async findCurrentByUser(userId: number): Promise<Booking | null> {
         const connection = await DBAccess.getConnection();
 
@@ -172,6 +208,12 @@ export class Booking {
         );
     }
 
+    /**
+     * Method retrieving the (one or none) active booking for the given user, that being the booking with a currently
+     * ongoing charging process.
+     *
+     * @param userId
+     */
     public static async findActiveByUser(userId: number): Promise<Booking | undefined> {
         const connection = await DBAccess.getConnection();
 
@@ -197,6 +239,12 @@ export class Booking {
         );
     }
 
+    /**
+     * Deletes the booking with the specified id from the DB.
+     *
+     * @param userId
+     * @param bookingId
+     */
     public static async deleteBooking(userId: number, bookingId: number): Promise<boolean> {
         const connection = await DBAccess.getConnection();
 
@@ -211,6 +259,16 @@ export class Booking {
         return json.affectedRows == 1;
     }
 
+    /**
+     * Creates a new booking for the provided user and stores it into the DB with the provided information regarding it.
+     *
+     * @param userId
+     * @param startDate
+     * @param endDate
+     * @param cpmsID
+     * @param csID
+     * @param socketID
+     */
     public static async createBooking(userId: number, startDate: Date, endDate: Date, cpmsID: number, csID: number, socketID: number): Promise<boolean> {
         const connection = await DBAccess.getConnection();
 
@@ -239,6 +297,12 @@ export class Booking {
         return json.affectedRows == 1;
     }
 
+    /**
+     * Marks as active a booking in the DB.
+     *
+     * @param userId
+     * @param bookingId
+     */
     public static async activateBooking(userId: number, bookingId: number): Promise<boolean> {
         const connection = await DBAccess.getConnection();
 
@@ -254,6 +318,11 @@ export class Booking {
     }
 }
 
+/**
+ * Class used to store the (start, end) representing time intervals.
+ *
+ * @class
+ */
 export class DateIntervalPerSocket {
     readonly startDate: Date;
     readonly endDate: Date;

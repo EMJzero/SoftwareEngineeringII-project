@@ -13,6 +13,14 @@ export default class SearchCSRoute extends Route {
         super("search", true);
     }
 
+    /**
+     * Allows a logged in client to get a list of all the CSs from all the CPMSs known to the system that satisfy the provided
+     * filters. Some filters are optional.
+     *
+     * @param request can contain: locationLatitude, locationLongitude, locationRange, priceLowerBound, priceUpperBound
+     * @param response CSList as array of Objects containing the data of the found CSs.
+     * @protected
+     */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const userID = request.userId;
         const filterLatitude = request.query.latitude as string;

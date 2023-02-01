@@ -1,5 +1,13 @@
 import * as WebSocket from "ws";
 
+/**
+ * Static class storing the connections to CSs via websockets,
+ * it exposes basic methods to manage such connections.
+ *
+ * The connections are automatically added from the {@link BackendApp} class upon connection.
+ *
+ * @class
+ */
 export class CSDB {
 
     static readonly shared = new CSDB();
@@ -18,6 +26,12 @@ export class CSDB {
     }
 }
 
+/**
+ * Class that wraps a websocket connection to a CS, offering the main methods to retrieve data from the
+ * CS and to send commands to it in order to alter its state.
+ *
+ * @class
+ */
 export default class CSConnection {
 
     private readonly _id: number;
@@ -90,18 +104,33 @@ export default class CSConnection {
     }
 }
 
+/**
+ * Types of sockets available through the system
+ */
 export enum SocketType {
     Type1 = 50,
     Type2 = 30,
     Type3 = 60
 }
 
+/**
+ * Sockets charging speeds available through the system
+ */
 export enum ChargeSpeedPower {
     Slow = 10,
     Fast = 40,
     UltraFast = 60
 }
 
+/**
+ * Class used to represent the state of a CS's socket, it exposes getters for the entirety of a socket's data
+ * and method to allow its state to be changed.
+ *
+ * When a connection with a CS is active, the CS periodically pushes an array of this class to the backend to keep it up
+ * to date regarding its status.
+ *
+ * @class
+ */
 export class SocketMachine {
 
     private csId: number;
@@ -209,6 +238,11 @@ export class SocketMachine {
     }
 }
 
+/**
+ * Mockup of the date a vehicle connected to a CS's socket would expose.
+ *
+ * @class
+ */
 export class CarData {
     private readonly _manufacturer: string;
     private readonly _batteryCapacityKWh: number;

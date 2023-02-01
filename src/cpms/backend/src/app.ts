@@ -27,7 +27,7 @@ declare global {
 }
 
 /**
- * Represents the PrivTAP backend application. Contains useful configuration data and exposes methods to connect
+ * Represents the CPMS's backend application. Contains useful configuration data and exposes methods to connect
  * to the database and start the application server.
  */
 class BackendApp {

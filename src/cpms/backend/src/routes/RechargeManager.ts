@@ -11,6 +11,14 @@ export default class RechargeManager extends Route {
     }
 
     // Provides the status of a CS
+    /**
+     * Allows the client to retrieve the internal status of a CS, such status contains information regarding any ongoing charging
+     * process, socket information and vehicle information.
+     *
+     * @param request shall contain: CSID, socketID
+     * @param response an object containing: CSID, socketID, state, currentPower, maxPower, connectedCar, estimatedTimeRemaining
+     * @protected
+     */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const CSID: number = parseInt(request.query.CSID as string);
         const socketID: number = parseInt(request.query.socketID as string);
@@ -47,6 +55,14 @@ export default class RechargeManager extends Route {
     }
 
     // Start/Stop charging process
+    /**
+ì     * Allows the client to start or stop the charging process of a socket of a specific CS.
+     *
+     * @param request shall contain: stationID, socketID, action (either "start" or "stop")
+     * @param response the HTTP status code and message provide information regarding the success or failure of command's
+     * application to the CS.
+     * @protected
+     */
     protected async httpPost(request: Request, response: Response): Promise<void> {
         const CSID = request.body.CSID;
         const socketID = request.body.socketID;

@@ -3,6 +3,9 @@ import { FieldPacket, RowDataPacket } from "mysql2/promise";
 import { hashSync } from "bcrypt";
 import env from "../helper/env";
 
+/**
+ * Represent a user as it is extracted from the DB.
+ */
 export interface IUser {
     id: number,
     username: string,
@@ -14,8 +17,20 @@ export interface IUser {
     creditCardBillingName: string
 }
 
+/**
+ * Model class representing a user registered with the system, it also exposes the methods
+ * to register new users and check the credentials of already registered ones and retrieving users.
+ *
+ * @class
+ */
 export class User {
 
+    /**
+     * Retrieves a user's entire tuple given its username.
+     * {@link IUser} is used to store the result.
+     *
+     * @param username
+     */
     public static async findByUsername(username: string): Promise<IUser | null> {
         const connection = await DBAccess.getConnection();
 
@@ -40,12 +55,25 @@ export class User {
         };
     }
 
+    /**
+     * Verifies the provided credentials and returns a boolean representing the result of the check.
+     * Used to authenticate users.
+     *
+     * @param username
+     * @param passwordClearText
+     */
     public static async checkCredentials(username: string, passwordClearText: string): Promise<boolean> {
         const passwordHash = hashSync(passwordClearText, env.SALT_ROUNDS);
         const retrievedUser = await User.findByUsername(username);
         return !(!retrievedUser || retrievedUser.password != passwordHash);
     }
 
+    /**
+     * Varifies the correct syntax of the fields of a new {@link IUser} instance.
+     * Return true only if every field matches the expected regular expression.
+     *
+     * @param IUser
+     */
     public static checkUserFields(user: IUser): boolean {
         const emailRegex = /^[-!#$%&'*+/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
         const usernameRegex = /[a-zA-Z0-9.\-_]*/;
@@ -65,6 +93,12 @@ export class User {
         return emailRegex.test(user.email) && usernameRegex.test(user.username) && creditCardNumberRegex.test(user.creditCardNumber) && creditCardCVVValid.test(user.creditCardCVV) && creditCardExpirationValid.test(user.creditCardExpiration) && creditCardBillingNameValid.test(user.creditCardBillingName);
     }
 
+    /**
+     * Stores a new user in the DB.
+     * Returns true if the operation succeeded.
+     *
+     * @param user
+     */
     public static async registerNewUser(user: IUser): Promise<boolean> {
         const connection = await DBAccess.getConnection();
 

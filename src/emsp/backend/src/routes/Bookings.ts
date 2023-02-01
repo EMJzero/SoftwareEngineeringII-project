@@ -14,6 +14,13 @@ export default class Bookings extends Route {
     }
 
     // Query for existing bookings
+    /**
+     * Allows a logged in client to recover their bookings, and narrow down their query by using some filters.
+     *
+     * @param request can contain: referenceDateDay, referenceDateMonth, referenceDateYear, intervalDays, retrieveActiveBooking
+     * @param response an array of {@link Booking}
+     * @protected
+     */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const userID = request.userId;
         const referenceDateDay = parseInt(request.query.referenceDateDay as string);
@@ -39,6 +46,13 @@ export default class Bookings extends Route {
     }
 
     // To delete a booking
+    /**
+     * Allows a logged in client to delete on of their booking.
+     *
+     * @param request must contain: bookingId
+     * @param response the HTTP status code and message of the response can be used to infer the success or failure of the operation
+     * @protected
+     */
     protected async httpDelete(request: Request, response: Response): Promise<void>{
         const userID = request.userId;
         const bookingID = request.body.bookingId as number;
@@ -59,6 +73,13 @@ export default class Bookings extends Route {
     }
 
     // To create a new booking
+    /**
+     * Allows a logged in client to create a new booking by providing its specifications as the CPMS, CS and socket, plus the time
+     * interval.
+     *
+     * @param request must contain: userId, startUnixTime, endUnixTime, cpmsID, csID, socketID
+     * @param response the HTTP status code and message of the response can be used to infer the success or failure of the operation     * @protected
+     */
     protected async httpPost(request: Request, response: Response): Promise<void>{
         const userID = request.userId;
         const startUnixTime = request.body.startUnixTime as number;

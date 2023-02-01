@@ -11,6 +11,13 @@ export default class CSDetails extends Route {
         super("cs-availability", true);
     }
 
+    /**
+     * Allows a logged in client to get the available time slots for every socket of a given Socket of a CS for a specified date.
+     *
+     * @param request must contain: stationID, socketID, cpmsID, referenceDateDay, referenceDateMonth, referenceDateYear
+     * @param response
+     * @protected
+     */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const userID = request.userId;
         const stationID = parseInt(request.query.stationID as string);

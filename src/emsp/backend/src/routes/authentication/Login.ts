@@ -11,6 +11,13 @@ export default class LoginRoute extends Route {
         super("login", false);
     }
 
+    /**
+     * Allows client to login into the system, receiving a JWT in return to keep track of their session
+     *
+     * @param request shall contain: username, password
+     * @param response JWT session token
+     * @protected
+     */
     protected async httpPost(request: Request, response: Response): Promise<void> {
         const username = request.body.username;
         const password = request.body.password;

@@ -1,6 +1,9 @@
 import { DBAccess } from "../DBAccess";
 import { FieldPacket, RowDataPacket } from "mysql2/promise";
 
+/**
+ * Represents a CPMS extracted from the DB.
+ */
 export interface ICPMS {
     id: number,
     name: string,
@@ -9,6 +12,12 @@ export interface ICPMS {
     token: string | null
 }
 
+/**
+ * Model class representing a CPMS known to the system and used as a data source for CSs.
+ * The known CPMS are stored in the DB and retrieved via the queries present in this class's methods.
+ *
+ * @class
+ */
 export class CPMS {
 
     /*public static async findByName(name: string): Promise<ICPMS | null> {
@@ -31,6 +40,11 @@ export class CPMS {
         };
     }*/
 
+    /**
+     * Retrieves the a CPMS via its id.
+     *
+     * @param id
+     */
     public static async findById(id: number): Promise<ICPMS | null> {
         const connection = await DBAccess.getConnection();
 
@@ -65,6 +79,9 @@ export class CPMS {
         connection.release();
     }
 
+    /**
+     * Retrieves all known CPMSs.
+     */
     public static async findAll(): Promise<ICPMS[]> {
         const connection = await DBAccess.getConnection();
 

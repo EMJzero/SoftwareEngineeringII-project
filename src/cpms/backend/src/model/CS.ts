@@ -1,6 +1,12 @@
 import { DBAccess } from "../DBAccess";
 import mysql, { FieldPacket, RowDataPacket } from "mysql2/promise";
 
+/**
+ * Model class representing CS that is stored in the DB, it offers all the methods needed
+ * to retrieve data regarding one or more CSs from the DB via adequate queries.
+ *
+ * @class
+ */
 export class CS {
     id: number;
     name: string;
@@ -24,6 +30,15 @@ export class CS {
         this.imageURL = imageURL;
     }
 
+    /**
+     * Given a set of filters, recovers all the CSs and their information from the DB that satisfy those filters.
+     *
+     * @param locationLatitude
+     * @param locationLongitude
+     * @param locationRange
+     * @param priceLowerBound
+     * @param priceUpperBound
+     */
     public static async getCSList(locationLatitude: number, locationLongitude: number, locationRange: number, priceLowerBound: number, priceUpperBound: number): Promise<CS[]> {
         const connection = await DBAccess.getConnection();
 
@@ -35,6 +50,11 @@ export class CS {
         return result.map((cs) => new CS(cs.id, cs.name, cs.locationLatitude, cs.locationLongitude, cs.nominalPrice, cs.userPrice, new Date(cs.offerExpirationDate), null, cs.imageURL));
     }
 
+    /**
+     * For the speficified CS, recovers from the DB all the data regarding it.
+     *
+     * @param CSID
+     */
     public static async getCSDetails(CSID: number): Promise<CS> {
         const connection = await DBAccess.getConnection();
 
@@ -54,6 +74,12 @@ export class CS {
         return cs;
     }
 
+    /**
+     * Returns true if the specified socket is owned by the specified CS. False otherwise.
+     *
+     * @param CSID
+     * @param SocketIDs
+     */
     public static async verifyCSandSockets(CSID: number, SocketIDs: number[]): Promise<boolean> {
         const connection = await DBAccess.getConnection();
 
@@ -71,6 +97,10 @@ export class CS {
     }
 }
 
+/**
+ * Local class that represents a socket when its information has not been fully retrieved from the real CS,
+ * but just sourced from the DB.
+ */
 class Socket {
     id: number;
     type: SocketType;
@@ -81,6 +111,10 @@ class Socket {
     }
 }
 
+/**
+ * Local class that represents a socket type when its information has not been fully retrieved from the real CS,
+ * but just sourced from the DB.
+ */
 class SocketType {
     connector: string;
     maxPower: number;

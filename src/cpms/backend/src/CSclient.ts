@@ -3,6 +3,12 @@ import * as CS from "./model/CSConnection";
 import * as readline from "readline";
 import WebSocket = require("ws");
 
+/**
+ * This class is a mockup of a CS connecting to the CPMS's backend via websockets,
+ * it contains the local data expected from a CS and allows a user to change such data
+ * in a meaningful way via a basic (really basic indeed) CLI.
+ */
+
 // Local state initialization
 
 const CSID = 1;

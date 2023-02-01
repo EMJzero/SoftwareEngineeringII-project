@@ -10,6 +10,14 @@ export default class CSManagerRoute extends Route {
         super("cs-manager", true);
     }
 
+    /**
+     * FOR INTERNAL USAGE ONLY
+     * Allows the caller to retrieve the state of a CS's sockets, based such CS's id provided in the querystring.
+     *
+     * @param request shall containt: stationID
+     * @param response socketStates as array of {@link SocketMachine}
+     * @protected
+     */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         //Queries the status of a CS (i.e. its sockets)
         const csID = request.query.stationID as string;
@@ -28,6 +36,15 @@ export default class CSManagerRoute extends Route {
         });
     }
 
+    /**
+     * FOR INTERNAL USAGE ONLY
+     * Allows the caller to start or stop the charging process of a socket of a specific CS.
+     *
+     * @param request shall contain: stationID, socketID, chargeCommand (either "start" or "stop")
+     * @param response the HTTP status code and message provide information regarding the success or failure of command's
+     * application to the CS.
+     * @protected
+     */
     protected async httpPost(request: Request, response: Response): Promise<void> {
         //Starts/Stops a charge at a socket
         const csID = request.body.stationID as number;

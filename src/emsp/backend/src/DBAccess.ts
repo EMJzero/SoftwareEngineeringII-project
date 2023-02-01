@@ -2,9 +2,23 @@ import "mysql2/promise";
 import mysql, { Pool, PoolConnection } from "mysql2/promise";
 import env from "./helper/env";
 
+/**
+ * Static class that allows access to the MySQL DB used by the system.
+ * It operates lazily with a pool of connection that is instantiated on the first usage and
+ * utilizes the pooled connections for as long as possible.
+ *
+ * @class
+ */
 export class DBAccess {
     static pool: Pool | null;
 
+    /**
+     * Provides the caller with a DB connection from the pool.
+     *
+     * IMPORTANT:
+     * The caller is supposed to release the connection after its usage.
+     * -> connection.release();
+     */
     public static async getConnection(): Promise<PoolConnection> {
         if(this.pool == null) {
             this.pool = await mysql.createPool({
@@ -22,6 +36,9 @@ export class DBAccess {
         return await this.pool.getConnection();
     }
 
+    /**
+     * Closes every connection in the pool and the pool itself.
+     */
     public static async closePool() {
         if(this.pool != null) {
             await this.pool.end();

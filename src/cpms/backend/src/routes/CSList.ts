@@ -9,6 +9,13 @@ export default class CSListRoute extends Route {
         super("cs-list", true);
     }
 
+    /**
+     * Allows clients to fetch a list of CS based on a variety of filters, such as position or price.
+     *
+     * @param request can contain: locationLatitude, locationLongitude, locationRange, priceLowerBound, priceUpperBound
+     * @param response CSList as array of {@link CS}
+     * @protected
+     */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const CSID: number = parseInt(request.query.CSID as string);
 

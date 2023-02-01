@@ -15,6 +15,22 @@ export default class RechargeManager extends Route {
     }
 
     // Provides the status of a CS for the active booking, if any
+    /**
+     * Allows a logged in client to recover the internal status of the CS's socket with which they
+     * are currently performing a recharge (the "active socket for the current booking").
+     *
+     * @param request simple HTTP get
+     * @param response an object of the form {
+     *             csID,
+     *             socketID,
+     *             state,
+     *             currentPower,
+     *             maxPower,
+     *             connectedCar,
+     *             estimatedTimeRemaining
+     *         }
+     * @protected
+     */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const userID = request.userId;
 
@@ -69,6 +85,13 @@ export default class RechargeManager extends Route {
 
     // Start/Stop charging process
     // BookingID can be omitted as a required parameter here, but it is better to require it in order to force the client to know which booking it is getting activated
+    /**
+     * Allows a logged in client to start or stop their ongoing charge.
+     * Returns error an error if no charge is currently ongoing.
+     *
+     * @param request must contain: bookingId, action (either "start" or "stop")
+     * @param response the HTTP status code and message of the response can be used to infer the success or failure of the operation     * @protected
+     */
     protected async httpPost(request: Request, response: Response): Promise<void>{
         const userID = request.userId;
         const bookingID = request.body.bookingId as number;

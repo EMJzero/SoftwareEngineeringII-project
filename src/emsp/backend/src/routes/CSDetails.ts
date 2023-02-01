@@ -12,6 +12,13 @@ export default class CSDetails extends Route {
         super("details", true);
     }
 
+    /**
+     * Allows a logged in client to recover the external and part of the internal information regarding a CS.
+     *
+     * @param request must contain: stationID, cpmsId
+     * @param response stationData as a Record<string, Object> where Object contains all the data of a CS provided by its CPMS.
+     * @protected
+     */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const userID = request.userId;
         const stationID = request.query.stationID as string;

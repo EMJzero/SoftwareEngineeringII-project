@@ -10,6 +10,14 @@ export default class RegisterRoute extends Route {
     constructor() {
         super("register", false);
     }
+
+    /**
+     * Allows a new client to register with the system, having its credentials added in the DB.
+     *
+     * @param request must contain: username, email, password, creditCardNumber, creditCardCVV, creditCardExpiration, creditCardBillingName
+     * @param response result of the registration (given by the HTTP status code)
+     * @protected
+     */
     protected async httpPost(request: Request, response: Response): Promise<void> {
         const username = request.body.username;
         const email = request.body.email;

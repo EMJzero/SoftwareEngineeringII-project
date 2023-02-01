@@ -7,6 +7,13 @@ export default class LogoutRoute extends Route {
         super("logout-emsp", true);
     }
 
+    /**
+     * Allows client to remove their JTW token, hence logging out of the system.
+     *
+     * @param request just an empty http get
+     * @param response success response and clear cookie directive
+     * @protected
+     */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         response.clearCookie("__session");
         success(response, {}, "Logged out");

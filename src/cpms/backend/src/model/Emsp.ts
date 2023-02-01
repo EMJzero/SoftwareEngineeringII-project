@@ -1,6 +1,13 @@
 import { DBAccess } from "../DBAccess";
 import { FieldPacket, RowDataPacket } from "mysql2/promise";
 
+/**
+ * Model class for an EMSP which is known by the CPMS and is allowed to login with its system.
+ * From this class queries are performed on the DB to retrieve the necessary tuples, then
+ * returned as instances of this class.
+ *
+ * @class
+ */
 export class Emsp {
     id: number;
     APIKey: string;
@@ -10,6 +17,10 @@ export class Emsp {
         this.APIKey = APIKey;
     }
 
+    /**
+     * Retrieves the id of the EMPS whose credentials have been provided, null if the credentials are invalid.
+     * @param APIKey
+     */
     public static async checkCredentials(APIKey: string): Promise<number | null> {
         const connection = await DBAccess.getConnection();
 
@@ -25,6 +36,10 @@ export class Emsp {
         return result[0].id;
     }
 
+    /**
+     * Recovers the URL of the notification endpoint of a known EMPS.
+     * @param eMSPId
+     */
     public static async getNotificationEndpoint(eMSPId: number): Promise<string> {
         const connection = await DBAccess.getConnection();
 
