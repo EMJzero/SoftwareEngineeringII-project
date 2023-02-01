@@ -79,6 +79,7 @@ CREATE TABLE `cpmses` (
   `name` varchar(255) NOT NULL,
   `APIendpoint` varchar(511) NOT NULL,
   `APIkey` varchar(255) NOT NULL,
+  `token` varchar(512) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
