@@ -1,7 +1,7 @@
-/*import Authentication from "../../src/helper/eMSP Authentication";
+import Authentication from "../../src/helper/authentication";
 import { expect } from "chai";
 import * as sinon from "sinon";
-import { IUser } from "../../src/model/User";
+import { Emsp } from "../../src/model/Emsp";
 import { Request, Response } from "express";
 import * as http_internal from "../../src/helper/http";
 import "../../src/app";
@@ -11,14 +11,9 @@ const sandbox = sinon.createSandbox();
 describe("Authentication helper module", () => {
 
     const testUser = {
-        _id: "ARandomId",
-        username: "TestMan",
-        password: "TestManPassword",
-        email: "test@man.com",
-        registrationDate: new Date(),
-        isActive: true,
-        activationToken: "ActivationToken"
-    } as IUser;
+        name: "ARandomName",
+        APIKey: "ARandomKey"
+    };
 
     const mockResponse: Partial<Response> = {
         statusCode: 200,
@@ -45,11 +40,11 @@ describe("Authentication helper module", () => {
     });
 
     it("should create a JWT secret", () => {
-        expect(Authentication.createJWT(testUser)).to.be.not.undefined;
+        expect(Authentication.createJWT(testUser.name)).to.be.not.undefined;
     });
 
     it("should check a JWT secret in request", () => {
-        const token = Authentication.createJWT(testUser);
+        const token = Authentication.createJWT(testUser.name);
         const mockRequest = {
             body: {},
             cookies: {
@@ -60,7 +55,6 @@ describe("Authentication helper module", () => {
         Authentication.checkAuthentication(mockRequest, mockResponse, () => {
             expect(mockResponse.statusCode).to.be.not.equal(401);
             expect(mockResponse.statusCode).to.be.not.equal(500);
-            expect(mockRequest.userId).to.be.equal(testUser._id);
         });
     });
 
@@ -74,7 +68,6 @@ describe("Authentication helper module", () => {
             console.log("Next");
         });
         expect(responseCode).to.be.equal(401);
-        expect(mockRequest.userId).to.be.undefined;
     });
 
     it("should throw unauthenticated error with wrong JWT token", () => {
@@ -87,7 +80,6 @@ describe("Authentication helper module", () => {
             console.log("Next");
         });
         expect(responseCode).to.be.equal(401);
-        expect(mockRequest.userId).to.be.undefined;
     });
 
     it("should throw unauthenticated error with JWT token without user_id string", () => {
@@ -100,10 +92,9 @@ describe("Authentication helper module", () => {
             console.log("Next");
         });
         expect(responseCode).to.be.equal(401);
-        expect(mockRequest.userId).to.be.undefined;
-    });*/
+    });
 
-/*it("should throw internal user error", () => {
+    /*it("should throw internal user error", () => {
         const mockRequest = {
             body: {},
             cookies: {}
@@ -121,4 +112,4 @@ describe("Authentication helper module", () => {
 
         process.env.JWT_SECRET = originalJWTSECRET;
     });*/
-//});
+});

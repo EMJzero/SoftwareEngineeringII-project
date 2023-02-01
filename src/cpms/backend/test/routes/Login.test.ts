@@ -3,7 +3,6 @@ import chaiHttp = require("chai-http");
 import { createSandbox, SinonStub } from "sinon";
 import sinonChai = require("sinon-chai");
 import app from "../../src/app";
-import { Emsp } from "../../src/model/Emsp";
 import Authentication from "../../src/helper/authentication";
 import { beforeEach } from "mocha";
 import { DBAccess } from "../../src/DBAccess";
@@ -16,7 +15,6 @@ const sandbox = createSandbox();
 describe("/login-emsp", () => {
 
     let requester: ChaiHttp.Agent;
-    //let queryUserStub: SinonStub;
     let setAuthenticationCookieStub: SinonStub;
     let DBStub: SinonStub;
 
@@ -29,7 +27,6 @@ describe("/login-emsp", () => {
     });
 
     beforeEach(() => {
-        //queryUserStub = sandbox.stub(User, "findByUsername");
         setAuthenticationCookieStub = sandbox.stub(Authentication, "setAuthenticationCookie");
         DBStub = sandbox.stub(DBAccess, "getConnection");
     });
@@ -53,8 +50,7 @@ describe("/login-emsp", () => {
 
         it("should fail when the query produces no result", async () => {
             DBStub.resolves(new Test1());
-            //queryUserStub.resolves(null);
-            const res = await requester.post("/login").send({
+            const res = await requester.post("/login-emsp").send({
                 apiKey: "keykey",
                 mspName: "notAName"
             });
@@ -62,10 +58,9 @@ describe("/login-emsp", () => {
         });
 
         it("should fail if the authentication cookie is not properly set", async () => {
-            //queryUserStub.resolves("username");
             DBStub.resolves(new Test2());
             setAuthenticationCookieStub.returns(false);
-            const res = await requester.post("/login").send({
+            const res = await requester.post("/login-emsp").send({
                 apiKey: "keykey",
                 mspName: "notAName"
             });
@@ -74,12 +69,10 @@ describe("/login-emsp", () => {
 
         it("should succeed if the credentials are correct", async () => {
             DBStub.resolves(new Test2());
-            //queryUserStub.resolves("username");
             setAuthenticationCookieStub.returns(true);
-            const credentials = { "apiKey": "keykey", "mspName": "notAName" };
-            const expectedBody = { "data": credentials, "message": "", "status": true };
+            const expectedBody = { "message": "", "status": true };
 
-            const res = await requester.post("/login").send({
+            const res = await requester.post("/login-emsp").send({
                 apiKey: "keykey",
                 mspName: "notAName"
             });

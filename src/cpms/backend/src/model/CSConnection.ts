@@ -69,7 +69,6 @@ export default class CSConnection {
     }
 
     public sockets(): SocketMachine[] {
-        //TODO: Query socket state from the CS on the fly
         return this._sockets;
     }
 
@@ -80,6 +79,9 @@ export default class CSConnection {
             msg.sockets.forEach((socket: any) => Object.setPrototypeOf(socket, SocketMachine.prototype));
             connection._sockets = msg.sockets;
         }
+
+        //TODO: if for some socket: socket.connectedCar.remainingCapacityKWh == socket.connectedCar.batteryCapacityKWh
+        //TODO: => send notification the the emsp (assumed to be only 1, easy)
     }
 }
 
@@ -158,6 +160,10 @@ export class SocketMachine {
         }
     }
 
+    public fullyChargeCar() {
+        this.connectedCar.fullyCharge();
+    }
+
     private getCarData(): CarData {
         const carDB = [new CarData("Tesla", 100, 30, 300),
             new CarData("Volkswagen", 80, 60, 150),
@@ -200,7 +206,7 @@ export class SocketMachine {
 export class CarData {
     private readonly _manufacturer: string;
     private readonly _batteryCapacityKWh: number;
-    private readonly _remainingCapacityKWh: number;
+    private _remainingCapacityKWh: number;
     private readonly _maxAcceptedPowerKW: number;
 
     constructor(manufacturer: string, batteryCapacityKWh: number, remainingCapacityKWh: number, maxAcceptedPowerKW: number) {
@@ -208,6 +214,10 @@ export class CarData {
         this._batteryCapacityKWh = batteryCapacityKWh;
         this._remainingCapacityKWh = remainingCapacityKWh;
         this._maxAcceptedPowerKW = maxAcceptedPowerKW;
+    }
+
+    public fullyCharge() {
+        this._remainingCapacityKWh = this._batteryCapacityKWh;
     }
 
     get manufacturer(): string {
