@@ -23,10 +23,11 @@ class StationAvailabilityController extends GenericController<AvailableIntervals
             stationID: stationId,
             socketID: socketId,
             cpmsID: cpmsId,
-            referenceDateDay: date.getDay(),
+            referenceDateDay: date.getDate(),
             referenceDateMonth: date.getMonth(),
             referenceDateYear: date.getFullYear()
         };
+        console.log(date.getDate(), date.getMonth(), date.getFullYear());
         const res = await super.get<StationAvailabilityModel[]>("/cs-availability", { query: body });
         this.setAvailableSlots(res, date);
         return reference.value;
