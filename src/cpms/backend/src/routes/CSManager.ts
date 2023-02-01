@@ -7,7 +7,7 @@ import { CSChargeCommand } from "../model/CSChargeCommand";
 export default class CSManagerRoute extends Route {
 
     constructor() {
-        super("cs-manager", false);
+        super("cs-manager", true);
     }
 
     protected async httpGet(request: Request, response: Response): Promise<void> {

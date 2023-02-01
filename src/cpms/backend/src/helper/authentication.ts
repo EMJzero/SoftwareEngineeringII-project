@@ -25,12 +25,6 @@ export default abstract class Authentication {
      * @param next function to call if the request eMSP Authentication is valid
      */
     static checkAuthentication(request: Request, response: Response, next: NextFunction) {
-        request.authenticated = true;
-        request.mspName = "TEST";
-
-        next();
-        /*return;
-
         let decodedJWT;
         try {
             decodedJWT = Authentication.checkJWT(request);
@@ -48,7 +42,7 @@ export default abstract class Authentication {
         request.authenticated = true;
         request.mspName = decodedJWT.mspName;
 
-        next();*/
+        next();
     }
 
     /**

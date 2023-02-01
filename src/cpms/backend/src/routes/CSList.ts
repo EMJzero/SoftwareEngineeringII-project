@@ -6,7 +6,7 @@ import logger from "../helper/logger";
 
 export default class CSListRoute extends Route {
     constructor() {
-        super("cs-list", false);
+        super("cs-list", true);
     }
 
     protected async httpGet(request: Request, response: Response): Promise<void> {

@@ -7,7 +7,7 @@ import logger from "../helper/logger";
 
 export default class RechargeManager extends Route {
     constructor() {
-        super("recharge-manager", false);
+        super("recharge-manager", true);
     }
 
     // Provides the status of a CS
