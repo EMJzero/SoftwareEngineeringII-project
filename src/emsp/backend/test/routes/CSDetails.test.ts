@@ -108,7 +108,7 @@ describe("/details endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
-            axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
+            axiosGetStub.resolves({ data: { data: { CSList: { data: "some date" } } } } );
             //availableTimeSlotsStub.resolves( { data: "NothingImportant" } );
             //executeStub.resolves([[{ start: 123, end: 10000000, socketId: 1 }]]);
             const res = await requester.get("/details?stationID=1" +

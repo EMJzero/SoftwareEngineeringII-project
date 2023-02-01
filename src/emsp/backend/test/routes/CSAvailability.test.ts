@@ -100,7 +100,7 @@ describe("/cs-availability endpoint", () => {
                 "&referenceDateDay=13" +
                 "&referenceDateMonth=7" +
                 "&referenceDateYear=2023");
-            expect(res.body).to.be.eql({ "data": {}, "message": "", "status": true });
+            expect(res.body).to.be.eql({ "data": [], "message": "", "status": true });
             expect(res).to.have.status(200);
         });
 

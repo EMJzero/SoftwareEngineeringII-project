@@ -236,7 +236,7 @@ class Test1 {
     public async execute(sql: string, values: any) : Promise<[any[], any[]]> {
         if(sql == "SELECT * FROM bookings WHERE userId = ? AND isActive")
             return [[], []];
-        if(sql == "SELECT * FROM bookings WHERE startDate <= curdate() AND endDate > curdate() AND userId = ?")
+        if(sql == "SELECT * FROM bookings WHERE startDate <= current_timestamp() AND endDate > current_timestamp() AND userId = ?")
             return [[], []];
         return [[], []];
     }
@@ -257,7 +257,7 @@ class Test2 {
                 cpmsId: 1,
                 csId: 1,
                 socketId: 1 }], []];
-        if(sql == "SELECT * FROM bookings WHERE startDate <= curdate() AND endDate > curdate() AND userId = ?")
+        if(sql == "SELECT * FROM bookings WHERE startDate <= current_timestamp() AND endDate > current_timestamp() AND userId = ?")
             return [[{ id: 1,
                 userId: 1,
                 startDate: 10000000,
@@ -287,7 +287,7 @@ class Test3 {
                 cpmsId: 1,
                 csId: 1,
                 socketId: 1 }], []];
-        if(sql == "SELECT * FROM bookings WHERE startDate <= curdate() AND endDate > curdate() AND userId = ?")
+        if(sql == "SELECT * FROM bookings WHERE startDate <= current_timestamp() AND endDate > current_timestamp() AND userId = ?")
             return [[{ id: 1,
                 userId: 1,
                 startDate: 10000000,
@@ -320,7 +320,7 @@ class Test4 {
                 cpmsId: 1,
                 csId: 1,
                 socketId: 1 }], []];
-        if(sql == "SELECT * FROM bookings WHERE startDate <= curdate() AND endDate > curdate() AND userId = ?")
+        if(sql == "SELECT * FROM bookings WHERE startDate <= current_timestamp() AND endDate > current_timestamp() AND userId = ?")
             return [[{ id: 1,
                 userId: 1,
                 startDate: 10000000,
