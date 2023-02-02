@@ -42,7 +42,7 @@ export class Booking {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT * FROM bookings WHERE userId = ? AND startDate >= UNIX_TIMESTAMP()",
+            "SELECT * FROM bookings WHERE userId = ? AND (startDate >= UNIX_TIMESTAMP() * 1000 OR endDate >= UNIX_TIMESTAMP() * 1000)",
             [userId]);
 
         connection.release();
