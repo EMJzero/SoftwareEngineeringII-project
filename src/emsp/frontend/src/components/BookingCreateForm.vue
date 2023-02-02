@@ -20,13 +20,14 @@
         <!--<vue-tailwind-datepicker as-single :formatter="formatter" v-model="dateValue" style="max-width: 50%; margin-left: auto; margin-right: auto"/>-->
         <Datepicker :dark="true" :format="format" :min-date="new Date()" :prevent-min-max-navigation="true" v-model="dateValue" class="py-4" style="max-width: 50%; margin-left: auto; margin-right: auto" @update:model-value="modelChanged"></Datepicker>
         <div class="grid grid-cols-4 gap-6 mt-4 mx-3">
-          <div v-for="availableSlot in stationAvailability" class="bordered rounded-lg py-4 px-6" :class="{'border-blue-600': availableSlot === selectedSlot, 'border-gray-400': (availableSlot !== selectedSlot && !AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate)), 'border-green-400': (availableSlot !== selectedSlot && AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate))}">
+          <div v-for="availableSlot in stationAvailability" class="bordered rounded-lg py-4 px-6" :class="{'border-blue-600': availableSlot === selectedSlot, 'border-gray-400': (availableSlot !== selectedSlot && (!AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate) || getDiscountPerc() <= 0)), 'border-green-400': (availableSlot !== selectedSlot && AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate) && getDiscountPerc() > 0)}">
             <input ref="inputButton" type="radio" :id="availableSlot" :name="timeSlotID" :checked="availableSlot === selectedSlot" @click="changeSelectedTimeSlot(availableSlot)">
             <label :for="availableSlot" class="text-white font-semibold text-lg px-4"> {{availableSlot.startHour.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })}} - {{availableSlot.endHour.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })}} </label>
           </div>
         </div>
         <p v-if="isLoadingDates" class="text-center text-gray-500 font-semibold text-2xl my-8">Loading Available Slots...</p>
         <p v-if="stationAvailability != null && stationAvailability.length === 0 && !isLoadingDates" class="text-center text-gray-500 font-semibold text-2xl my-8">No Slots Available!</p>
+        <p v-if="stationDetails?.stationData.offerExpirationDate && dateValue.valueOf() < stationDetails.stationData.offerExpirationDate && getDiscountPerc() > 0" class="text-center text-gray-500 font-semibold text-2xl my-8">Offer: -{{getDiscountPerc()}}% Off on Charge Price</p>
       </div>
     </div>
     <div class="text-center mt-10">
@@ -86,6 +87,17 @@ async function changeSelectedChargeSpeed(chargeSpeedNew: string) {
 
 function changeSelectedTimeSlot(timeSlotNew: AvailableIntervalsModel) {
   selectedSlot.value = timeSlotNew;
+}
+
+function getDiscountPerc(): number {
+  const stationData = stationDetails.value?.stationData
+  if (stationData) {
+    const offerPrice = stationData.userPrice;
+    const nominalPrice = stationData.nominalPrice;
+    const reduction = nominalPrice - offerPrice;
+    return Math.floor((reduction / nominalPrice) * 100);
+  }
+  return 0;
 }
 
 function modelChanged() {
