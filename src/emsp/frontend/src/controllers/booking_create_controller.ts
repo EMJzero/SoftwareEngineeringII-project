@@ -59,7 +59,7 @@ class BookingCreateController extends GenericController<StationDetailsModel | nu
             endUnixTime: endDate.getTime(),
             cpmsID: reference.value?.stationData.ownerCPMSId,
             csID: reference.value?.stationData.id,
-            socketID: reference.value?.stationData.sockets?.find((socket) => socket.type.connector == connector && SocketType.getChargeSpeed(socket.type) == powerTier)?.id
+            socketID: reference.value?.stationData.sockets?.find((socket) => socket.type.connector == connector && SocketType.getChargeSpeed(socket.type) == powerTier && socket.id == timeSlot.availableSocketID)?.id
         }
         const res = await super.post<StationDetailsModel>("/bookings", { body, message: "Booking created successfully!" });
         if (res) {

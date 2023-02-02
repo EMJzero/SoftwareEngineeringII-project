@@ -7,12 +7,13 @@ import type Socket from "@/model/socket_model";
 import {SocketType} from "@/model/socket_model";
 import type AvailableIntervalsModel from "@/model/available_intervals_model";
 import StationAvailabilityModel from "@/model/station_availability_model";
+import AvailableRangesSet from "@/helpers/AvailableRangesSet";
 
 let reference = ref<AvailableIntervalsModel[] | null>(null);
 
 export interface IStationAvailabilityController {
     getAvailableSlots(cpmsId: number, stationId: number, socketId: number, date: Date): Promise<AvailableIntervalsModel[] | null>;
-    setAvailableSlots(slots: StationAvailabilityModel[] | null, referenceDate: Date): void;
+    setAvailableSlots(slots: StationAvailabilityModel[] | null, socketID: number, referenceDate: Date): void;
     clear(): void;
 }
 
@@ -27,22 +28,21 @@ class StationAvailabilityController extends GenericController<AvailableIntervals
             referenceDateMonth: date.getMonth(),
             referenceDateYear: date.getFullYear()
         };
-        console.log(date.getDate(), date.getMonth(), date.getFullYear());
         const res = await super.get<StationAvailabilityModel[]>("/cs-availability", { query: body });
-        this.setAvailableSlots(res, date);
+        this.setAvailableSlots(res, socketId, date);
         return reference.value;
     }
 
-    setAvailableSlots(slots: StationAvailabilityModel[] | null, referenceDate: Date) {
+    setAvailableSlots(slots: StationAvailabilityModel[] | null, socketID: number, referenceDate: Date) {
         if (slots) {
-            const hourlySlots = StationAvailabilityModel.convertToHourlyRanges(slots, referenceDate);
-            console.log(hourlySlots)
+            const hourlySlots = StationAvailabilityModel.convertToHourlyRanges(slots, socketID, referenceDate);
             if (reference.value) {
-                const refSet = new Set(reference.value);
+                const refSet = new AvailableRangesSet(reference.value);
                 for (const slot of hourlySlots) {
                     refSet.add(slot);
                 }
                 reference.value = Array.from(refSet.values()) as AvailableIntervalsModel[];
+                reference.value = reference.value.sort((a, b) => a.startHour < b.startHour ? -1 : 1)
             } else {
                 reference.value = hourlySlots;
             }

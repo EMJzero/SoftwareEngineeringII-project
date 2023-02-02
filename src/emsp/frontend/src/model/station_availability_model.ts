@@ -10,7 +10,7 @@ export default class StationAvailabilityModel {
         this.endDate = endDate;
     }
 
-    static convertToHourlyRanges(longRanges: StationAvailabilityModel[], referenceDate: Date): AvailableIntervalsModel[] {
+    static convertToHourlyRanges(longRanges: StationAvailabilityModel[], socketID: number, referenceDate: Date): AvailableIntervalsModel[] {
         const result: AvailableIntervalsModel[] = [];
         const now = new Date();
         for (const longRange of longRanges) {
@@ -20,7 +20,7 @@ export default class StationAvailabilityModel {
             for (let hr = 0; hr < 24; hr++) {
                 const hrDate = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate(), hr);
                 if (hrDate >= startDate && hrDate < endDate && hrDate >= now) {
-                    result.push(new AvailableIntervalsModel(referenceDate, hr, hr + 1));
+                    result.push(new AvailableIntervalsModel(referenceDate, hr, hr + 1, socketID));
                 }
             }
         }
