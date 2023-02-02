@@ -1,8 +1,11 @@
 import * as WebSocket from "ws";
 import {Emsp} from "./Emsp";
-import {postReqHttp, postReqHttpAuth} from "../helper/misc";
+import {postReqHttpAuth} from "../helper/misc";
 import logger from "../helper/logger";
 import {CS} from "./CS";
+import WSSync from "../helper/websocket-sync";
+
+const WebSocketSync = require("ws-sync-request");
 
 /**
  * Static class storing the connections to CSs via websockets,
@@ -40,18 +43,18 @@ export default class CSConnection {
 
     private readonly _id: number;
     private readonly _websocket: WebSocket;
+    private readonly synchronousSocket: WSSync;
     private _sockets: SocketMachine[];
 
     constructor(id: number, websocket: WebSocket) {
         this._id = id;
         this._sockets = [];
         this._websocket = websocket;
+        this.synchronousSocket = new WSSync(websocket);
     }
 
-    public startCharge(socketId: number, maximumTimeoutDate: number, eMSPId: number): boolean {
-        console.log(this._sockets)
+    public async startCharge(socketId: number, maximumTimeoutDate: number, eMSPId: number): Promise<boolean> {
         const socket = (this.sockets()).find((sc) => sc.socketId == socketId);
-        console.log(socket);
         if (socket) {
             if (socket.state == 1) {
                 const request = {
@@ -60,14 +63,15 @@ export default class CSConnection {
                     maximumTimeoutDate: maximumTimeoutDate,
                     eMSPId: eMSPId
                 };
-                this._websocket.send(JSON.stringify(request));
-                return true;
+                const response = await this.synchronousSocket.sendSync(request);
+                //this._websocket.send(JSON.stringify(request));
+                return response.status;
             }
         }
         return false;
     }
 
-    public stopCharge(socketId: number): boolean {
+    public async stopCharge(socketId: number): Promise<boolean> {
         const socket = (this.sockets()).find((sc) => sc.socketId == socketId);
         if (socket) {
             if (socket.state == 2) {
@@ -75,7 +79,13 @@ export default class CSConnection {
                     request: "stopCharge",
                     socketId: socketId
                 };
-                this._websocket.send(JSON.stringify(request));
+                //this._websocket.send(JSON.stringify(request));
+                const msg = await this.synchronousSocket.sendSync(request);
+                if (msg.type != undefined && msg.type == "chargeEnd") {
+                    msg.sockets.forEach((socket: any) => Object.setPrototypeOf(socket, SocketMachine.prototype));
+                    this._sockets = msg.sockets;
+                    await CSConnection.handleNotificationAndBilling(this, msg);
+                }
                 return true;
             }
         }
@@ -104,25 +114,30 @@ export default class CSConnection {
         if(msg.type != undefined && msg.type == "socketsStatus") {
             msg.sockets.forEach((socket: any) => Object.setPrototypeOf(socket, SocketMachine.prototype));
             connection._sockets = msg.sockets;
-        } else if (msg.type != undefined && msg.type == "chargeEnd") {
+        } else if (msg.type != undefined && msg.type == "chargeEnd" && !connection.synchronousSocket.isWaiting(msg.unique_id)) { /*If someone is waiting for a message with this ID it will have to be handled in that callback instead*/
             msg.sockets.forEach((socket: any) => Object.setPrototypeOf(socket, SocketMachine.prototype));
             connection._sockets = msg.sockets;
-            //Contact the eMSP that made the request
-            const emsp = await Emsp.findById(msg.notifiedEMSPId);
-            const cs = await CS.getCSDetails(connection._id);
-            if (emsp) {
-                const axiosResponse = await postReqHttpAuth(emsp.notificationEndpoint, emsp.APIKey, {
-                    issuerCPMSName: "CPMS1",
-                    affectedCSId: connection._id,
-                    affectedSocketId: msg.affectedSocketId,
-                    totalBillableAmount: Math.ceil(msg.billableDurationHours * cs.userPrice * msg.billablePower * 100) / 100
-                })
-                if (!axiosResponse) {
-                    logger.error("An error occurred while contacting the EMSP. Retrying in 5s...")
-                    const timeout = setInterval(() => {
-                        this.retryEMSPPost(emsp, timeout);
-                    }, 5000);
-                }
+            await this.handleNotificationAndBilling(connection, msg);
+        }
+        connection.synchronousSocket.handleMessage(msg);
+    }
+
+    private static async handleNotificationAndBilling(connection: CSConnection, msg: any) {
+        //Contact the eMSP that made the request
+        const emsp = await Emsp.findById(msg.notifiedEMSPId);
+        const cs = await CS.getCSDetails(connection._id);
+        if (emsp) {
+            const axiosResponse = await postReqHttpAuth(emsp.notificationEndpoint, emsp.APIKey, {
+                issuerCPMSName: "CPMS1",
+                affectedCSId: connection._id,
+                affectedSocketId: msg.affectedSocketId,
+                totalBillableAmount: Math.ceil(msg.billableDurationHours * cs.userPrice * msg.billablePower * 100) / 100
+            })
+            if (!axiosResponse) {
+                logger.error("An error occurred while contacting the EMSP. Retrying in 5s...")
+                const timeout = setInterval(() => {
+                    CSConnection.retryEMSPPost(emsp, timeout);
+                }, 5000);
             }
         }
     }

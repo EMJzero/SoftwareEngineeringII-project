@@ -42,6 +42,7 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
             bookingId: booking.id,
             action: "start"
         }
+        booking.isWaiting = true;
         const res = await super.post<BookingModel>("/recharge-manager", { body: body, message: "Charge started!" });
         if (res) {
             const idx = reference.value?.findIndex((bookingA) => bookingA.id == booking.id);
@@ -50,10 +51,12 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
                 if (values) {
                     (values as BookingModel[])[idx].isActive = true;
                     reference.value = values;
+                    booking.isWaiting = false;
                     return true;
                 }
             }
         }
+        booking.isWaiting = false;
         return false;
     }
 
@@ -62,6 +65,7 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
             bookingId: booking.id,
             action: "stop"
         }
+        booking.isWaiting = true;
         const res = await super.post<BookingModel>("/recharge-manager", { body: body, message: "Charge ended!" });
         if (res) {
             const values = reference.value;
@@ -70,10 +74,12 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
                 if (idx != undefined) {
                     console.log("DELETING AT ", idx);
                     reference.value?.splice(idx, 1);//.value = reference.value?.filter((b) => b.id != booking.id) ?? null;
+                    booking.isWaiting = false;
                     return true;
                 }
             }
         }
+        booking.isWaiting = false;
         return false;
     }
 

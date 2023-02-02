@@ -10,6 +10,7 @@ export default class BookingModel {
     cpmsId: number;
     csId: number;
     socketId: number;
+    isWaiting: boolean = false;
 
     constructor(id: string, name: string, socketSpeed: string, socketType: string, startDate: number, endDate: number, imageURL: string, isActive: boolean, cpmsId: number, csId: number, socketId: number) {
         this.id = id;

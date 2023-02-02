@@ -99,3 +99,7 @@ export async function deleteReqHttp(url: string, query: object): Promise<AxiosRe
         return null;
     }
 }
+
+export async function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

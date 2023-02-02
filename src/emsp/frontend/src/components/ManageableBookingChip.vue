@@ -11,13 +11,13 @@
       <p class="text-left text-sm font-weight-regular text-white">Ends: {{ getEndDate() }} </p>
       <div class="pt-8 pb-2">
         <button class="text-left rounded-lg pt-2 pb-4 px-9 text-lg font-medium text-white">  </button>
-        <button v-if="booking.isActive && isBookingLive()" class="text-left rounded-lg bg-blue-600 py-2 px-9 text-lg font-medium text-white hover:bg-blue-700" style="float: left"
+        <button v-if="booking.isActive && isBookingLive()" class="text-left rounded-lg py-2 px-9 text-lg font-medium text-white" :class="{ 'bg-blue-600 hover:bg-blue-700': !booking.isWaiting, 'bg-grey hover:bg-grey-darken-1': booking.isWaiting }" style="float: left"
                 @click="bookings_controller.stopChargeBooking(booking)">
-          Stop Charge
+          {{ booking.isWaiting ? "Connecting..." : 'Stop Charge' }}
         </button>
-        <button v-if="!booking.isActive && isBookingLive()" class="text-left rounded-lg bg-green-600 py-2 px-9 text-lg font-medium text-white hover:bg-green-700" style="float: left"
+        <button v-if="!booking.isActive && isBookingLive()" class="text-left rounded-lg py-2 px-9 text-lg font-medium text-white"  :class="{ 'bg-green-600 hover:bg-green-700': !booking.isWaiting, 'bg-grey hover:bg-grey-darken-1': booking.isWaiting }" style="float: left"
                 @click="bookings_controller.startChargeBooking(booking)">
-          Start Charge
+          {{ booking.isWaiting ? "Connecting..." : 'Start Charge' }}
         </button>
         <button v-if="isBookingFuture() && !booking.isActive" class="text-right rounded-lg bg-red-600 py-2 px-9 text-lg font-medium text-white hover:bg-red-700" style="float: right"
                 @click="bookings_controller.deleteBooking(booking)">

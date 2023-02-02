@@ -1,5 +1,5 @@
 <template>
-  <li class="bg-grey-darken-2 rounded-lg py-4 px-8 shadow-lg">
+  <li class="bg-grey-darken-2 rounded-lg py-4 px-8 shadow-lg my-4">
     <div style="max-width: 8rem; max-height: 60%; float: right">
       <img class="rounded-md bg-no-repeat bg-cover bg-white aspect-square" style="object-fit: cover" :src="booking.imageURL" alt="Thumbnail">
     </div>

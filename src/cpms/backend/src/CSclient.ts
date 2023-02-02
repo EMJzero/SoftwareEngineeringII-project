@@ -46,6 +46,7 @@ async function sendStatus() {
 
 client.on("message", async (message: string) => {
     const msg = JSON.parse(message);
+    const msgId = msg.unique_id;
 
     if(msg.status != undefined && msg.status == "error") {
         client.close();
@@ -53,13 +54,14 @@ client.on("message", async (message: string) => {
         process.exit(0);
     } else if(msg.request != undefined && msg.request == "startCharge") {
         sockets[msg.socketId - 1].chargeCar(msg.maximumTimeoutDate, async () => await chargeTimeoutCallback(sockets[msg.socketsId - 1]), msg.eMSPId);
+        await client.send(JSON.stringify({unique_id: msgId, status: true}));
         console.log("Sockets updated, press ENTER to refresh prompt....");
     } else if(msg.request != undefined && msg.request == "stopCharge") {
         const chargeStartTime = sockets[msg.socketId - 1].chargeStartTime;
         const billablePower = sockets[msg.socketId - 1].currentPower;
         const notifiedEMSPId = sockets[msg.socketId - 1].activeeMSPId;
         sockets[msg.socketId - 1].stopChargeCar();
-        await chargeEndedCallback(sockets[msg.socketId - 1], chargeStartTime ? Date.now() - chargeStartTime : 0, billablePower, notifiedEMSPId);
+        await chargeEndedCallback(sockets[msg.socketId - 1], chargeStartTime ? Date.now() - chargeStartTime : 0, billablePower, notifiedEMSPId, msgId);
         console.log("Sockets updated, press ENTER to refresh prompt....");
     } else if (msg.status == "ok") {
         await sendStatus();
@@ -74,10 +76,11 @@ async function chargeTimeoutCallback(socket: SocketMachine) {
     await chargeEndedCallback(sockets[socket.socketId - 1], chargeStartTime ? Date.now() - chargeStartTime : 0, billablePower, notifiedEMSPId);
 }
 
-async function chargeEndedCallback(socket: SocketMachine, billableTime: number, billablePower: number, eMSPId: number | undefined) {
+async function chargeEndedCallback(socket: SocketMachine, billableTime: number, billablePower: number, eMSPId: number | undefined, synchronousMessageId?: any) {
     sockets[socket.socketId - 1].disconnectCar();
     //Send a message to the server to delete the booking and make the user pay
     const msg = {
+        unique_id: synchronousMessageId,
         type: "chargeEnd",
         affectedSocketId: socket.socketId,
         timeoutDate: (new Date()).valueOf(),
