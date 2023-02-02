@@ -6,6 +6,7 @@ import { getReqHttp } from "../helper/misc";
 import logger from "../helper/logger";
 import { Booking } from "../model/Booking";
 import env from "../helper/env";
+import CPMSAuthentication from "../helper/CPMSAuthentication";
 
 export default class Bookings extends Route {
 
@@ -120,7 +121,9 @@ export default class Bookings extends Route {
             return;
         }
 
-        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", null, {
+        ownerCPMS = await CPMSAuthentication.getTokenIfNeeded(ownerCPMS);
+
+        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", ownerCPMS.token, {
             CSID: csID
         });
 
