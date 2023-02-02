@@ -7,6 +7,7 @@ import cors from "cors";
 import Route from "./Route";
 import env from "./helper/env";
 import logger from "./helper/logger";
+import {Booking} from "./model/Booking";
 
 // Expand the Express request definition to include the userId
 declare global {
@@ -153,6 +154,8 @@ if (require.main === module) {
         }
 
         logger.info(`Server listening at: ${url}${app.baseURL}`);
+        //Start the Booking autodelete timer
+        Booking.startCleanupTimer();
     });
 }
 

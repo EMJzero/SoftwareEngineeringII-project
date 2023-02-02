@@ -34,6 +34,16 @@ export class Booking {
     }
 
     /**
+     * Starts a regular timer that will clean up expired bookings regularly
+      */
+    public static startCleanupTimer() {
+        const timerSchedule = 24 * 3600; //Seconds in a day;
+        setInterval(async () => {
+            await this.deleteExpiredBookings();
+        }, timerSchedule * 1000);
+    }
+
+    /**
      * Method to retrieve all bookings made by the provided user.
      *
      * @param userId
@@ -251,6 +261,24 @@ export class Booking {
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
             "DELETE FROM bookings WHERE userId = ? AND id = ?",
             [userId, bookingId]);
+
+        connection.release();
+
+        const json: any = result;
+
+        return json.affectedRows == 1;
+    }
+
+    /**
+     * Deletes all expired bookings
+     *
+     */
+    public static async deleteExpiredBookings(): Promise<boolean> {
+        const connection = await DBAccess.getConnection();
+
+        const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
+            "DELETE FROM bookings WHERE endDate < UNIX_TIMESTAMP()",
+            []);
 
         connection.release();
 
