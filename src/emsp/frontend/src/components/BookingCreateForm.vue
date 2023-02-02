@@ -55,7 +55,7 @@ let stationDetails = booking_create_controller.getRef();
 let selectedConnector = ref(getUniqueConnectors()[0]);
 let selectedChargeSpeed = ref(getUniqueChargeSpeeds()[0]);
 let stationAvailability = station_availability_controller.getRef();
-let selectedSlot = ref((stationAvailability.value ?? [""])[0]);
+let selectedSlot = ref((stationAvailability.value ?? [])[0]);
 const connectorID = "bookedConnector";
 const chargeSpeedID = "bookedChargeSpeed";
 const timeSlotID = "timeSlot";
@@ -111,6 +111,12 @@ async function submitForm(event: Event) {
   const created = await booking_create_controller.createBooking(selectedConnector.value, selectedChargeSpeed.value, dateValue.value, selectedSlot.value);
   if (created) {
     await router.push(RoutingPath.BOOKINGLIST);
+  } else {
+    //Reload
+    isLoadingDates.value = true;
+    await booking_create_controller.getStationAvailability(selectedConnector.value, selectedChargeSpeed.value, dateValue.value);
+    changeSelectedTimeSlot((stationAvailability.value ?? [])[0])
+    isLoadingDates.value = false;
   }
 }
 
