@@ -43,7 +43,7 @@ export async function getReqHttp(url: string, parameters: object): Promise<Axios
         res = await axios.get(url, config);
         return res;
     } catch (e) {
-        logger.error("Axios response status:", res != undefined ? res.status : "undefined");
+        logger.error("Axios response status:", res ? res.status : "undefined");
         return null;
     }
 }
@@ -53,13 +53,31 @@ export async function getReqHttp(url: string, parameters: object): Promise<Axios
  * @param url the url of the request
  * @param body the object containing the field and the value of the query string
  */
-export async function postReqHttp(url: string, body: object): Promise<AxiosResponse | null> {
+export async function postReqHttp(url: string, body: object, headers?: object): Promise<AxiosResponse | null> {
     let res;
     try {
-        res = await axios.post(url, body);
+        res = await axios.post(url, body, headers);
         return res;
     } catch (e) {
-        logger.error("Axios response status:", res != undefined ? res.status : "undefined");
+        logger.error("Axios response status:", res ? res.status : "undefined");
+        return null;
+    }
+}
+
+/**
+ * Make a post http request to an external url
+ * @param url the url of the request
+ * @param token
+ * @param body the object containing the field and the value of the query string
+ */
+export async function postReqHttpAuth(url: string, token: string, body: object): Promise<AxiosResponse | null> {
+    let res;
+    try {
+        const config = token ? { headers: { "Authorization": `Bearer ${token}` } } : undefined;
+        res = await axios.post(url, body, config);
+        return res;
+    } catch (e) {
+        logger.error("Axios response status:", res ? res.status : "undefined");
         return null;
     }
 }
@@ -77,7 +95,7 @@ export async function deleteReqHttp(url: string, query: object): Promise<AxiosRe
         res = await axios.delete(url, config);
         return res;
     } catch (e) {
-        logger.error("Axios response status:", res != undefined ? res.status : "undefined");
+        logger.error("Axios response status:", res ? res.status : "undefined");
         return null;
     }
 }

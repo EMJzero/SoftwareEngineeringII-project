@@ -22,6 +22,7 @@ declare global {
              */
             authenticated: boolean;
             mspName: string;
+            mspId: number;
         }
     }
 }

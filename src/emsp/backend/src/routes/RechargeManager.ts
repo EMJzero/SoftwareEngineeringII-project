@@ -132,6 +132,7 @@ export default class RechargeManager extends Route {
         const axiosResponse = await postReqHttp(ownerCPMS.endpoint + "/recharge-manager", ownerCPMS.token, {
             CSID: booking.csId,
             socketID: booking.socketId,
+            maximumTimeoutDate: booking.endDate,
             action: action
         });
 

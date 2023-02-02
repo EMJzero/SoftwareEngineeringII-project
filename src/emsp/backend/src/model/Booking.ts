@@ -1,6 +1,7 @@
 import { DBAccess } from "../DBAccess";
 import { FieldPacket, RowDataPacket, ResultSetHeader } from "mysql2/promise";
 import env from "../helper/env";
+import {IUser} from "./User";
 
 // Simple template for Bookings. Currently extracts all bookings of a user, need to complete with all other methods
 // You should also send the socket info when retrieving the booking data before sending it to the client
@@ -250,6 +251,37 @@ export class Booking {
     }
 
     /**
+     * Method retrieving the (one or none) user that has a bookinga ctive on the specified station, that being the booking with a currently
+     * ongoing charging process.
+     *
+     * @param userId
+     */
+    public static async findUserWithActive(stationId: number, cpmsId: number, socketId: number): Promise<IUser | undefined> {
+        const connection = await DBAccess.getConnection();
+
+        const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
+            "SELECT u.* FROM bookings as b JOIN users u on b.userId = u.id WHERE b.cpmsId = ? AND b.csId = ? AND b.socketId = ? AND isActive",
+            [cpmsId, stationId, socketId]);
+
+        connection.release();
+
+        if (result.length == 0 || !result) {
+            return undefined;
+        }
+
+        return {
+            id: result[0].id,
+            creditCardBillingName: result[0].paymentCardOwnerName,
+            creditCardCVV: result[0].paymentCardCvv,
+            creditCardExpiration: result[0].paymentCardExpirationDate,
+            creditCardNumber: result[0].paymentCardNumber,
+            email: result[0].email,
+            password: result[0].password,
+            username: result[0].userName
+        };
+    }
+
+    /**
      * Deletes the booking with the specified id from the DB.
      *
      * @param userId
@@ -341,7 +373,7 @@ export class Booking {
         connection.release();
 
         const json: any = result;
-        console.log(result);
+
         return json.affectedRows == 1;
     }
 }

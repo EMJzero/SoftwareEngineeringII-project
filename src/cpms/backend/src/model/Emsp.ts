@@ -11,10 +11,31 @@ import { FieldPacket, RowDataPacket } from "mysql2/promise";
 export class Emsp {
     id: number;
     APIKey: string;
+    notificationEndpoint: string
 
-    constructor(id: number, APIKey: string) {
+    constructor(id: number, APIKey: string, notificationEndpoint: string) {
         this.id = id;
         this.APIKey = APIKey;
+        this.notificationEndpoint = notificationEndpoint;
+    }
+
+    /**
+     * Retrieves the EMSP with the given ID.
+     * @param id
+     */
+    public static async findById(id: number): Promise<Emsp | null> {
+        const connection = await DBAccess.getConnection();
+
+        const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
+            "SELECT * FROM emsps WHERE id = ?",
+            [id]);
+
+        connection.release();
+
+        if(result.length == 0)
+            return null;
+
+        return new Emsp(result[0].id, result[0].APIKey, result[0].NotificationEndpoint);
     }
 
     /**

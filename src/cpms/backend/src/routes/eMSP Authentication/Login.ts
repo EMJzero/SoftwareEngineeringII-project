@@ -23,12 +23,13 @@ export default class LoginRoute extends Route {
 
         if (checkUndefinedParams(response, mspName, apiKey)) return;
 
-        if (!await Emsp.checkCredentials(apiKey)) {
+        const emspId = await Emsp.checkCredentials(apiKey);
+        if (emspId == null) {
             badRequest(response, "The login information is invalid");
             return;
         }
 
-        if (!Authentication.setAuthenticationCookie(response, mspName)) {
+        if (!Authentication.setAuthenticationCookie(response, mspName, emspId)) {
             internalServerError(response);
             return;
         }

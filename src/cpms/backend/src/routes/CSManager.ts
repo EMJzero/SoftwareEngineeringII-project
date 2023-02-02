@@ -1,8 +1,10 @@
 import Route from "../Route";
 import { Request, Response } from "express";
-import { badRequest, checkUndefinedParams, internalServerError, success } from "../helper/http";
+import {badRequest, checkNaN, checkUndefinedParams, internalServerError, success} from "../helper/http";
 import { CSDB } from "../model/CSConnection";
 import { CSChargeCommand } from "../model/CSChargeCommand";
+import {Emsp} from "../model/Emsp";
+import logger from "../helper/logger";
 
 export default class CSManagerRoute extends Route {
 
@@ -50,8 +52,10 @@ export default class CSManagerRoute extends Route {
         const csID = request.body.stationID as number;
         const socketID = request.body.socketID as number;
         const chargeCommand = request.body.chargeCommand as CSChargeCommand;
+        const issuerEMSPId = request.body.issuerEMSPId;
+        const maximumTimeoutDate = request.body.maximumTimeoutDate;
 
-        if (checkUndefinedParams(response, csID, socketID, chargeCommand)) return;
+        if (checkUndefinedParams(response, csID, socketID, chargeCommand) || checkNaN(response, maximumTimeoutDate, issuerEMSPId)) return;
 
         const csConnection = CSDB.shared.getConnectionToCSWithID(csID);
         if (!csConnection) {
@@ -59,10 +63,16 @@ export default class CSManagerRoute extends Route {
             return;
         }
 
+        const issuerEMSP = Emsp.findById(issuerEMSPId);
+        if (!issuerEMSP) {
+            badRequest(response, "No issuer eMSP was found!");
+            return;
+        }
+
         let result = false;
         try {
             if (chargeCommand == CSChargeCommand.startCharge) {
-                result = await csConnection.startCharge(socketID);
+                result = await csConnection.startCharge(socketID, maximumTimeoutDate, issuerEMSPId);
             } else if (chargeCommand == "stop") {
                 result = await csConnection.stopCharge(socketID);
             } else {
@@ -70,11 +80,13 @@ export default class CSManagerRoute extends Route {
                 return;
             }
         } catch (error) {
+            logger.error("Could not execute charge command on the station. Reason: " + error);
             internalServerError(response, "Could not execute charge command on the station. Reason: " + error);
             return;
         }
 
         if (!result) {
+            console.log("UNSUCCESSFUL");
             internalServerError(response, "Operation returned unsuccessful");
             return;
         }

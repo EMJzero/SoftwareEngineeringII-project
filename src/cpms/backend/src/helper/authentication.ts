@@ -41,6 +41,7 @@ export default abstract class Authentication {
 
         request.authenticated = true;
         request.mspName = decodedJWT.mspName;
+        request.mspId = decodedJWT.mspId;
 
         next();
     }
@@ -52,10 +53,11 @@ export default abstract class Authentication {
      * @throws Error if the JWT_SECRET env variable is not defined
      * @return Returns the userId and the activation status
      */
-    static checkJWT(request: Request): { mspName: string } {
+    static checkJWT(request: Request): { mspName: string, mspId: number } {
         const secret = env.JWT_SECRET;
 
         const cookieJWT: string | undefined = request.cookies?.__session;
+        console.log(cookieJWT);
         if (!cookieJWT) {
             logger.debug("__session cookie is undefined, headers are: ", request.headers);
             throw new AuthError("JWT Cookie is undefined");
@@ -80,21 +82,23 @@ export default abstract class Authentication {
 
         const payload = decoded["payload"];
         const mspName = decoded["username"];
-        if (!payload || typeof payload != "string" || !mspName || typeof mspName != "string") {
+        const mspId = decoded["id"];
+        if (!payload || typeof payload != "string" || !mspName || typeof mspName != "string" || !mspId || typeof mspId != "number") {
             throw new AuthError("JWT Cookie is invalid");
         }
 
-        return { mspName: mspName };
+        return { mspName: mspName, mspId: mspId };
     }
 
     /**
      Create a json web token encrypted using the secret in the env
      @param mspName: the eMSP of which you want to create the token
+     * @param mspId: the id of the eMSP that is being logged in
      */
-    static createJWT(mspName: string): string | undefined {
+    static createJWT(mspName: string, mspId: number): string | undefined {
         const secret = env.JWT_SECRET;
         if (secret) {
-            return sign({ "payload": crypto.randomUUID(), "username": mspName }, secret, {
+            return sign({ "payload": crypto.randomUUID(), "username": mspName, "id": mspId }, secret, {
                 expiresIn: env.JWT_EXPIRE
             });
         }
@@ -104,11 +108,12 @@ export default abstract class Authentication {
      * Sets the appropriate headers in the response to send back the eMSP Authentication cookie to the client.
      * @param response the response that will set the cookie
      * @param mspName Th eMSP name of the registered MSP
+     * @param mspId the id of the eMSP that is being logged in
      * @protected
      */
-    static setAuthenticationCookie(response: Response, mspName: string) {
+    static setAuthenticationCookie(response: Response, mspName: string, mspId: number) {
         // Create a JWT token for the user
-        const jwt = Authentication.createJWT(mspName);
+        const jwt = Authentication.createJWT(mspName, mspId);
         if (!jwt)
             return false;
 

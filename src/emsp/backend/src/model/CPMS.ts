@@ -20,7 +20,7 @@ export interface ICPMS {
  */
 export class CPMS {
 
-    /*public static async findByName(name: string): Promise<ICPMS | null> {
+    public static async findByName(name: string): Promise<ICPMS | null> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
@@ -36,9 +36,10 @@ export class CPMS {
             id: result[0].id,
             name: result[0].name,
             endpoint: result[0].APIendpoint,
-            apiKey: result[0].APIkey
+            apiKey: result[0].APIkey,
+            token: result[0].token
         };
-    }*/
+    }
 
     /**
      * Retrieves the a CPMS via its id.

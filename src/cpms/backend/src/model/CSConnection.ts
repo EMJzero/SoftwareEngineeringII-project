@@ -1,4 +1,8 @@
 import * as WebSocket from "ws";
+import {Emsp} from "./Emsp";
+import {postReqHttp, postReqHttpAuth} from "../helper/misc";
+import logger from "../helper/logger";
+import {CS} from "./CS";
 
 /**
  * Static class storing the connections to CSs via websockets,
@@ -44,14 +48,17 @@ export default class CSConnection {
         this._websocket = websocket;
     }
 
-    public startCharge(socketId: number): boolean {
+    public startCharge(socketId: number, maximumTimeoutDate: number, eMSPId: number): boolean {
+        console.log(this._sockets)
         const socket = (this.sockets()).find((sc) => sc.socketId == socketId);
+        console.log(socket);
         if (socket) {
-            console.log("SOCKET STATE: ", socket.state);
             if (socket.state == 1) {
                 const request = {
                     request: "startCharge",
-                    socketId: socketId
+                    socketId: socketId,
+                    maximumTimeoutDate: maximumTimeoutDate,
+                    eMSPId: eMSPId
                 };
                 this._websocket.send(JSON.stringify(request));
                 return true;
@@ -91,16 +98,45 @@ export default class CSConnection {
         return this._sockets;
     }
 
-    public static webSocketListener(message: string, connection: CSConnection) {
+    public static async webSocketListener(message: string, connection: CSConnection) {
         const msg = JSON.parse(message);
 
         if(msg.type != undefined && msg.type == "socketsStatus") {
             msg.sockets.forEach((socket: any) => Object.setPrototypeOf(socket, SocketMachine.prototype));
             connection._sockets = msg.sockets;
+        } else if (msg.type != undefined && msg.type == "chargeEnd") {
+            msg.sockets.forEach((socket: any) => Object.setPrototypeOf(socket, SocketMachine.prototype));
+            connection._sockets = msg.sockets;
+            //Contact the eMSP that made the request
+            const emsp = await Emsp.findById(msg.notifiedEMSPId);
+            const cs = await CS.getCSDetails(connection._id);
+            if (emsp) {
+                const axiosResponse = await postReqHttpAuth(emsp.notificationEndpoint, emsp.APIKey, {
+                    issuerCPMSName: "CPMS1",
+                    affectedCSId: connection._id,
+                    affectedSocketId: msg.affectedSocketId,
+                    totalBillableAmount: Math.ceil(msg.billableDurationHours * cs.userPrice * msg.billablePower * 100) / 100
+                })
+                if (!axiosResponse) {
+                    logger.error("An error occurred while contacting the EMSP. Retrying in 5s...")
+                    const timeout = setInterval(() => {
+                        this.retryEMSPPost(emsp, timeout);
+                    }, 5000);
+                }
+            }
         }
+    }
 
-        //TODO: if for some socket: socket.connectedCar.remainingCapacityKWh == socket.connectedCar.batteryCapacityKWh
-        //TODO: => send notification the the emsp (assumed to be only 1, easy)
+    private static async retryEMSPPost(emsp: Emsp, timer: NodeJS.Timer) {
+        const axiosResponse = await postReqHttpAuth(emsp.notificationEndpoint, emsp.APIKey, {
+            issuerCPMSName: "CPMS1"
+        })
+        if (axiosResponse) {
+            clearInterval(timer);
+            //TODO: Bill the eMSP????
+        } else {
+            logger.error("An error occurred while contacting the EMSP. Retrying in 5s...")
+        }
     }
 }
 
@@ -140,10 +176,24 @@ export class SocketMachine {
     private readonly _maxPower: number;
     private _connectedCar?: CarData;
 
-    constructor(csId: number, socketId: number, socketType: SocketType, speed: ChargeSpeedPower) {
+    private _chargeTimeoutIntervalID?: NodeJS.Timer;
+    private _activeeMSPId?: number;
+    private _chargeStartTime?: number;
+
+    constructor(csId: number, socketId: number, socketType: SocketType, speed: ChargeSpeedPower, activeMSPId?: number, chargeStartTime?: number) {
         this.csId = csId;
         this._socketId = socketId;
         this._maxPower = Math.min(speed, socketType);
+        this._activeeMSPId = activeMSPId;
+        this._chargeStartTime = chargeStartTime;
+    }
+
+    public toJSON(): unknown {
+        const tmp = new SocketMachine(this.csId, this._socketId, this._maxPower, this._maxPower, this._activeeMSPId, this._chargeStartTime);
+        tmp._state = this._state;
+        tmp._connectedCar = this._connectedCar;
+        tmp._currentPower = this._currentPower;
+        return tmp;
     }
 
     public connectCar() {
@@ -165,14 +215,22 @@ export class SocketMachine {
         }
     }
 
-    public chargeCar() {
-        console.log(this._state);
+    public chargeCar(maximumTimeoutDate: number, timeoutCallback: () => void, callereMSPId: number) {
         if (this._state == 1) {
             this._state = 2;
             if (!this._connectedCar) {
                 throw "Cannot start a charge without getting car data first!";
             }
             this._currentPower = Math.min(this._maxPower, this._connectedCar.maxAcceptedPowerKW);
+            //Compute the time remaining for the full change, and get the min time between the timeout and the full charge
+            const timeToFullChargeSeconds = ((this._connectedCar.batteryCapacityKWh - this._connectedCar.remainingCapacityKWh) / this._currentPower) * 3600;
+            const timeoutMS = Math.min(timeToFullChargeSeconds * 1000, maximumTimeoutDate - (new Date()).valueOf());
+            this._activeeMSPId = callereMSPId;
+            this._chargeStartTime = (new Date()).valueOf();
+            this._chargeTimeoutIntervalID = setTimeout(() => {
+                clearTimeout(this._chargeTimeoutIntervalID);
+                timeoutCallback();
+            }, timeoutMS);
         } else {
             throw "Cannot start charging a car";
         }
@@ -182,6 +240,9 @@ export class SocketMachine {
         if (this._state == 2) {
             this._state = 1;
             this._currentPower = 0;
+            this._activeeMSPId = undefined;
+            this._chargeStartTime = undefined;
+            clearTimeout(this._chargeTimeoutIntervalID);
         } else {
             throw "Cannot end a charge which never started!";
         }
@@ -226,6 +287,14 @@ export class SocketMachine {
 
     get connectedCar(): CarData {
         return <CarData>this._connectedCar;
+    }
+
+    get activeeMSPId(): number | undefined {
+        return this._activeeMSPId;
+    }
+
+    get chargeStartTime(): number | undefined {
+        return this._chargeStartTime;
     }
 
     public toString(): string {

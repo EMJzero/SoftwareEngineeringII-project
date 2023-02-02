@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { CSDB } from "../model/CSConnection";
 import { postReqHttp } from "../helper/misc";
 import logger from "../helper/logger";
+import {Emsp} from "../model/Emsp";
 
 export default class RechargeManager extends Route {
     constructor() {
@@ -67,16 +68,25 @@ export default class RechargeManager extends Route {
         const CSID = request.body.CSID;
         const socketID = request.body.socketID;
         const action = request.body.action;
-        console.log(CSID, socketID, action);
-        if (checkUndefinedParams(response, CSID, socketID, action)) return;
+        const maximumTimeoutDate = request.body.maximumTimeoutDate;
+        const eMSPId = request.mspId;
+
+        if (checkUndefinedParams(response, CSID, socketID, action) || checkNaN(response, maximumTimeoutDate)) return;
 
         let axiosResponse;
-        console.log(request.protocol + "://" + request.get("host") + "/cs-manager");
         try {
+            const cookieJWT: string | undefined = request.cookies ? "__session=" + request.cookies?.__session : undefined;
             axiosResponse = await postReqHttp(request.protocol + "://" + request.get("host") + "/api/cs-manager", {
                 stationID: CSID,
                 socketID: socketID,
-                chargeCommand: action
+                chargeCommand: action,
+                maximumTimeoutDate: maximumTimeoutDate,
+                issuerEMSPId: eMSPId
+            }, {
+                headers: {
+                    Cookie: cookieJWT,
+                },
+                withCredentials: true
             });
         } catch (e) {
             logger.debug("Axios response status =", axiosResponse?.status);
