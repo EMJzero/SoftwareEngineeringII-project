@@ -20,7 +20,7 @@
         <!--<vue-tailwind-datepicker as-single :formatter="formatter" v-model="dateValue" style="max-width: 50%; margin-left: auto; margin-right: auto"/>-->
         <Datepicker :dark="true" :format="format" :min-date="new Date()" :prevent-min-max-navigation="true" v-model="dateValue" class="py-4" style="max-width: 50%; margin-left: auto; margin-right: auto" @update:model-value="modelChanged"></Datepicker>
         <div class="grid grid-cols-4 gap-6 mt-4 mx-3">
-          <div v-for="availableSlot in stationAvailability" class="bordered rounded-lg py-4 px-6" :class="{'border-blue-600': availableSlot === selectedSlot, 'border-gray-400': availableSlot !== selectedSlot}">
+          <div v-for="availableSlot in stationAvailability" class="bordered rounded-lg py-4 px-6" :class="{'border-blue-600': availableSlot === selectedSlot, 'border-gray-400': (availableSlot !== selectedSlot && !AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate)), 'border-green-400': (availableSlot !== selectedSlot && AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate))}">
             <input ref="inputButton" type="radio" :id="availableSlot" :name="timeSlotID" :checked="availableSlot === selectedSlot" @click="changeSelectedTimeSlot(availableSlot)">
             <label :for="availableSlot" class="text-white font-semibold text-lg px-4"> {{availableSlot.startHour.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })}} - {{availableSlot.endHour.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })}} </label>
           </div>

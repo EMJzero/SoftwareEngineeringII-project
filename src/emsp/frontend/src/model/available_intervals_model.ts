@@ -15,4 +15,14 @@ export default class AvailableIntervalsModel {
         return this.date.toString() + "_ST_" + this.startHour + "_ED_" + this.endHour;
     }
 
+    static isOnOffer(slot: AvailableIntervalsModel, offerExpirationTimestamp: number | null): boolean {
+        if (offerExpirationTimestamp) {
+            const slotDate = new Date(slot.date);
+            slotDate.setHours(slot.startHour);
+            const slotTimestamp = slotDate.valueOf();
+            return slotTimestamp < offerExpirationTimestamp;
+        }
+        return false;
+    }
+
 }
