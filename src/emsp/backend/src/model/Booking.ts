@@ -130,23 +130,29 @@ export class Booking {
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
             "WITH timeSlots(start, end) AS (SELECT b1.endDate, b2.startDate FROM bookings b1 JOIN bookings b2 ON b1.cpmsId = b2.cpmsId AND b1.csId = b2.csId AND b1.socketId = b2.socketId\n" +
-            "WHERE b1.endDate < b2.startDate AND b1.id <> b2.id AND b1.cpmsId = ? AND b1.csId = ? AND b1.socketId = ? AND b1.endDate >= ? AND b2.startDate <= ? AND\n" +
+            "WHERE b1.endDate < b2.startDate AND b1.id <> b2.id AND b1.cpmsId = ? AND b1.csId = ? AND b1.socketId = ? AND b1.endDate >= FROM_UNIXTIME(?) AND b2.startDate <= FROM_UNIXTIME(?) AND\n" +
             "NOT EXISTS\n" +
             "(SELECT * FROM bookings b3 WHERE b1.cpmsId = b3.cpmsId AND b1.csId = b3.csId AND b1.socketId = b3.socketId AND b1.id <> b3.id AND b2.id <> b3.id AND (b3.startDate BETWEEN b1.endDate AND b2.startDate OR b3.endDate BETWEEN b1.endDate AND b2.startDate))\n" +
             "UNION\n" +
-            "(SELECT endDate, ? FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND endDate < ? ORDER BY endDate DESC LIMIT 1)\n" +
+            "(SELECT endDate, FROM_UNIXTIME(?) FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND endDate < FROM_UNIXTIME(?) ORDER BY endDate DESC LIMIT 1)\n" +
             "UNION\n" +
-            "(SELECT ?, startDate FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND startDate > ? ORDER BY startDate ASC LIMIT 1))\n" +
-            "SELECT * FROM timeSlots",
-            [cpmsID, csID, socketID, startDate.valueOf(), endDate.valueOf(),
-                endDate.valueOf(), cpmsID, csID, socketID, endDate.valueOf(),
-                startDate.valueOf(), cpmsID, csID, socketID, startDate.valueOf()]);
+            "(SELECT FROM_UNIXTIME(?), startDate FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND startDate > FROM_UNIXTIME(?) ORDER BY startDate ASC LIMIT 1))\n" +
+            "SELECT TIMESTAMP(start) AS start, TIMESTAMP(end) AS end FROM timeSlots",
+            [cpmsID, csID, socketID, Booking.secondsSinceEpoch(startDate), Booking.secondsSinceEpoch(endDate),
+                Booking.secondsSinceEpoch(endDate), cpmsID, csID, socketID, Booking.secondsSinceEpoch(endDate),
+                Booking.secondsSinceEpoch(startDate), cpmsID, csID, socketID, Booking.secondsSinceEpoch(startDate)]);
+
+        const res = result.map((res) => new DateIntervalPerSocket(new Date(res.start), new Date(res.end)))
+            .filter((res) => res.endDate.valueOf() - res.startDate.valueOf() >= env.TIME_SLOT_SIZE * 60 * 1000);
+
+        if(res.length == 1 && res[0].endDate.valueOf() - res[0].startDate.valueOf() > 24 * 60 * 60 * 1000 ) {
+            res[0] = new DateIntervalPerSocket(startDate, endDate);
+        }
 
         connection.release();
 
         // Here we exclude intervals that violate the env.TIME
-        return result.map((res) => new DateIntervalPerSocket(new Date(res.start), new Date(res.end)))
-            .filter((res) => res.endDate.valueOf() - res.startDate.valueOf() >= env.TIME_SLOT_SIZE * 60 * 1000);
+        return res;
     }
 
     /**
@@ -343,6 +349,10 @@ export class Booking {
         const json: any = result;
         console.log(result);
         return json.affectedRows == 1;
+    }
+
+    private static secondsSinceEpoch(date: Date) {
+        return Math.round(date.valueOf() / 1000);
     }
 }
 
