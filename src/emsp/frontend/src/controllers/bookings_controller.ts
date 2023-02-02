@@ -80,7 +80,7 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
     async setBookings(bookings: BookingModel[] | null) {
         //For each booking ask the details of the CSes and complete the booking data
         if (bookings) {
-            reference.value = await this.getStationDetails(bookings);
+            reference.value = (await this.getStationDetails(bookings)).sort((a, b) => a.startDate < b.startDate ? -1 : 1);
         } else {
             reference.value = bookings;
         }
