@@ -31,6 +31,7 @@
       </div>
     </div>
     <div class="text-center mt-10">
+      <p class="text-center text-white font-semibold text-2xl my-8">Recharge Price: {{stationDetails?.stationData.userPrice ?? 0}} $/kWh</p>
       <input class="rounded-lg bg-blue-600 py-3 px-16 font-medium text-white hover:bg-blue-700" style="margin-right: auto; margin-left: auto" type="submit" value="Create Booking">
     </div>
   </form>
