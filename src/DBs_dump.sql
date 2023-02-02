@@ -91,7 +91,7 @@ CREATE TABLE `cpmses` (
 
 LOCK TABLES `cpmses` WRITE;
 /*!40000 ALTER TABLE `cpmses` DISABLE KEYS */;
-INSERT INTO `cpmses` VALUES (1,'CPMS1','http://127.0.0.1:8001/api','JinSakai');
+INSERT INTO `cpmses` VALUES (1,'CPMS1','http://127.0.0.1:8001/api','JinSakai', '');
 /*!40000 ALTER TABLE `cpmses` ENABLE KEYS */;
 UNLOCK TABLES;
 
