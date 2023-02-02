@@ -34,7 +34,7 @@ import BookingChip from "@/components/BookingChip.vue";
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import station_details_controller from "@/controllers/station_details_controller";
-import {convertSQLStringToDateTimeString} from "@/helpers/converters";
+import {convertSQLStringToDateTimeString, reduceFullDateString} from "@/helpers/converters";
 import {SocketType} from "@/model/socket_model";
 
 const dialog = ref(false);
@@ -89,7 +89,7 @@ function getAggregatedSocketTypes(): string {
 
 function getOfferEndDate(): string {
   if (stationDetails.value?.stationData.offerExpirationDate) {
-    return convertSQLStringToDateTimeString(stationDetails.value?.stationData.offerExpirationDate);
+    return reduceFullDateString(new Date(stationDetails.value?.stationData.offerExpirationDate).toString());
   }
   return "No Offers";
 }

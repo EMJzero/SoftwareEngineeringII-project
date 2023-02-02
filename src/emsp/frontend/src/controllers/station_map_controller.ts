@@ -153,7 +153,7 @@ class StationMapController extends GenericController<StationModel[] | null> impl
         }
         const res = await super.get<StationModel[]>("/search", { query: query });
         if (res) {
-            console.log(res[0]);
+            console.log(res);
             this.setStations(res);
         }
         return null;

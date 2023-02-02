@@ -1,5 +1,4 @@
 import type Socket from "@/model/socket_model";
-import {convertSQLStringToDateTimeString} from "@/helpers/converters";
 import {SocketType} from "@/model/socket_model";
 
 export default class StationModel {
@@ -11,11 +10,11 @@ export default class StationModel {
     locationLongitude: number;
     nominalPrice: number;
     userPrice: number;
-    offerExpirationDate: string | null;
+    offerExpirationDate: number | null;
     sockets: Socket[] | null;
     imageURL: string;
 
-    constructor(id: number, name: string, ownerCPMSId: number, ownerCPMSName: string, locationLatitude: number, locationLongitude: number, nominalPrice: number, userPrice: number, offerExpirationDate: string | null, sockets: Socket[] | null, imageURL: string) {
+    constructor(id: number, name: string, ownerCPMSId: number, ownerCPMSName: string, locationLatitude: number, locationLongitude: number, nominalPrice: number, userPrice: number, offerExpirationDate: number | null, sockets: Socket[] | null, imageURL: string) {
         this.id = id;
         this.name = name;
         this.ownerCPMSId = ownerCPMSId;
