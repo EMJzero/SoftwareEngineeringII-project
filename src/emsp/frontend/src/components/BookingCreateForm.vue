@@ -22,7 +22,7 @@
         <div class="grid grid-cols-4 gap-6 mt-4 mx-3">
           <div v-for="availableSlot in stationAvailability" class="bordered rounded-lg py-4 px-6" :class="{'border-blue-600': availableSlot === selectedSlot, 'border-gray-400': availableSlot !== selectedSlot}">
             <input ref="inputButton" type="radio" :id="availableSlot" :name="timeSlotID" :checked="availableSlot === selectedSlot" @click="changeSelectedTimeSlot(availableSlot)">
-            <label :for="availableSlot" class="text-white font-semibold text-lg px-4"> {{availableSlot.startHour}} - {{availableSlot.endHour}} </label>
+            <label :for="availableSlot" class="text-white font-semibold text-lg px-4"> {{availableSlot.startHour.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })}} - {{availableSlot.endHour.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })}} </label>
           </div>
         </div>
         <p v-if="isLoadingDates" class="text-center text-gray-500 font-semibold text-2xl my-8">Loading Available Slots...</p>
