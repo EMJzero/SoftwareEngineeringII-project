@@ -9,6 +9,7 @@ import axios from "axios";
 import Authentication from "../../src/helper/authentication";
 import { CPMS } from "../../src/model/CPMS";
 import { DBAccess } from "../../src/DBAccess";
+import CPMSAuthentication from "../../src/helper/CPMSAuthentication";
 
 use(chaiHttp);
 use(sinonChai);
@@ -22,6 +23,7 @@ describe("/search endpoint", () => {
     let checkJWTStub: SinonStub;
     //let CPMSStub: SinonStub;
     let DBStub: SinonStub;
+    let CPMSAuthenticationStub: SinonStub;
 
     before(() => {
         requester = request(app.express).keepOpen();
@@ -36,6 +38,7 @@ describe("/search endpoint", () => {
         checkJWTStub = sandbox.stub(Authentication, "checkJWT");
         //CPMSStub = sandbox.stub(CPMS, "findAll");
         DBStub = sandbox.stub(DBAccess, "getConnection");
+        CPMSAuthenticationStub = sandbox.stub(CPMSAuthentication, "getTokenIfNeeded");
     });
 
     afterEach(() => {
@@ -69,7 +72,8 @@ describe("/search endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves([ { name: "testName", id: 1 } ]);
-            axiosGetStub.throws("Sorry master, I failed you!");
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            axiosGetStub.throws({ response: { data: { message: "Nothing " } } });
             const res = await requester.get("/search?latitude=\"12.255\"" +
                 "&longitude=\"58.626\"");
             expect(res).to.have.status(500);
@@ -81,6 +85,7 @@ describe("/search endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves([ { name: "testName", id: 1 } ]);
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             axiosGetStub.resolves({ data: { data: { CSList: [{ name: "testName", id: 1 }] } } });
             const res = await requester.get("/search?latitude=\"12.255\"" +
                 "&longitude=\"58.626\"");

@@ -9,6 +9,7 @@ import Authentication from "../../src/helper/authentication";
 import { CPMS } from "../../src/model/CPMS";
 import { Booking } from "../../src/model/Booking";
 import { DBAccess } from "../../src/DBAccess";
+import CPMSAuthentication from "../../src/helper/CPMSAuthentication";
 
 use(chaiHttp);
 use(sinonChai);
@@ -24,6 +25,7 @@ describe("/details endpoint", () => {
     //let availableTimeSlotsStub: SinonStub;
     //let executeStub: SinonStub;
     let DBStub: SinonStub;
+    let CPMSAuthenticationStub: SinonStub;
 
     before(() => {
         requester = request(app.express).keepOpen();
@@ -40,6 +42,7 @@ describe("/details endpoint", () => {
         //availableTimeSlotsStub = sandbox.stub(Booking, "getAvailableTimeSlots");
         //executeStub = sandbox.stub(PoolConnection.prototype, "execute");
         DBStub = sandbox.stub(DBAccess, "getConnection");
+        CPMSAuthenticationStub = sandbox.stub(CPMSAuthentication, "getTokenIfNeeded");
     });
 
     afterEach(() => {
@@ -84,7 +87,8 @@ describe("/details endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
-            axiosGetStub.throws("Sorry, I failed MyLord");
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            axiosGetStub.throws({ response: { data: { message: "Nothing " } } });
             const res = await requester.get("/details?stationID=1" +
                 "&cpmsId=1");
             expect(res).to.have.status(500);
@@ -96,6 +100,7 @@ describe("/details endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             axiosGetStub.resolves({ data: { data: {} } } );
             const res = await requester.get("/details?stationID=1" +
                 "&cpmsId=1");
@@ -108,6 +113,7 @@ describe("/details endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves({ endpoint: "endpointTippityToppy" });
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             axiosGetStub.resolves({ data: { data: { CSList: { data: "some date" } } } } );
             //availableTimeSlotsStub.resolves( { data: "NothingImportant" } );
             //executeStub.resolves([[{ start: 123, end: 10000000, socketId: 1 }]]);

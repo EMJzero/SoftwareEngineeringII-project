@@ -84,7 +84,7 @@ describe("/cs-manager endpoint", () => {
             );
             const res = await requester.post("/cs-manager").send({
                 stationID: 1,
-                chargeCommand: "start"
+                chargeCommand: "start",
             });
             expect(res).to.have.status(400);
         });
@@ -97,7 +97,9 @@ describe("/cs-manager endpoint", () => {
             const res = await requester.post("/cs-manager").send({
                 stationID: 1,
                 socketID: 1,
-                chargeCommand: "start"
+                chargeCommand: "start",
+                issuerEMSPId: 1,
+                maximumTimeoutDate: 1
             });
             expect(res).to.have.status(400);
         });
@@ -113,7 +115,9 @@ describe("/cs-manager endpoint", () => {
             const res = await requester.post("/cs-manager").send({
                 stationID: 1,
                 socketID: 1,
-                chargeCommand: "start"
+                chargeCommand: "start",
+                issuerEMSPId: 1,
+                maximumTimeoutDate: 1
             });
             expect(res).to.have.status(500);
         });
@@ -128,7 +132,9 @@ describe("/cs-manager endpoint", () => {
             const res = await requester.post("/cs-manager").send({
                 stationID: 1,
                 socketID: 1,
-                chargeCommand: "skatush"
+                chargeCommand: "nope",
+                issuerEMSPId: 1,
+                maximumTimeoutDate: 1
             });
             expect(res).to.have.status(400);
         });
@@ -144,7 +150,9 @@ describe("/cs-manager endpoint", () => {
             const res = await requester.post("/cs-manager").send({
                 stationID: 1,
                 socketID: 1,
-                chargeCommand: "start"
+                chargeCommand: "start",
+                issuerEMSPId: 1,
+                maximumTimeoutDate: 1
             });
             expect(res).to.have.status(500);
         });
@@ -160,7 +168,9 @@ describe("/cs-manager endpoint", () => {
             const res = await requester.post("/cs-manager").send({
                 stationID: 1,
                 socketID: 1,
-                chargeCommand: "start"
+                chargeCommand: "start",
+                issuerEMSPId: 1,
+                maximumTimeoutDate: 1
             });
             expect(res).to.have.status(200);
         });

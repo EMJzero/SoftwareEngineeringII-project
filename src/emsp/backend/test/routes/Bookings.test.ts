@@ -6,9 +6,10 @@ import app from "../../src/app";
 import { beforeEach } from "mocha";
 import { Booking } from "../../src/model/Booking";
 import Authentication from "../../src/helper/authentication";
-import { CPMS } from "../../src/model/CPMS";
+import {CPMS, ICPMS} from "../../src/model/CPMS";
 import axios from "axios";
 import { DBAccess } from "../../src/DBAccess";
+import CPMSAuthentication from "../../src/helper/CPMSAuthentication";
 
 use(chaiHttp);
 use(sinonChai);
@@ -27,6 +28,7 @@ describe("/bookings endpoint", () => {
     //let createBookingStub: SinonStub;
     //let deleteBookingStub: SinonStub;
     let DBStub: SinonStub;
+    let CPMSAuthenticationStub: SinonStub;
 
     before(() => {
         requester = request(app.express).keepOpen();
@@ -46,6 +48,7 @@ describe("/bookings endpoint", () => {
         //createBookingStub = sandbox.stub(Booking, "createBooking");
         //deleteBookingStub = sandbox.stub(Booking, "deleteBooking");
         DBStub = sandbox.stub(DBAccess, "getConnection");
+        CPMSAuthenticationStub = sandbox.stub(CPMSAuthentication, "getTokenIfNeeded");
     });
 
     afterEach(() => {
@@ -190,8 +193,9 @@ describe("/bookings endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             DBStub.resolves(new Test1());
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
-            axiosGetStub.throws("Nope :)");
+            axiosGetStub.throws({ response: { data: { message: "Nothing " } } });
             const res = await requester.post("/bookings").send({
                 startUnixTime : new Date().valueOf() + 10000000,
                 endUnixTime: new Date().valueOf() + 10000000 + 2*60*60*1000,
@@ -208,6 +212,7 @@ describe("/bookings endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             axiosGetStub.resolves({ data: { data: {} } } );
             const res = await requester.post("/bookings").send({
                 startUnixTime : new Date().valueOf() + 10000000,
@@ -225,6 +230,7 @@ describe("/bookings endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
             //createBookingStub.resolves(false);
             const res = await requester.post("/bookings").send({
@@ -244,6 +250,7 @@ describe("/bookings endpoint", () => {
             );
             //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
             axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             //createBookingStub.resolves(true);
             const res = await requester.post("/bookings").send({
                 startUnixTime : new Date().valueOf() + 10000000,

@@ -5,7 +5,7 @@ import logger from "../helper/logger";
 import {CS} from "./CS";
 import WSSync from "../helper/websocket-sync";
 
-const WebSocketSync = require("ws-sync-request");
+//const WebSocketSync = require("ws-sync-request");
 
 /**
  * Static class storing the connections to CSs via websockets,
@@ -144,9 +144,9 @@ export default class CSConnection {
                 affectedCSName: affectedCSName,
                 affectedSocketId: msg.affectedSocketId,
                 totalBillableAmount: Math.ceil(msg.billableDurationHours * cs.userPrice * msg.billablePower * 100) / 100
-            })
+            });
             if (axiosResponse.isError) {
-                logger.error("An error occurred while contacting the EMSP. Retrying in 5s...")
+                logger.error("An error occurred while contacting the EMSP. Retrying in 5s...");
                 const timeout = setInterval(() => {
                     CSConnection.retryEMSPPost(emsp, timeout);
                 }, 5000);
@@ -157,12 +157,12 @@ export default class CSConnection {
     private static async retryEMSPPost(emsp: Emsp, timer: NodeJS.Timer) {
         const axiosResponse = await postReqHttpAuth(emsp.notificationEndpoint, emsp.APIKey, {
             issuerCPMSName: "CPMS1"
-        })
+        });
         if (!axiosResponse.isError) {
             clearInterval(timer);
             //TODO: Bill the eMSP????
         } else {
-            logger.error("An error occurred while contacting the EMSP. Retrying in 5s...")
+            logger.error("An error occurred while contacting the EMSP. Retrying in 5s...");
         }
     }
 }
