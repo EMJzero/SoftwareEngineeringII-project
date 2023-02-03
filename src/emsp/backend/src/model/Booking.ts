@@ -129,31 +129,18 @@ export class Booking {
     public static async getAvailableTimeSlots(cpmsID: number, csID: number, socketID: number, startDate: Date, endDate: Date): Promise<DateIntervalPerSocket[]> {
         const connection = await DBAccess.getConnection();
 
+        //TODO: Rifare con una view/trigger che tiene traccia per ciascuna CS dei range di disponibilità e qui li pesco solo
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "WITH timeSlots(start, end) AS (SELECT b1.endDate, b2.startDate FROM bookings b1 JOIN bookings b2 ON b1.cpmsId = b2.cpmsId AND b1.csId = b2.csId AND b1.socketId = b2.socketId\n" +
-            "WHERE b1.endDate < b2.startDate AND b1.id <> b2.id AND b1.cpmsId = ? AND b1.csId = ? AND b1.socketId = ? AND b1.endDate >= FROM_UNIXTIME(?) AND b2.startDate <= FROM_UNIXTIME(?) AND\n" +
-            "NOT EXISTS\n" +
-            "(SELECT * FROM bookings b3 WHERE b1.cpmsId = b3.cpmsId AND b1.csId = b3.csId AND b1.socketId = b3.socketId AND b1.id <> b3.id AND b2.id <> b3.id AND (b3.startDate BETWEEN b1.endDate AND b2.startDate OR b3.endDate BETWEEN b1.endDate AND b2.startDate))\n" +
-            "UNION\n" +
-            "(SELECT endDate, FROM_UNIXTIME(?) FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND endDate < FROM_UNIXTIME(?) ORDER BY endDate DESC LIMIT 1)\n" +
-            "UNION\n" +
-            "(SELECT FROM_UNIXTIME(?), startDate FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ? AND startDate > FROM_UNIXTIME(?) ORDER BY startDate ASC LIMIT 1))\n" +
-            "SELECT TIMESTAMP(start) AS start, TIMESTAMP(end) AS end FROM timeSlots",
-            [cpmsID, csID, socketID, Booking.secondsSinceEpoch(startDate), Booking.secondsSinceEpoch(endDate),
-                Booking.secondsSinceEpoch(endDate), cpmsID, csID, socketID, Booking.secondsSinceEpoch(endDate),
-                Booking.secondsSinceEpoch(startDate), cpmsID, csID, socketID, Booking.secondsSinceEpoch(startDate)]);
-
-        const res = result.map((res) => new DateIntervalPerSocket(new Date(res.start), new Date(res.end)))
-            .filter((res) => res.endDate.valueOf() - res.startDate.valueOf() >= env.TIME_SLOT_SIZE * 60 * 1000);
-
-        if(res.length == 1 && res[0].endDate.valueOf() - res[0].startDate.valueOf() > 24 * 60 * 60 * 1000 ) {
-            res[0] = new DateIntervalPerSocket(startDate, endDate);
-        }
+            "SELECT start, end FROM availabilityautomanaged WHERE cpms = ? AND cs = ? AND socket = ? AND start <= ? UNION (SELECT ?, ? WHERE NOT EXISTS (SELECT * FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ?))",
+            [cpmsID, csID, socketID, startDate.valueOf(), startDate.valueOf(), endDate.valueOf(), cpmsID, csID, socketID]);
 
         connection.release();
 
         // Here we exclude intervals that violate the env.TIME
-        return res;
+        const tmpResult = result.map((res) => new DateIntervalPerSocket(new Date(res.start), new Date(res.end)))
+            .filter((res) => res.endDate.valueOf() - res.startDate.valueOf() >= env.TIME_SLOT_SIZE * 60 * 1000);
+
+        return tmpResult;
     }
 
     /**
