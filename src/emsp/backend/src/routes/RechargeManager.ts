@@ -174,7 +174,8 @@ export default class RechargeManager extends Route {
                 internalServerError(response, "Could not access your Bookings");
                 return;
             }
-        } else {
+        }/* else {
+        //Notifications will handle booking deletion automatically!
             try {
                 if(!await Booking.deleteBooking(userID, bookingID))
                     throw "Booking deletion failed...";
@@ -183,7 +184,7 @@ export default class RechargeManager extends Route {
                 internalServerError(response, "Could not access your Bookings");
                 return;
             }
-        }
+        }*/
 
         booking.isActive = action == "start";
         success(response, booking);

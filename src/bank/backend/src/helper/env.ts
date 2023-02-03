@@ -10,6 +10,8 @@ if (process.env.NODE_ENV != "testing")
 interface EnvVariables {
     // Port where the app server will run
     PORT: number,
+    // Port where the WebSocket server will run
+    WS_PORT: number;
     // Relative URL where all routes will start from, this MUST be a relative URL
     BASE_URL: string,
     // Flag representing if we are in a production environment
@@ -32,15 +34,13 @@ interface EnvVariables {
     DB_HOST: string,
     DB_USER: string,
     DB_PASSWORD: string,
-    DB_DATABASE: string,
-    // Size of the minimum timeslot that can be booked
-    TIME_SLOT_SIZE: number,
-    PAYMENT_PROVIDER_URL: string
+    DB_DATABASE: string
 }
 
 // Default values for some of the env variables
 const defaults = {
     PORT: 8000,
+    WS_PORT: 3000,
     BASE_URL: "/api/",
     SALT_ROUNDS: 1,
     JWT_SECRET: "this_is_an_insecure_secret",
@@ -51,9 +51,7 @@ const defaults = {
     DB_HOST: "localhost",
     DB_USER: "root",
     DB_PASSWORD: "Doberman180",
-    DB_DATABASE: "cpms_db",
-    TIME_SLOT_SIZE: 60,
-    PAYMENT_PROVIDER_URL: "http://127.0.0.1:8002/api/accounts"
+    DB_DATABASE: "cpms_db"
 };
 
 /**

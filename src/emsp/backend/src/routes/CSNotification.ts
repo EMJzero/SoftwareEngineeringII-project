@@ -2,7 +2,7 @@ import Route from "../Route";
 import {Request, Response} from "express";
 import {badRequest, checkNaN, checkUndefinedParams, internalServerError, success} from "../helper/http";
 import {CPMS} from "../model/CPMS";
-import {getReqHttp} from "../helper/misc";
+import {getReqHttp, postReqHttp} from "../helper/misc";
 import logger from "../helper/logger";
 import CPMSAuthentication from "../helper/CPMSAuthentication";
 import {User} from "../model/User";
@@ -10,6 +10,7 @@ import {Booking} from "../model/Booking";
 import {use} from "chai";
 import {Notification} from "../model/Notification";
 import Authentication from "../helper/authentication";
+import env from "../helper/env";
 
 export default class CSNotification extends Route {
 
@@ -68,18 +69,28 @@ export default class CSNotification extends Route {
             return;
         }
 
-        console.log(ownerCPMS.id, csId, socketId);
-        //Bill the user
-        const user = await Booking.findUserWithActive(csId, ownerCPMS.id, socketId);
-        console.log("BILLING USER ", user?.user.username, "AMOUNT", totalBillableAmount);
-        //Add a notification - frontend will query them to display
-        if (user?.user.id) {
-            try {
+        try {
+            //Bill the user
+            const user = await Booking.findUserWithActive(csId, ownerCPMS.id, socketId);
+            //Add a notification - frontend will query them to display
+            if (user) {
+                console.log("BILLING USER ", user?.user.username, "AMOUNT", totalBillableAmount);
+                const response = await postReqHttp(env.PAYMENT_PROVIDER_URL, null, {
+                    cardNumber: user.user.creditCardNumber,
+                    cardOwner: user.user.creditCardBillingName,
+                    cvv: user.user.creditCardCVV,
+                    expiration: user.user.creditCardExpiration,
+                    billable: totalBillableAmount,
+                    command: "BILL"
+                });
+
                 await Notification.registerNotification(user.user.id, "Your recharge at \"" + csName + "\" ended, and you've been charged $" + totalBillableAmount);
                 await Booking.deleteBooking(user.user.id, user.bookingId);
-            } catch (e) {
-                logger.log(e);
             }
+        } catch (e) {
+            logger.error("Error: " + e);
+            internalServerError(response, "Could not finalize notification handling");
+            return;
         }
 
         success(response);

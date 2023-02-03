@@ -33,13 +33,16 @@ export default class Bookings extends Route {
 
         try {
             if (retrieveActiveBooking != undefined) {
-                success(response, await Booking.findActiveByUser(userID));
+                const result = await Booking.findActiveByUser(userID)
+                success(response, result);
             } else if (!isNaN(referenceDateDay)) {
                 const referenceDate = new Date(referenceDateYear, referenceDateMonth, referenceDateDay);
                 if (checkNaN(response, referenceDateDay, referenceDateMonth, referenceDateYear, intervalDays)) return;
-                success(response, await Booking.findByUserFiltered(userID, referenceDate, intervalDays));
+                const result = await Booking.findByUserFiltered(userID, referenceDate, intervalDays)
+                success(response, result);
             } else {
-                success(response, await Booking.findByUser(userID));
+                const result = await Booking.findByUser(userID)
+                success(response, result);
             }
         } catch (e) {
             logger.error("DB access for Booking failed");
