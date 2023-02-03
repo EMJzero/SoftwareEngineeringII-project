@@ -51,9 +51,9 @@ class BookingCreateController extends GenericController<StationDetailsModel | nu
         const endHr = timeSlot.endHour;
 
         //Compute the start and end unix time
-        const startDate = new Date(day.getFullYear(), day.getMonth(), day.getDay(), startHr);
+        const startDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), startHr);
         const tomorrow = new Date(day.getDate() + 1);
-        const endDate = endHr < 24 ? new Date(day.getFullYear(), day.getMonth(), day.getDay(), endHr) : new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDay(), 0);
+        const endDate = endHr < 24 ? new Date(day.getFullYear(), day.getMonth(), day.getDate(), endHr) : new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 0);
         const body = {
             startUnixTime: startDate.getTime(),
             endUnixTime: endDate.getTime(),
