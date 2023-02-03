@@ -1,5 +1,5 @@
-import { DBAccess } from "../DBAccess";
-import { FieldPacket, RowDataPacket, ResultSetHeader } from "mysql2/promise";
+import {DBAccess} from "../DBAccess";
+import {FieldPacket, RowDataPacket} from "mysql2/promise";
 import env from "../helper/env";
 import {IUser} from "./User";
 
@@ -129,7 +129,6 @@ export class Booking {
     public static async getAvailableTimeSlots(cpmsID: number, csID: number, socketID: number, startDate: Date, endDate: Date): Promise<DateIntervalPerSocket[]> {
         const connection = await DBAccess.getConnection();
 
-        //TODO: Rifare con una view/trigger che tiene traccia per ciascuna CS dei range di disponibilità e qui li pesco solo
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
             "SELECT start, end FROM availabilityautomanaged WHERE cpms = ? AND cs = ? AND socket = ? AND start <= ? UNION (SELECT ?, ? WHERE NOT EXISTS (SELECT * FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ?))",
             [cpmsID, csID, socketID, startDate.valueOf(), startDate.valueOf(), endDate.valueOf(), cpmsID, csID, socketID]);
@@ -137,10 +136,8 @@ export class Booking {
         connection.release();
 
         // Here we exclude intervals that violate the env.TIME
-        const tmpResult = result.map((res) => new DateIntervalPerSocket(new Date(res.start), new Date(res.end)))
+        return result.map((res) => new DateIntervalPerSocket(new Date(res.start), new Date(res.end)))
             .filter((res) => res.endDate.valueOf() - res.startDate.valueOf() >= env.TIME_SLOT_SIZE * 60 * 1000);
-
-        return tmpResult;
     }
 
     /**
