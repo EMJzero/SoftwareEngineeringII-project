@@ -3,7 +3,7 @@ import {postReqHttp} from "./misc";
 import logger from "./logger";
 import {AxiosResponse} from "axios";
 
-const jwtDecode = require('jwt-decode');
+const jwtDecode = require("jwt-decode");
 
 export default class CPMSAuthentication {
 
@@ -19,7 +19,7 @@ export default class CPMSAuthentication {
                     const cookie = headers["set-cookie"];
                     if (cookie) {
                         cpms.token = cookie?.find((cookieStr) => cookieStr.includes("__session")) ?? null;
-                        await CPMS.updateToken(cpms.id, cpms.token)
+                        await CPMS.updateToken(cpms.id, cpms.token);
                     }
                 }
             } catch (error) {

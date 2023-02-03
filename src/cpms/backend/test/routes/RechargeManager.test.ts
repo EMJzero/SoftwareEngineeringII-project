@@ -22,6 +22,7 @@ describe("/recharge-manager endpoint", () => {
     let startChargeStub: SinonStub;
     let stopChargeStub: SinonStub;
     let getConnectionStub: SinonStub;
+    let axiosPostStub: SinonStub;
 
     before(() => {
         requester = request(app.express).keepOpen();
@@ -38,6 +39,7 @@ describe("/recharge-manager endpoint", () => {
         socketsStub = sandbox.stub(CSConnection.prototype, "getSocket");
         startChargeStub = sandbox.stub(CSConnection.prototype, "startCharge");
         stopChargeStub = sandbox.stub(CSConnection.prototype, "stopCharge");
+        axiosPostStub = sandbox.stub(axios, "post");
     });
 
     afterEach(() => {
@@ -102,7 +104,7 @@ describe("/recharge-manager endpoint", () => {
             getConnectionStub.returns(tempObj);
             const socket = new SocketMachine(1, 1, SocketType.Type1, ChargeSpeedPower.Slow);
             socket.connectCar();
-            socket.chargeCar();
+            socket.chargeCar(1, () => {return;}, 1);
             socketsStub.resolves(socket);
             const res = await requester.get("/recharge-manager?" +
                 "CSID=1" +
@@ -132,7 +134,9 @@ describe("/recharge-manager endpoint", () => {
             const res = await requester.post("/recharge-manager").send({
                 CSID: 1,
                 socketID: 1,
-                action: "start"
+                action: "start",
+                maximumTimeoutDate: 1,
+                mspId: 1
             });
             expect(res).to.have.status(500);
         });
@@ -145,7 +149,9 @@ describe("/recharge-manager endpoint", () => {
             const res = await requester.post("/recharge-manager").send({
                 CSID: 1,
                 socketID: 1,
-                action: "start"
+                action: "aaaaa",
+                maximumTimeoutDate: 1,
+                mspId: 1
             });
             expect(res).to.have.status(500);
         });
@@ -161,7 +167,9 @@ describe("/recharge-manager endpoint", () => {
             const res = await requester.post("/recharge-manager").send({
                 CSID: 1,
                 socketID: 1,
-                action: "start"
+                action: "start",
+                maximumTimeoutDate: 1,
+                mspId: 1
             });
             expect(res).to.have.status(500);
         });
@@ -177,7 +185,28 @@ describe("/recharge-manager endpoint", () => {
             const res = await requester.post("/recharge-manager").send({
                 CSID: 1,
                 socketID: 1,
-                action: "start"
+                action: "start",
+                maximumTimeoutDate: 1,
+                mspId: 1
+            });
+            expect(res).to.have.status(500);
+        });
+
+        it("should fail if the axios call fails", async () => {
+            checkJWTStub.returns(
+                { mspName: "emsp1" }
+            );
+            const tempObj = {};
+            Object.setPrototypeOf(tempObj, CSConnection.prototype);
+            getConnectionStub.returns(tempObj);
+            startChargeStub.resolves(true);
+            axiosPostStub.throws({ response: { data: { message: "Nothing " } } });
+            const res = await requester.post("/recharge-manager").send({
+                CSID: 1,
+                socketID: 1,
+                action: "start",
+                maximumTimeoutDate: 1,
+                mspId: 1
             });
             expect(res).to.have.status(500);
         });
@@ -190,10 +219,13 @@ describe("/recharge-manager endpoint", () => {
             Object.setPrototypeOf(tempObj, CSConnection.prototype);
             getConnectionStub.returns(tempObj);
             startChargeStub.resolves(true);
+            axiosPostStub.resolves( { status: 200, data: { data: { nothingHere: null } } } );
             const res = await requester.post("/recharge-manager").send({
                 CSID: 1,
                 socketID: 1,
-                action: "start"
+                action: "start",
+                maximumTimeoutDate: 1,
+                mspId: 1
             });
             expect(res).to.have.status(200);
         });

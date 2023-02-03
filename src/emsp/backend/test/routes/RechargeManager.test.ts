@@ -9,6 +9,7 @@ import Authentication from "../../src/helper/authentication";
 import { CPMS } from "../../src/model/CPMS";
 import axios from "axios";
 import { DBAccess } from "../../src/DBAccess";
+import CPMSAuthentication from "../../src/helper/CPMSAuthentication";
 
 use(chaiHttp);
 use(sinonChai);
@@ -20,6 +21,7 @@ describe("/recharge-manager endpoint", () => {
     let requester: ChaiHttp.Agent;
     let checkJWTStub: SinonStub;
     let axiosGetStub: SinonStub;
+    let axiosPostStub: SinonStub;
     //let findActiveByUserStub: SinonStub;
     //let findByUserFilteredStub: SinonStub;
     //let findByUserStub: SinonStub;
@@ -28,6 +30,7 @@ describe("/recharge-manager endpoint", () => {
     //let deleteBookingStub: SinonStub;
     //let findCurrentByUserStub: SinonStub;
     let DBStub: SinonStub;
+    let CPMSAuthenticationStub: SinonStub;
 
     before(() => {
         requester = request(app.express).keepOpen();
@@ -40,6 +43,7 @@ describe("/recharge-manager endpoint", () => {
     beforeEach(() => {
         checkJWTStub = sandbox.stub(Authentication, "checkJWT");
         axiosGetStub = sandbox.stub(axios, "get");
+        axiosPostStub = sandbox.stub(axios, "post");
         //findActiveByUserStub = sandbox.stub(Booking, "findActiveByUser");
         //findByUserFilteredStub = sandbox.stub(Booking, "findByUserFiltered");
         //findByUserStub = sandbox.stub(Booking, "findByUser");
@@ -48,6 +52,7 @@ describe("/recharge-manager endpoint", () => {
         //deleteBookingStub = sandbox.stub(Booking, "deleteBooking");
         //findCurrentByUserStub = sandbox.stub(Booking, "findCurrentByUser");
         DBStub = sandbox.stub(DBAccess, "getConnection");
+        CPMSAuthenticationStub = sandbox.stub(CPMSAuthentication, "getTokenIfNeeded");
     });
 
     afterEach(() => {
@@ -94,9 +99,10 @@ describe("/recharge-manager endpoint", () => {
             );
             //findActiveByUserStub.resolves({ csId: 1, socketId: 1 });
             //findByIdStub.resolves({ endpoint: "SaySomethingFunny" });
-            axiosGetStub.resolves( { status: 400 } );
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            axiosGetStub.throws({ response: { data: { message: "Nothing " } } });
             const res = await requester.get("/recharge-manager");
-            expect(res).to.have.status(400);
+            expect(res).to.have.status(500);
         });
 
         it("should succeed when a valid combination of parameters is given are well defined", async () => {
@@ -106,6 +112,7 @@ describe("/recharge-manager endpoint", () => {
             );
             //findActiveByUserStub.resolves({ csId: 1, socketId: 1 });
             //findByIdStub.resolves({ endpoint: "SaySomethingFunny" });
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             axiosGetStub.resolves( { status: 200, data: { data: {
                 state: 1,
                 currentPower: 1,
@@ -163,6 +170,7 @@ describe("/recharge-manager endpoint", () => {
             );
             //findCurrentByUserStub.resolves( { id: 1 } );
             //findByIdStub.throws("No DB still...");
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             const res = await requester.post("/recharge-manager").send({
                 bookingId: 1,
                 action: "start",
@@ -177,11 +185,14 @@ describe("/recharge-manager endpoint", () => {
             );
             //findCurrentByUserStub.resolves( { id: 1 } );
             //findByIdStub.resolves( { endpoint: "ThisIsAnEndpoint_Yes?" } );
-            axiosGetStub.throws("R.I.P.");
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            //axiosGetStub.throws({ response: { data: { message: "Nothing " } } });
+            axiosPostStub.throws({ response: { data: { message: "Nothing " } } });
             const res = await requester.post("/recharge-manager").send({
                 bookingId: 1,
                 action: "start",
             });
+            console.log(res.body);
             expect(res).to.have.status(500);
         });
 
@@ -192,7 +203,9 @@ describe("/recharge-manager endpoint", () => {
             );
             //findCurrentByUserStub.resolves( { id: 1 } );
             //findByIdStub.resolves( { endpoint: "ThisIsAnEndpoint_Yes?" } );
-            axiosGetStub.resolves( { status: 400, data: { data: {} } } );
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            //axiosGetStub.resolves( { status: 400, data: { data: {} } } );
+            axiosPostStub.resolves( { status: 400, data: { data: {} } } );
             const res = await requester.post("/recharge-manager").send({
                 bookingId: 1,
                 action: "start",
@@ -207,7 +220,9 @@ describe("/recharge-manager endpoint", () => {
             );
             //findCurrentByUserStub.resolves( { id: 1 } );
             //findByIdStub.resolves( { endpoint: "ThisIsAnEndpoint_Yes?" } );
-            axiosGetStub.resolves( { status: 200, data: { data: { nothingHere: null } } } );
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            //axiosGetStub.resolves( { status: 200, data: { data: { nothingHere: null } } } );
+            axiosPostStub.resolves( { status: 200, data: { data: { nothingHere: null } } } );
             const res = await requester.post("/recharge-manager").send({
                 bookingId: 1,
                 action: "start",
@@ -222,7 +237,9 @@ describe("/recharge-manager endpoint", () => {
             );
             //findCurrentByUserStub.resolves( { id: 1 } );
             //findByIdStub.resolves( { endpoint: "ThisIsAnEndpoint_Yes?" } );
-            axiosGetStub.resolves( { status: 200, data: { data: { nothingHere: null } } } );
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            //axiosGetStub.resolves( { status: 200, data: { data: { nothingHere: null } } } );
+            axiosPostStub.resolves( { status: 200, data: { data: { nothingHere: null } } } );
             const res = await requester.post("/recharge-manager").send({
                 bookingId: 1,
                 action: "start",
@@ -236,7 +253,9 @@ class Test1 {
     public async execute(sql: string, values: any) : Promise<[any[], any[]]> {
         if(sql == "SELECT * FROM bookings WHERE userId = ? AND isActive")
             return [[], []];
-        if(sql == "SELECT * FROM bookings WHERE startDate <= current_timestamp() AND endDate > current_timestamp() AND userId = ?")
+        if(sql == "SELECT * FROM bookings WHERE userId = ? AND (startDate >= UNIX_TIMESTAMP() * 1000 OR endDate >= UNIX_TIMESTAMP() * 1000)")
+            return [[], []];
+        if(sql == "SELECT * FROM bookings WHERE startDate <= UNIX_TIMESTAMP() * 1000 AND endDate > UNIX_TIMESTAMP() * 1000 AND userId = ?")
             return [[], []];
         return [[], []];
     }
@@ -257,7 +276,16 @@ class Test2 {
                 cpmsId: 1,
                 csId: 1,
                 socketId: 1 }], []];
-        if(sql == "SELECT * FROM bookings WHERE startDate <= current_timestamp() AND endDate > current_timestamp() AND userId = ?")
+        if(sql == "SELECT * FROM bookings WHERE userId = ? AND (startDate >= UNIX_TIMESTAMP() * 1000 OR endDate >= UNIX_TIMESTAMP() * 1000)")
+            return [[{ id: 1,
+                userId: 1,
+                startDate: 10000000,
+                endDate: 17000000,
+                isActive: 1,
+                cpmsId: 1,
+                csId: 1,
+                socketId: 1 }], []];
+        if(sql == "SELECT * FROM bookings WHERE startDate <= UNIX_TIMESTAMP() * 1000 AND endDate > UNIX_TIMESTAMP() * 1000 AND userId = ?")
             return [[{ id: 1,
                 userId: 1,
                 startDate: 10000000,
@@ -287,7 +315,16 @@ class Test3 {
                 cpmsId: 1,
                 csId: 1,
                 socketId: 1 }], []];
-        if(sql == "SELECT * FROM bookings WHERE startDate <= current_timestamp() AND endDate > current_timestamp() AND userId = ?")
+        if(sql == "SELECT * FROM bookings WHERE userId = ? AND (startDate >= UNIX_TIMESTAMP() * 1000 OR endDate >= UNIX_TIMESTAMP() * 1000)")
+            return [[{ id: 1,
+                userId: 1,
+                startDate: 10000000,
+                endDate: 17000000,
+                isActive: 1,
+                cpmsId: 1,
+                csId: 1,
+                socketId: 1 }], []];
+        if(sql == "SELECT * FROM bookings WHERE startDate <= UNIX_TIMESTAMP() * 1000 AND endDate > UNIX_TIMESTAMP() * 1000 AND userId = ?")
             return [[{ id: 1,
                 userId: 1,
                 startDate: 10000000,
@@ -320,7 +357,16 @@ class Test4 {
                 cpmsId: 1,
                 csId: 1,
                 socketId: 1 }], []];
-        if(sql == "SELECT * FROM bookings WHERE startDate <= current_timestamp() AND endDate > current_timestamp() AND userId = ?")
+        if(sql == "SELECT * FROM bookings WHERE userId = ? AND (startDate >= UNIX_TIMESTAMP() * 1000 OR endDate >= UNIX_TIMESTAMP() * 1000)")
+            return [[{ id: 1,
+                userId: 1,
+                startDate: 10000000,
+                endDate: 17000000,
+                isActive: 1,
+                cpmsId: 1,
+                csId: 1,
+                socketId: 1 }], []];
+        if(sql == "SELECT * FROM bookings WHERE startDate <= UNIX_TIMESTAMP() * 1000 AND endDate > UNIX_TIMESTAMP() * 1000 AND userId = ?")
             return [[{ id: 1,
                 userId: 1,
                 startDate: 10000000,

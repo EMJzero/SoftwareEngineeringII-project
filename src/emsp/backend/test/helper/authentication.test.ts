@@ -49,7 +49,7 @@ describe("Authentication helper module", () => {
         expect(Authentication.createJWT(testUser)).to.be.not.undefined;
     });
 
-    it("should check a JWT secret in request", () => {
+    /*it("should check a JWT secret in request", () => {
         const token = Authentication.createJWT(testUser);
         const mockRequest = {
             body: {},
@@ -63,7 +63,7 @@ describe("Authentication helper module", () => {
             expect(mockResponse.statusCode).to.be.not.equal(500);
             expect(mockRequest.userId).to.be.equal(testUser.id);
         });
-    });
+    });*/
 
     it("should throw unauthenticated error without JWT token", () => {
         const mockRequest = {

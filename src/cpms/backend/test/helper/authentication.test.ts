@@ -12,6 +12,7 @@ describe("Authentication helper module", () => {
 
     const testUser = {
         name: "ARandomName",
+        id: 1,
         APIKey: "ARandomKey"
     };
 
@@ -40,11 +41,11 @@ describe("Authentication helper module", () => {
     });
 
     it("should create a JWT secret", () => {
-        expect(Authentication.createJWT(testUser.name)).to.be.not.undefined;
+        expect(Authentication.createJWT(testUser.name, testUser.id)).to.be.not.undefined;
     });
 
     it("should check a JWT secret in request", () => {
-        const token = Authentication.createJWT(testUser.name);
+        const token = Authentication.createJWT(testUser.name, testUser.id);
         const mockRequest = {
             body: {},
             cookies: {
