@@ -131,9 +131,17 @@ export default class CSConnection {
         const emsp = await Emsp.findById(msg.notifiedEMSPId);
         const cs = await CS.getCSDetails(connection._id);
         if (emsp) {
+            let affectedCSName = "Unknown";
+            try {
+                const cs = await CS.getCSDetails(connection._id);
+                affectedCSName = cs.name;
+            } catch (e) {
+                console.log(e);
+            }
             const axiosResponse = await postReqHttpAuth(emsp.notificationEndpoint, emsp.APIKey, {
                 issuerCPMSName: "CPMS1",
                 affectedCSId: connection._id,
+                affectedCSName: affectedCSName,
                 affectedSocketId: msg.affectedSocketId,
                 totalBillableAmount: Math.ceil(msg.billableDurationHours * cs.userPrice * msg.billablePower * 100) / 100
             })

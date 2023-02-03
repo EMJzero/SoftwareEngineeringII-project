@@ -101,7 +101,7 @@ begin
         else
             -- The new slot is inside the availability slot. Update the existing slot to become the lower one, then create the upper slot
             update availabilityautomanaged
-            set end = new.endDate
+            set end = new.startDate
             where cpms = new.cpmsId and cs = new.csId and socket = new.socketId and start = startTimestamp;
 
             insert into availabilityautomanaged
@@ -142,6 +142,21 @@ begin
         values (old.cpmsId, old.csId, old.socketId, old.startDate, old.endDate);
     end if;
 end;
+
+--
+-- Table structure for table `notifications`
+--
+drop table if exists notifications;
+create table notifications
+(
+    id             int auto_increment
+        primary key,
+    userId         int           not null,
+    content        varchar(1024) not null,
+    generationDate bigint        not null,
+    constraint notifications_users_null_fk
+        foreign key (userId) references emsp_db.users (id)
+);
 
 --
 -- Table structure for table `bookings`

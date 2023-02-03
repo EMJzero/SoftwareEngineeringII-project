@@ -8,6 +8,7 @@ import CPMSAuthentication from "../helper/CPMSAuthentication";
 import {User} from "../model/User";
 import {Booking} from "../model/Booking";
 import {use} from "chai";
+import {Notification} from "../model/Notification";
 
 export default class CSNotification extends Route {
 
@@ -25,10 +26,11 @@ export default class CSNotification extends Route {
     protected async httpPost(request: Request, response: Response): Promise<void> {
         const cpmsName = request.body.issuerCPMSName as string;
         const csId = request.body.affectedCSId;
+        const csName = request.body.affectedCSName;
         const socketId = request.body.affectedSocketId;
         const totalBillableAmount = request.body.totalBillableAmount;
 
-        if (checkUndefinedParams(response, cpmsName) || checkNaN(response, csId, socketId)) {
+        if (checkUndefinedParams(response, cpmsName, csName) || checkNaN(response, csId, socketId)) {
             return;
         }
 
@@ -49,7 +51,13 @@ export default class CSNotification extends Route {
         const user = await Booking.findUserWithActive(csId, ownerCPMS.id, socketId);
         console.log("BILLING USER ", user?.username, "AMOUNT", totalBillableAmount);
         //Add a notification - frontend will query them to display
-        console.log("SETTING NOTIFICATION");
+        if (user?.id) {
+            try {
+                await Notification.registerNotification(user.id, "Your recharge at \"" + csName + "\" ended, and you've been charged $" + totalBillableAmount);
+            } catch (e) {
+                logger.log(e);
+            }
+        }
 
         success(response);
     }
