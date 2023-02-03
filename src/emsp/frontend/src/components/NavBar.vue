@@ -3,6 +3,12 @@
   <nav v-if="isAuth" class="flex justify-between pt-5 pl-6">
     <button class="h-24 text-left font-bold text-3xl" @click="router.push(RoutingPath.HOME)"> eMall 🚗 </button>
     <div class="flex pr-10 space-x-5 text-center items-center">
+      <v-btn color="blue" dark rounded @click="router.push(RoutingPath.NOTIFICATIONS)">
+        <v-icon dark>
+          mdi-bell-ring-outline
+        </v-icon>
+      </v-btn>
+
       <button
         class="rounded-lg py-2 px-8 font-semibold text-blue-500 ring-blue-500 ring-[3px] hover:text-blue-400 hover:ring-blue-400"
         @click="router.push(RoutingPath.BOOKINGLIST)">
