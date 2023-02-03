@@ -143,13 +143,6 @@ begin
     end if;
 end;
 
-create trigger blockbookingupdate
-    before update on bookings
-    for each row
-begin
-    signal sqlstate '45000' set message_text = 'Updates to the bookings table are forbidden';
-end;
-
 --
 -- Table structure for table `bookings`
 --
@@ -183,6 +176,15 @@ LOCK TABLES `bookings` WRITE;
 INSERT INTO `bookings` VALUES (1,1,'2023-02-18 10:00:00','2023-02-18 11:00:00',0,1,1,2);
 /*!40000 ALTER TABLE `bookings` ENABLE KEYS */;
 UNLOCK TABLES;
+
+create trigger blockbookingupdate
+    before update on bookings
+    for each row
+begin
+    if (old.isActive = new.isActive) then
+        signal sqlstate '45000' set message_text = 'Updates to the bookings table are forbidden';
+    end if;
+end;
 
 --
 -- Table structure for table `users`
