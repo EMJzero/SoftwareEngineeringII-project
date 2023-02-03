@@ -7,8 +7,8 @@
       <p class="text-left text-xl font-bold text-light-blue-accent-1" style="text-decoration: none"> {{ station.name ?? "No Name" }} </p>
       <p class="text-left text-sm font-weight-regular text-white">  </p>
       <p class="text-left text-sm font-weight-regular text-white pt-5">Price: {{ station.userPrice }} €/Wh </p>
-      <p v-if="station.offerExpirationDate != null" class="text-left text-sm font-weight-regular text-white">Offer ends: {{ getEndDate() }} </p>
-      <p v-if="station.offerExpirationDate == null" class="text-left text-sm font-weight-regular text-white">No Offer Available </p>
+      <p v-if="station.offerExpirationDate != null && station.offerExpirationDate >= Date.now()" class="text-left text-sm font-weight-regular text-white">Offer ends: {{ getEndDate() }} </p>
+      <p v-if="station.offerExpirationDate == null || station.offerExpirationDate < Date.now()" class="text-left text-sm font-weight-regular text-white">No Offer Available </p>
     </div>
   </li>
 </template>
