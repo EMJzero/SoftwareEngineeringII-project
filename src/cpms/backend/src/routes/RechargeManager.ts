@@ -47,7 +47,8 @@ export default class RechargeManager extends Route {
                 currentPower: socket.currentPower,
                 maxPower: socket.maxPower,
                 connectedCar: socket.connectedCar,
-                estimatedTimeRemaining: socket.getEstimatedTimeRemaining()
+                socketFreedTimestamp: socket.getSocketFreedTimeRemaining(),
+                batteryFullTimestamp: socket.getFullBatteryTimestamp()
             };
             success(response, respObject);
         } catch (error) {

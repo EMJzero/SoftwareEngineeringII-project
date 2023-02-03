@@ -39,14 +39,14 @@ interface EnvVariables {
 
 // Default values for some of the env variables
 const defaults = {
-    PORT: 8000,
+    PORT: 8001,
     WS_PORT: 3000,
     BASE_URL: "/api/",
     SALT_ROUNDS: 1,
     JWT_SECRET: "this_is_an_insecure_secret",
     JWT_EXPIRE: 86400,
     DEPLOYMENT_URL: "https://privtap.it",
-    FRONTEND_URL: "http://127.0.0.1:5173",
+    FRONTEND_URL: "http://127.0.0.1:5174",
     LOG_LEVEL: "info",
     DB_HOST: "localhost",
     DB_USER: "root",

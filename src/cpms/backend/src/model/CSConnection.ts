@@ -97,7 +97,7 @@ export default class CSConnection {
     }
 
     public getTimeRemaining(socketID: number): number | undefined {
-        return (this.sockets()).find((sc) => sc.socketId == socketID)?.getEstimatedTimeRemaining();
+        return (this.sockets()).find((sc) => sc.socketId == socketID)?.getSocketFreedTimeRemaining();
     }
 
     get id(): number {
@@ -204,6 +204,7 @@ export class SocketMachine {
     private _connectedCar?: CarData;
 
     private _chargeTimeoutIntervalID?: NodeJS.Timer;
+    private _chargeEndTime?: number;
     private _activeeMSPId?: number;
     private _chargeStartTime?: number;
 
@@ -220,6 +221,7 @@ export class SocketMachine {
         tmp._state = this._state;
         tmp._connectedCar = this._connectedCar;
         tmp._currentPower = this._currentPower;
+        tmp._chargeEndTime = this._chargeEndTime;
         return tmp;
     }
 
@@ -254,6 +256,7 @@ export class SocketMachine {
             const timeoutMS = Math.min(timeToFullChargeSeconds * 1000, maximumTimeoutDate - (new Date()).valueOf());
             this._activeeMSPId = callereMSPId;
             this._chargeStartTime = (new Date()).valueOf();
+            this._chargeEndTime = this._chargeStartTime + timeoutMS;
             this._chargeTimeoutIntervalID = setTimeout(() => {
                 clearTimeout(this._chargeTimeoutIntervalID);
                 timeoutCallback();
@@ -269,15 +272,24 @@ export class SocketMachine {
             this._currentPower = 0;
             this._activeeMSPId = undefined;
             this._chargeStartTime = undefined;
+            this._chargeEndTime = undefined;
             clearTimeout(this._chargeTimeoutIntervalID);
         } else {
             throw "Cannot end a charge which never started!";
         }
     }
 
-    public getEstimatedTimeRemaining(): number {
+    public getSocketFreedTimeRemaining(): number {
         if (this._state == 2 && this._connectedCar) {
-            return (this._connectedCar.batteryCapacityKWh - this._connectedCar.remainingCapacityKWh) / this._currentPower;
+            return (this._chargeEndTime ?? Date.now()) - Date.now();
+        } else {
+            throw "Cannot estimate time when no charge is ongoing!";
+        }
+    }
+
+    public getFullBatteryTimestamp(): number {
+        if (this._state == 2 && this._connectedCar) {
+            return (this._chargeStartTime ?? Date.now()) + (((this._connectedCar.batteryCapacityKWh - this._connectedCar.remainingCapacityKWh) / this._currentPower) * 3600 * 1000);
         } else {
             throw "Cannot estimate time when no charge is ongoing!";
         }
