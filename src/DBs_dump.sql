@@ -230,6 +230,7 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES (1,'Pippo','pippo.pluto@gmail.com','NotARealPassword','1231123112311231','123','0424','Pippo Pluto'),(2,'Paperino','paperino@pippomail.com','$2b$04$Nbvn9PGE7MBuKp09/AQpBuOJttDVjljRDsgE5k8tCN8Vs9k41ps6e','5846215678957720','789','0725','Paolino Paperino');
+insert into `users` values (4, 'MarioLuigi', 'mario.luigi@mushroom.kingdom', '$2b$04$u3hLguczAiaeVgyAQ6Hpp.Qr/.10SathCJn/SwG2GKWpdOeUZ9f.G', '4365875436666669', '123', '1122', 'MARIO LUIGI');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -341,7 +342,7 @@ CREATE TABLE `emsps` (
 
 LOCK TABLES `emsps` WRITE;
 /*!40000 ALTER TABLE `emsps` DISABLE KEYS */;
-INSERT INTO `emsps` VALUES (1,'CavallettaQuantica','http://www.eMall.com/notificationsEndpoint');
+INSERT INTO `emsps` VALUES (default,'JinSakai','http://127.0.0.1:8000/api/cs-notification');
 /*!40000 ALTER TABLE `emsps` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -380,3 +381,49 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2023-01-28 22:08:36
+CREATE DATABASE  IF NOT EXISTS `bank_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `bank_db`;
+-- MySQL dump 10.13  Distrib 8.0.28, for Win64 (x86_64)
+--
+-- Host: localhost    Database: cpms_db
+-- ------------------------------------------------------
+-- Server version	8.0.28
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `cs`
+--
+
+DROP TABLE IF EXISTS `accounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+create table `accounts`
+(
+    `cardNumber`  char(16)     not null
+        primary key,
+    `owner`       varchar(255) not null,
+    `expiration`  char(4)      not null,
+    `cvv`         char(3)          not null,
+    `totalBilled` double       not null
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
