@@ -66,6 +66,8 @@ export default class CSConnection {
                 const response = await this.synchronousSocket.sendSync(request);
                 //this._websocket.send(JSON.stringify(request));
                 return response.status;
+            } else {
+                throw socket.state == 0 ? "Cannot start a charge without a connected car" : "Cannot start a charge while another charge is in progress";
             }
         }
         return false;
@@ -87,6 +89,8 @@ export default class CSConnection {
                     await CSConnection.handleNotificationAndBilling(this, msg);
                 }
                 return true;
+            } else {
+                throw "Cannot stop a charge without another charge in progress";
             }
         }
         return false;
@@ -133,7 +137,7 @@ export default class CSConnection {
                 affectedSocketId: msg.affectedSocketId,
                 totalBillableAmount: Math.ceil(msg.billableDurationHours * cs.userPrice * msg.billablePower * 100) / 100
             })
-            if (!axiosResponse) {
+            if (axiosResponse.isError) {
                 logger.error("An error occurred while contacting the EMSP. Retrying in 5s...")
                 const timeout = setInterval(() => {
                     CSConnection.retryEMSPPost(emsp, timeout);
@@ -146,7 +150,7 @@ export default class CSConnection {
         const axiosResponse = await postReqHttpAuth(emsp.notificationEndpoint, emsp.APIKey, {
             issuerCPMSName: "CPMS1"
         })
-        if (axiosResponse) {
+        if (!axiosResponse.isError) {
             clearInterval(timer);
             //TODO: Bill the eMSP????
         } else {

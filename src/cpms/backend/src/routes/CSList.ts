@@ -52,7 +52,7 @@ export default class CSListRoute extends Route {
             }
         } catch (e) {
             logger.debug("DB access for CSs failed");
-            internalServerError(response);
+            internalServerError(response, "Cannot get the list of stations");
             return;
         }
     }

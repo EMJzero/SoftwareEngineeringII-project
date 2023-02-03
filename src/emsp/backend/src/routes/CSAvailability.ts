@@ -36,7 +36,7 @@ export default class CSDetails extends Route {
             ownerCPMS = await CPMS.findById(cpmsID);
         } catch (e) {
             logger.error("DB access for CPMSs failed");
-            internalServerError(response);
+            internalServerError(response, "Could not find the CPMS");
             return;
         }
         if (!ownerCPMS) {
@@ -52,7 +52,7 @@ export default class CSDetails extends Route {
         try {
             success(response, await Booking.getAvailableTimeSlots(ownerCPMS.id, stationID, socketID, startDate, endDate));
         } catch (e) {
-            internalServerError(response);
+            internalServerError(response, "Could not find available time slots");
             return;
         }
     }

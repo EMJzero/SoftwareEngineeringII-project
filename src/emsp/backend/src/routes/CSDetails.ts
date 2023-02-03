@@ -2,9 +2,10 @@ import Route from "../Route";
 import {Request, Response} from "express";
 import {badRequest, checkNaN, checkUndefinedParams, internalServerError, success} from "../helper/http";
 import {CPMS} from "../model/CPMS";
-import {getReqHttp} from "../helper/misc";
+import {getReqHttp, StandardResponse} from "../helper/misc";
 import logger from "../helper/logger";
 import CPMSAuthentication from "../helper/CPMSAuthentication";
+import {AxiosError, AxiosResponse} from "axios";
 
 export default class CSDetails extends Route {
 
@@ -33,7 +34,7 @@ export default class CSDetails extends Route {
             ownerCPMS = await CPMS.findById(cpmsId);
         } catch (e) {
             logger.error("DB access for CPMSs failed");
-            internalServerError(response);
+            internalServerError(response, "Could not find the CPMS");
             return;
         }
         if (!ownerCPMS) {
@@ -44,9 +45,17 @@ export default class CSDetails extends Route {
         //Check CPMS authentication and authenticate if needed
         ownerCPMS = await CPMSAuthentication.getTokenIfNeeded(ownerCPMS);
 
-        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", ownerCPMS.token, {
+        const axiosResponseRaw = await getReqHttp(ownerCPMS.endpoint + "/cs-list", ownerCPMS.token, {
             CSID: stationID
         });
+
+        if (axiosResponseRaw.isError) {
+            const message = ((axiosResponseRaw.res as AxiosError).response?.data as StandardResponse<Object>).message;
+            internalServerError(response, message);
+            return;
+        }
+
+        const axiosResponse = axiosResponseRaw.res as AxiosResponse;
 
         if(axiosResponse == null) {
             internalServerError(response);

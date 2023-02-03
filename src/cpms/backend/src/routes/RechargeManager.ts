@@ -2,9 +2,10 @@ import { badRequest, checkNaN, checkUndefinedParams, internalServerError, succes
 import Route from "../Route";
 import { Request, Response } from "express";
 import { CSDB } from "../model/CSConnection";
-import { postReqHttp } from "../helper/misc";
+import {postReqHttp, StandardResponse} from "../helper/misc";
 import logger from "../helper/logger";
 import {Emsp} from "../model/Emsp";
+import {AxiosError, AxiosResponse} from "axios";
 
 export default class RechargeManager extends Route {
     constructor() {
@@ -73,26 +74,27 @@ export default class RechargeManager extends Route {
 
         if (checkUndefinedParams(response, CSID, socketID, action) || checkNaN(response, maximumTimeoutDate)) return;
 
-        let axiosResponse;
-        try {
-            const cookieJWT: string | undefined = request.cookies ? "__session=" + request.cookies?.__session : undefined;
-            axiosResponse = await postReqHttp(request.protocol + "://" + request.get("host") + "/api/cs-manager", {
-                stationID: CSID,
-                socketID: socketID,
-                chargeCommand: action,
-                maximumTimeoutDate: maximumTimeoutDate,
-                issuerEMSPId: eMSPId
-            }, {
-                headers: {
-                    Cookie: cookieJWT,
-                },
-                withCredentials: true
-            });
-        } catch (e) {
-            logger.debug("Axios response status =", axiosResponse?.status);
-            internalServerError(response, "" + e);
+        const cookieJWT: string | undefined = request.cookies ? "__session=" + request.cookies?.__session : undefined;
+        const axiosResponseRaw = await postReqHttp(request.protocol + "://" + request.get("host") + "/api/cs-manager", {
+            stationID: CSID,
+            socketID: socketID,
+            chargeCommand: action,
+            maximumTimeoutDate: maximumTimeoutDate,
+            issuerEMSPId: eMSPId
+        }, {
+            headers: {
+                Cookie: cookieJWT,
+            },
+            withCredentials: true
+        });
+
+        if (axiosResponseRaw.isError) {
+            const message = ((axiosResponseRaw.res as AxiosError).response?.data as StandardResponse<Object>).message;
+            internalServerError(response, message);
             return;
         }
+
+        const axiosResponse = axiosResponseRaw.res as AxiosResponse;
 
         if(axiosResponse?.status != 200) {
             logger.debug("Axios response status =", axiosResponse?.status);

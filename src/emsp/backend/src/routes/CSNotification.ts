@@ -28,7 +28,6 @@ export default class CSNotification extends Route {
         const socketId = request.body.affectedSocketId;
         const totalBillableAmount = request.body.totalBillableAmount;
 
-        console.log(cpmsName, csId, socketId, totalBillableAmount);
         if (checkUndefinedParams(response, cpmsName) || checkNaN(response, csId, socketId)) {
             return;
         }
@@ -48,7 +47,7 @@ export default class CSNotification extends Route {
 
         //Bill the user
         const user = await Booking.findUserWithActive(csId, ownerCPMS.id, socketId);
-        console.log("BILLING USER ", user, "AMOUNT", totalBillableAmount);
+        console.log("BILLING USER ", user?.username, "AMOUNT", totalBillableAmount);
         //Add a notification - frontend will query them to display
         console.log("SETTING NOTIFICATION");
 

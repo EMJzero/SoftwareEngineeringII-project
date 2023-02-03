@@ -2,11 +2,12 @@ import Route from "../Route";
 import { Request, Response } from "express";
 import { badRequest, checkNaN, checkUndefinedParams, internalServerError, success } from "../helper/http";
 import { CPMS } from "../model/CPMS";
-import { getReqHttp } from "../helper/misc";
+import {getReqHttp, StandardResponse} from "../helper/misc";
 import logger from "../helper/logger";
 import { Booking } from "../model/Booking";
 import env from "../helper/env";
 import CPMSAuthentication from "../helper/CPMSAuthentication";
+import {AxiosError, AxiosResponse} from "axios";
 
 export default class Bookings extends Route {
 
@@ -42,7 +43,7 @@ export default class Bookings extends Route {
             }
         } catch (e) {
             logger.error("DB access for Booking failed");
-            internalServerError(response);
+            internalServerError(response, "Could not retrieve bookings");
         }
     }
 
@@ -112,7 +113,7 @@ export default class Bookings extends Route {
             ownerCPMS = await CPMS.findById(cpmsID);
         } catch (e) {
             logger.error("DB access for CPMSs failed");
-            internalServerError(response);
+            internalServerError(response, "Could not find the CPMS");
             return;
         }
 
@@ -123,9 +124,17 @@ export default class Bookings extends Route {
 
         ownerCPMS = await CPMSAuthentication.getTokenIfNeeded(ownerCPMS);
 
-        const axiosResponse = await getReqHttp(ownerCPMS.endpoint + "/cs-list", ownerCPMS.token, {
+        const axiosResponseRaw = await getReqHttp(ownerCPMS.endpoint + "/cs-list", ownerCPMS.token, {
             CSID: csID
         });
+
+        if (axiosResponseRaw.isError) {
+            const message = ((axiosResponseRaw.res as AxiosError).response?.data as StandardResponse<Object>).message;
+            internalServerError(response, message);
+            return;
+        }
+
+        const axiosResponse = axiosResponseRaw.res as AxiosResponse;
 
         if(axiosResponse == null) {
             internalServerError(response);
@@ -133,7 +142,7 @@ export default class Bookings extends Route {
         }
 
         if(axiosResponse?.data.data.CSList == undefined) {
-            badRequest(response, "Invalid csID");
+            badRequest(response, "Invalid station ID");
             return;
         }
 

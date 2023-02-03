@@ -2,10 +2,11 @@ import Route from "../Route";
 import { Request, Response } from "express";
 import { checkUndefinedParams, internalServerError, success } from "../helper/http";
 import { CPMS } from "../model/CPMS";
-import { getReqHttp } from "../helper/misc";
+import {getReqHttp, StandardResponse} from "../helper/misc";
 import logger from "../helper/logger";
 import { stat } from "fs";
 import CPMSAuthentication from "../helper/CPMSAuthentication";
+import {AxiosError, AxiosResponse} from "axios";
 
 export default class SearchCSRoute extends Route {
 
@@ -38,7 +39,7 @@ export default class SearchCSRoute extends Route {
             allCPMS = await CPMS.findAll();
         } catch (e) {
             logger.error("DB access to find all CPMSs failed");
-            internalServerError(response);
+            internalServerError(response, "Could not find the CPMS");
             return;
         }
 
@@ -46,13 +47,21 @@ export default class SearchCSRoute extends Route {
         for (let cpms of allCPMS) {
             cpms = await CPMSAuthentication.getTokenIfNeeded(cpms);
 
-            const axiosResponse = await getReqHttp(cpms.endpoint + "/cs-list", cpms.token, {
+            const axiosResponseRaw = await getReqHttp(cpms.endpoint + "/cs-list", cpms.token, {
                 locationLatitude: filterLatitude,
                 locationLongitude: filterLongitude,
                 locationRange: filterRadius,
                 priceLowerBound,
                 priceUpperBound
             });
+
+            if (axiosResponseRaw.isError) {
+                const message = ((axiosResponseRaw.res as AxiosError).response?.data as StandardResponse<Object>).message;
+                internalServerError(response, message);
+                return;
+            }
+
+            const axiosResponse = axiosResponseRaw.res as AxiosResponse;
 
             if(axiosResponse == null) {
                 internalServerError(response);

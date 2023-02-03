@@ -1,5 +1,5 @@
 import { readdirSync, statSync } from "fs";
-import axios, { AxiosResponse } from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import logger from "./logger";
 
 
@@ -36,15 +36,15 @@ export function checkURL(url: string): boolean {
  * @param url the url of the request
  * @param parameters
  */
-export async function getReqHttp(url: string, parameters: object): Promise<AxiosResponse | null> {
+export async function getReqHttp(url: string, parameters: object): Promise<{res: AxiosResponse | AxiosError, isError: boolean}> {
     const config = { params: parameters };
     let res;
     try {
         res = await axios.get(url, config);
-        return res;
+        return {res, isError: false};
     } catch (e) {
         logger.error("Axios response status:", res ? res.status : "undefined");
-        return null;
+        return {res: e as AxiosError, isError: true};
     }
 }
 
@@ -53,14 +53,14 @@ export async function getReqHttp(url: string, parameters: object): Promise<Axios
  * @param url the url of the request
  * @param body the object containing the field and the value of the query string
  */
-export async function postReqHttp(url: string, body: object, headers?: object): Promise<AxiosResponse | null> {
+export async function postReqHttp(url: string, body: object, headers?: object): Promise<{res: AxiosResponse | AxiosError, isError: boolean}> {
     let res;
     try {
         res = await axios.post(url, body, headers);
-        return res;
+        return {res, isError: false};
     } catch (e) {
         logger.error("Axios response status:", res ? res.status : "undefined");
-        return null;
+        return {res: e as AxiosError, isError: true};
     }
 }
 
@@ -70,15 +70,27 @@ export async function postReqHttp(url: string, body: object, headers?: object): 
  * @param token
  * @param body the object containing the field and the value of the query string
  */
-export async function postReqHttpAuth(url: string, token: string, body: object): Promise<AxiosResponse | null> {
+export async function postReqHttpAuth(url: string, token: string, body: object): Promise<{res: AxiosResponse | AxiosError, isError: boolean}> {
     let res;
     try {
         const config = token ? { headers: { "Authorization": `Bearer ${token}` } } : undefined;
         res = await axios.post(url, body, config);
-        return res;
+        return {res, isError: false};
     } catch (e) {
         logger.error("Axios response status:", res ? res.status : "undefined");
-        return null;
+        return {res: e as AxiosError, isError: true};
+    }
+}
+
+export class StandardResponse<T extends Object> {
+    status: boolean;
+    message: string;
+    data?: T;
+
+    constructor(status: boolean, message: string, data?: T) {
+        this.status = status;
+        this.message = message;
+        this.data = data;
     }
 }
 

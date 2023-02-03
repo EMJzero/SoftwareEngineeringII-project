@@ -1,5 +1,5 @@
 import { readdirSync, statSync } from "fs";
-import axios, { AxiosResponse } from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import logger from "./logger";
 
 
@@ -37,7 +37,7 @@ export function checkURL(url: string): boolean {
  * @param token use this if you want to put an auth token
  * @param parameters
  */
-export async function getReqHttp(url: string, token: string | null, parameters: object): Promise<AxiosResponse | null> {
+export async function getReqHttp(url: string, token: string | null, parameters: object): Promise<{res: AxiosResponse | AxiosError, isError: boolean}> {
     const config = token ? {
         headers: { "Cookie": [token] },
         params: parameters
@@ -45,11 +45,11 @@ export async function getReqHttp(url: string, token: string | null, parameters: 
     let res;
     try {
         res = await axios.get(url, config);
-        return res;
+        return {res, isError: false};
     } catch (e) {
         logger.error(e);
         logger.error("Axios response status:", res != undefined ? res.status : "undefined");
-        return null;
+        return {res: e as AxiosError, isError: true};
     }
 }
 
@@ -59,15 +59,27 @@ export async function getReqHttp(url: string, token: string | null, parameters: 
  * @param token use this if you want to put an auth token
  * @param body the object containing the field and the value of the query string
  */
-export async function postReqHttp(url: string, token: string | null, body: object): Promise<AxiosResponse | null> {
+export async function postReqHttp(url: string, token: string | null, body: object): Promise<{res: AxiosResponse | AxiosError, isError: boolean}> {
     const config = token ? { headers: { "Cookie": [token] } } : undefined;
     let res;
     try {
         res = await axios.post(url, body, config);
-        return res;
+        return {res, isError: false};
     } catch (e) {
         logger.error("Axios response status:", res != undefined ? res.status : "undefined");
-        return null;
+        return {res: e as AxiosError, isError: true};
+    }
+}
+
+export class StandardResponse<T extends Object> {
+    status: boolean;
+    message: string;
+    data?: T;
+
+    constructor(status: boolean, message: string, data?: T) {
+        this.status = status;
+        this.message = message;
+        this.data = data;
     }
 }
 
@@ -77,7 +89,7 @@ export async function postReqHttp(url: string, token: string | null, body: objec
  * @param token use this if you want to put an auth token
  * @param query the object containing the field and the value of the query string
  */
-export async function deleteReqHttp(url: string, token: string, query: object): Promise<AxiosResponse | null> {
+export async function deleteReqHttp(url: string, token: string, query: object): Promise<AxiosResponse | AxiosError> {
     let res;
     try {
         const config = { headers: { "Cookie": [token] }, params: query };
@@ -86,6 +98,6 @@ export async function deleteReqHttp(url: string, token: string, query: object): 
         return res;
     } catch (e) {
         logger.error("Axios response status:", res != undefined ? res.status : "undefined");
-        return null;
+        return e as AxiosError;
     }
 }

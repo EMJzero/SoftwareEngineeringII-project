@@ -1,6 +1,7 @@
 import {CPMS, ICPMS} from "../model/CPMS";
 import {postReqHttp} from "./misc";
 import logger from "./logger";
+import {AxiosResponse} from "axios";
 
 const jwtDecode = require('jwt-decode');
 
@@ -11,8 +12,9 @@ export default class CPMSAuthentication {
         if (!cpms.token || (tokenValue && this.isJwtExpired(this.extractJWTFromCookie(tokenValue)))) { //This should handle token refreshes AND missing tokens
             //Authenticate with the CPMS
             try {
-                const axiosResponse = await postReqHttp(cpms.endpoint + "/login-emsp", null, {mspName: "eMall", apiKey: cpms.apiKey});
-                if (axiosResponse) {
+                const axiosResponseRaw = await postReqHttp(cpms.endpoint + "/login-emsp", null, {mspName: "eMall", apiKey: cpms.apiKey});
+                if (!axiosResponseRaw.isError) {
+                    const axiosResponse = axiosResponseRaw.res as AxiosResponse;
                     const headers = axiosResponse.headers;
                     const cookie = headers["set-cookie"];
                     if (cookie) {
