@@ -244,13 +244,15 @@ export class Booking {
      * Method retrieving the (one or none) user that has a bookinga ctive on the specified station, that being the booking with a currently
      * ongoing charging process.
      *
-     * @param userId
+     * @param stationId
+     * @param cpmsId
+     * @param socketId
      */
-    public static async findUserWithActive(stationId: number, cpmsId: number, socketId: number): Promise<IUser | undefined> {
+    public static async findUserWithActive(stationId: number, cpmsId: number, socketId: number): Promise<{ user: IUser, bookingId: number } | undefined> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT u.* FROM bookings as b JOIN users u on b.userId = u.id WHERE b.cpmsId = ? AND b.csId = ? AND b.socketId = ? AND isActive",
+            "SELECT u.*, b.id as bookingID FROM bookings as b JOIN users u on b.userId = u.id WHERE b.cpmsId = ? AND b.csId = ? AND b.socketId = ? AND isActive",
             [cpmsId, stationId, socketId]);
 
         connection.release();
@@ -260,14 +262,17 @@ export class Booking {
         }
 
         return {
-            id: result[0].id,
-            creditCardBillingName: result[0].paymentCardOwnerName,
-            creditCardCVV: result[0].paymentCardCvv,
-            creditCardExpiration: result[0].paymentCardExpirationDate,
-            creditCardNumber: result[0].paymentCardNumber,
-            email: result[0].email,
-            password: result[0].password,
-            username: result[0].userName
+            user: {
+                id: result[0].id,
+                creditCardBillingName: result[0].paymentCardOwnerName,
+                creditCardCVV: result[0].paymentCardCvv,
+                creditCardExpiration: result[0].paymentCardExpirationDate,
+                creditCardNumber: result[0].paymentCardNumber,
+                email: result[0].email,
+                password: result[0].password,
+                username: result[0].userName
+            },
+            bookingId: result[0].bookingID
         };
     }
 

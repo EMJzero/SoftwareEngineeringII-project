@@ -6,4 +6,5 @@ export default class RoutingPath {
     static readonly CSDETAILS = "/station-details";
     static readonly BOOKING = "/booking";
     static readonly BOOKINGLIST = "/my-bookings";
+    static readonly NOTIFICATIONS = "/notifications";
 }

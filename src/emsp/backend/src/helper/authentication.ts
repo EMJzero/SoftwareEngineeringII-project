@@ -27,6 +27,18 @@ export default abstract class Authentication {
      * @param next function to call if the request eMSP Authentication is valid
      */
     static checkAuthentication(request: Request, response: Response, next: NextFunction) {
+        Authentication.authenticateRequest(request, response);
+
+        next();
+    }
+
+    /**
+     * Middleware function used to check for a valid JWT eMSP Authentication token in the cookies of a request.
+     * Automatically sends back unauthorized response if the token is not valid.
+     * @param request the HTTP request
+     * @param response the HTTP response
+     */
+    static authenticateRequest(request: Request, response: Response): boolean {
         let decodedJWT;
         try {
             decodedJWT = Authentication.checkJWT(request);
@@ -38,13 +50,12 @@ export default abstract class Authentication {
                 logger.warn("Auth check failed, something bad happened\n", e);
                 internalServerError(response);
             }
-            return;
+            return false;
         }
 
         request.userId = decodedJWT.userId;
         request.username = decodedJWT.username;
-
-        next();
+        return true;
     }
 
     /**
