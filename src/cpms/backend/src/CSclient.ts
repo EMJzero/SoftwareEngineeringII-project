@@ -133,6 +133,13 @@ rl.on("line", (input) => {
         }
     } else {
         switch(inputs[0]) {
+        case "help":
+            console.log("Available commands:" +
+                "- connectCar [socketId] : simulates a car connecting to the given socket\n" +
+                "- disconnectCar [socketId] : simulates a car disconnecting from the given socket\n" +
+                "- fullyCharge [socketId] : simulates a car charging completely over the given socket\n" +
+                "- quit : closes the program");
+            break;
         case "quit":
             client.close();
             process.exit(0);
