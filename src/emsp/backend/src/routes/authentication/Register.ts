@@ -56,8 +56,8 @@ export default class RegisterRoute extends Route {
         });
 
         if (bankResponseRaw.isError) {
-            const message = ((bankResponseRaw.res as AxiosError).response?.data as StandardResponse<Object>).message;
-            badRequest(response, message);
+            const message = ((bankResponseRaw.res as AxiosError).response?.data as StandardResponse<Object>)?.message;
+            badRequest(response, message ?? "Internal server error");
             return;
         }
 
