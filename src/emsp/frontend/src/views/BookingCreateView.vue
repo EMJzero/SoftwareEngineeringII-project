@@ -5,7 +5,7 @@
       <p class="text-white font-semibold text-2xl pt-2 pb-8">Choose a Socket and Time Slot </p>
       <p v-if="isLoading" class="text-grey font-semibold text-2xl space-x-16 pt-20">Loading Availability...</p>
     </div>
-    <BookingCreateForm v-if="!isLoading" style="max-width: 80%; margin-left: auto; margin-right: auto"/>
+    <BookingCreateForm v-if="!isLoading" class="bookingForm" style="margin-left: auto; margin-right: auto"/>
   </div>
 </template>
 
@@ -40,5 +40,14 @@ const router = useRouter();
 </script>
 
 <style scoped>
+
+.bookingForm {
+  max-width: 80%;
+}
+@media(max-width: 900px) {
+  .bookingForm {
+    max-width: 95%;
+  }
+}
 
 </style>

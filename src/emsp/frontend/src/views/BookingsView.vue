@@ -1,6 +1,6 @@
 <template>
   <div class="relative w-full items-center justify-center">
-    <div class="text-center items-center justify-center justify-items-center pt-10">
+    <div class="list-container text-center items-center justify-center justify-items-center pt-10">
       <p class="text-white font-semibold text-4xl pt-5 pb-8">Your Bookings</p>
       <p v-if="isLoading" class="text-grey font-semibold text-2xl space-x-16 pt-20">Loading Upcoming Bookings...</p>
       <ul v-if="!isLoading && bookings && bookings.length > 0" class="list-none pl-4 text-stone-400 text-lg" style="max-width: 500px; margin-left: auto; margin-right: auto">
@@ -41,5 +41,25 @@ const router = useRouter();
 </script>
 
 <style scoped>
+
+.list-container {
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.centered-button {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+@media(max-width: 768px) {
+  .list-container {
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .centered-button {
+    margin-bottom: 1rem;
+  }
+}
 
 </style>

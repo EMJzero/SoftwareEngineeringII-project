@@ -1,6 +1,6 @@
 <template>
   <div class="relative w-full items-center justify-center">
-    <div class="text-center items-center justify-center justify-items-center pt-10">
+    <div class="text-center items-center justify-center justify-items-center header">
       <p class="text-white font-semibold text-4xl pt-5 pb-8">Station Search</p>
       <p v-if="isLoading" class="text-grey font-semibold text-2xl space-x-16 pt-20">Loading Stations...</p>
     </div>
@@ -9,7 +9,7 @@
       <div class="overlay rounded-lg">
         <p v-if="isLoading" class="text-grey-lighten-60 text-center font-semibold text-3xl space-x-16 pt-20">Loading Nearby Stations...</p>
         <div style="height: 100%; overflow: auto">
-          <ul v-if="!isLoading && stations && stations.length > 0" class="list-none pl-4 text-stone-400 text-lg" style="max-width: 500px; margin-left: auto; margin-right: auto">
+          <ul v-if="!isLoading && stations && stations.length > 0" class="list-none pl-4 text-stone-400 text-lg" style="margin-left: auto; margin-right: auto">
             <NearbyStationCell v-for="station in stations" :tag="station.id" :station="station" @click="router.push(RoutingPath.CSDETAILS + '?cpms=' + station.ownerCPMSId + '&sid=' + station.id)"/>
           </ul>
         </div>
@@ -65,10 +65,31 @@ const router = useRouter();
   position: absolute;
   top: 0;
   right: 0;
-  width: 20%;
+  width: 40%;
   height: 100%;
   background-color: rgba(23, 23, 23, 0.5);
   backdrop-filter: blur(10px);
+  max-width: 500px;
+}
+
+.header {
+  padding-top: 2.5rem;
+ }
+
+@media(max-width: 800px) {
+  .overlay {
+    max-width: 100%;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    height: 35%;
+  }
+  .header {
+    padding-top: 0px;
+  }
+  .wrapper {
+    width: 95%;
+  }
 }
 
 </style>

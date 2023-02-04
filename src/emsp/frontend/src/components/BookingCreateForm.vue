@@ -1,26 +1,26 @@
 <template>
   <form @submit="submitForm">
-    <div class="flex flex-row">
-      <div class="basis-1/4 mx-4 px-4">
+    <div class="flex form-container">
+      <div class="form-section-25 mx-4 mb-2 px-4">
         <p class="text-grey-darken-1 font-semibold text-2xl">Socket Type</p>
         <div v-for="connector in getUniqueConnectors()" class="bordered rounded-lg py-4 my-4 px-6" :class="{'border-blue-600': connector === selectedConnector, 'border-gray-400': connector !== selectedConnector}">
           <input ref="inputButton" type="radio" :id="connector" :name="connectorID" :checked="connector === selectedConnector" @click="changeSelectedConnector(connector)">
           <label :for="connector" class="text-white font-semibold text-lg px-4"> {{connector}} </label>
         </div>
       </div>
-      <div class="basis-1/4 mx-4 px-4">
+      <div class="form-section-25 mx-4 mb-2 px-4">
         <p class="text-grey-darken-1 font-semibold text-2xl">Charge Speed</p>
         <div v-for="chargeSpeed in getUniqueChargeSpeeds()" class="bordered rounded-lg py-4 my-4 px-6" :class="{'border-blue-600': chargeSpeed === selectedChargeSpeed, 'border-gray-400': chargeSpeed !== selectedChargeSpeed}">
           <input ref="inputButton" type="radio" :id="chargeSpeed" :name="chargeSpeedID" :checked="chargeSpeed === selectedChargeSpeed" @click="changeSelectedChargeSpeed(chargeSpeed)">
           <label :for="chargeSpeed" class="text-white font-semibold text-lg px-4"> {{chargeSpeed}} </label>
         </div>
       </div>
-      <div class="basis-1/2 mx-4 px-4">
+      <div class="form-section-50 mx-4 mb-2 px-4">
         <p class="text-grey-darken-1 font-semibold text-2xl">Time Slot</p>
         <!--<vue-tailwind-datepicker as-single :formatter="formatter" v-model="dateValue" style="max-width: 50%; margin-left: auto; margin-right: auto"/>-->
         <Datepicker :dark="true" :format="format" :min-date="new Date()" :prevent-min-max-navigation="true" v-model="dateValue" class="py-4" style="max-width: 50%; margin-left: auto; margin-right: auto" @update:model-value="modelChanged"></Datepicker>
-        <div class="grid grid-cols-4 gap-6 mt-4 mx-3">
-          <div v-for="availableSlot in stationAvailability" class="bordered rounded-lg py-4 px-6" :class="{'border-blue-600': availableSlot === selectedSlot, 'border-gray-400': (availableSlot !== selectedSlot && (!AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate) || getDiscountPerc() <= 0)), 'border-green-400': (availableSlot !== selectedSlot && AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate) && getDiscountPerc() > 0)}">
+        <div class="grid grid-resp mt-4 mx-3">
+          <div v-for="availableSlot in stationAvailability" class="slot-btn bordered rounded-lg py-4 px-6" style="min-width: 165px" :class="{'border-blue-600': availableSlot === selectedSlot, 'border-gray-400': (availableSlot !== selectedSlot && (!AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate) || getDiscountPerc() <= 0)), 'border-green-400': (availableSlot !== selectedSlot && AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate) && getDiscountPerc() > 0)}">
             <input ref="inputButton" type="radio" :id="availableSlot" :name="timeSlotID" :checked="availableSlot === selectedSlot" @click="changeSelectedTimeSlot(availableSlot)">
             <label :for="availableSlot" class="text-white font-semibold text-lg px-4"> {{availableSlot.startHour.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })}} - {{availableSlot.endHour.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })}}{{(AvailableIntervalsModel.isOnOffer(availableSlot, stationDetails?.stationData.offerExpirationDate) && getDiscountPerc() > 0) ? '  🏷️️' : ''}} </label>
           </div>
@@ -69,11 +69,17 @@ const format = (date: Date) => {
 const isLoadingDates = ref(false);
 
 function getUniqueConnectors(): string[] {
-  return Array.from(new Set(stationDetails.value?.stationData.sockets?.map((socket) => socket.type.connector)));
+  if (stationDetails.value?.stationData) {
+    return Array.from(new Set(stationDetails.value?.stationData.sockets?.map((socket) => socket.type.connector)));
+  }
+  return []
 }
 
 function getUniqueChargeSpeeds(): string[] {
-  return Array.from(new Set(stationDetails.value?.stationData.sockets?.map((socket) => SocketType.getChargeSpeed(socket.type))));
+  if (stationDetails.value?.stationData) {
+    return Array.from(new Set(stationDetails.value?.stationData.sockets?.map((socket) => SocketType.getChargeSpeed(socket.type))));
+  }
+  return []
 }
 
 async function changeSelectedConnector(connectorNew: string) {
@@ -142,6 +148,62 @@ const router = useRouter();
 .bordered {
   border-width: 6px !important;
   border-style: solid !important;
+}
+
+.slot-btn {
+  padding: 1rem 1rem;
+}
+.grid-resp {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+.form-container {
+  flex-direction: row;
+}
+.form-section-25 {
+  flex-basis: 25%;
+}
+.form-section-50 {
+  flex-basis: 50%;
+}
+@media(max-width: 2000px) {
+  .grid-resp {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+}
+@media(max-width: 1500px) {
+  .grid-resp {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  .slot-btn {
+    padding: 0.2rem 0.5rem;
+  }
+}
+@media(max-width: 1100px) {
+  .grid-resp {
+    grid-template-columns: auto;
+    gap: 0.5rem;
+  }
+}
+@media(max-width: 900px) {
+  .form-container {
+    flex-direction: column;
+  }
+  .form-section-25 {
+    flex-basis: auto;
+  }
+  .form-section-50 {
+    flex-basis: auto;
+  }
+  .grid-resp {
+    grid-template-columns: auto;
+    gap: 0.5rem;
+  }
+  .slot-btn {
+    padding: 0.2rem 0.5rem;
+  }
 }
 
 </style>
