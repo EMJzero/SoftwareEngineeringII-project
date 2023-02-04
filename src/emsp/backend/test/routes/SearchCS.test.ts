@@ -10,6 +10,8 @@ import Authentication from "../../src/helper/authentication";
 import { CPMS } from "../../src/model/CPMS";
 import { DBAccess } from "../../src/DBAccess";
 import CPMSAuthentication from "../../src/helper/CPMSAuthentication";
+import misc = require("../../src/helper/misc");
+import {postReqHttp} from "../../src/helper/misc";
 
 use(chaiHttp);
 use(sinonChai);
@@ -23,7 +25,8 @@ describe("/search endpoint", () => {
     let checkJWTStub: SinonStub;
     //let CPMSStub: SinonStub;
     let DBStub: SinonStub;
-    let CPMSAuthenticationStub: SinonStub;
+    let jwtTestStub: SinonStub;
+    let postReqHttpStub: SinonStub;
 
     before(() => {
         requester = request(app.express).keepOpen();
@@ -38,7 +41,8 @@ describe("/search endpoint", () => {
         checkJWTStub = sandbox.stub(Authentication, "checkJWT");
         //CPMSStub = sandbox.stub(CPMS, "findAll");
         DBStub = sandbox.stub(DBAccess, "getConnection");
-        CPMSAuthenticationStub = sandbox.stub(CPMSAuthentication, "getTokenIfNeeded");
+        jwtTestStub = sandbox.stub(CPMSAuthentication, "isJwtExpired");
+        postReqHttpStub = sandbox.stub(misc, "postReqHttp");
     });
 
     afterEach(() => {
@@ -72,7 +76,8 @@ describe("/search endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves([ { name: "testName", id: 1 } ]);
-            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            jwtTestStub.returns(true);
+            postReqHttpStub.resolves({ isError: false, res: { headers: { "set-cookie": ["__session:SomeCookie"] } } });
             axiosGetStub.throws({ response: { data: { message: "Nothing " } } });
             const res = await requester.get("/search?latitude=\"12.255\"" +
                 "&longitude=\"58.626\"");
@@ -85,7 +90,6 @@ describe("/search endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //CPMSStub.resolves([ { name: "testName", id: 1 } ]);
-            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             axiosGetStub.resolves({ data: { data: { CSList: [{ name: "testName", id: 1 }] } } });
             const res = await requester.get("/search?latitude=\"12.255\"" +
                 "&longitude=\"58.626\"");
@@ -97,7 +101,7 @@ describe("/search endpoint", () => {
 class Test1 {
     public async execute(sql: string, values: any) : Promise<[any[], any[]]> {
         if(sql == "SELECT * FROM cpmses")
-            return [[{ start: 123, end: 10000000, socketId: 1 }], []];
+            return [[{ token: "SomeRandomStuff;OtherStuff" }], []];
         return [[], []];
     }
 
