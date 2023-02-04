@@ -27,7 +27,9 @@ export default abstract class Authentication {
      * @param next function to call if the request eMSP Authentication is valid
      */
     static checkAuthentication(request: Request, response: Response, next: NextFunction) {
-        Authentication.authenticateRequest(request, response);
+        if (!Authentication.authenticateRequest(request, response)) {
+            return;
+        }
 
         next();
     }
