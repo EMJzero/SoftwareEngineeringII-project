@@ -21,7 +21,7 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
     async deleteBooking(booking: BookingModel): Promise<boolean> {
         const res = await super.delete("/bookings", { body: {
             bookingId: booking.id
-            } });
+            }, message: "Booking deleted successfully!" });
         if (res) {
             const idx = reference.value?.findIndex((bookingA) => bookingA.id == booking.id);
             if (idx != undefined) {
@@ -72,7 +72,6 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
             if (values) {
                 const idx = reference.value?.findIndex((bookingA) => bookingA.id == booking.id);
                 if (idx != undefined) {
-                    console.log("DELETING AT ", idx);
                     reference.value?.splice(idx, 1);//.value = reference.value?.filter((b) => b.id != booking.id) ?? null;
                     booking.isWaiting = false;
                     return true;

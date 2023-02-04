@@ -31,7 +31,7 @@ export class Notification {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT * FROM notifications WHERE userId = ?",
+            "SELECT * FROM notifications WHERE userId = ? ORDER BY generationDate DESC",
             [userId]);
 
         connection.release();

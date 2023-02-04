@@ -147,13 +147,12 @@ class StationMapController extends GenericController<StationModel[] | null> impl
         const query = {
             latitude: currentPosition[1],
             longitude: currentPosition[0],
-            radius: Math.max(Math.abs(transformedViewportSize[0] - transformedViewportSize[2]), Math.abs(transformedViewportSize[1] - transformedViewportSize[3])),
+            radius: Math.max(Math.abs(transformedViewportSize[0] - transformedViewportSize[2]), Math.abs(transformedViewportSize[1] - transformedViewportSize[3])) * 0.75,
             priceMin: 0,
             priceMax: 999999
         }
         const res = await super.get<StationModel[]>("/search", { query: query });
         if (res) {
-            console.log(res);
             this.setStations(res);
         }
         return null;
@@ -166,13 +165,11 @@ class StationMapController extends GenericController<StationModel[] | null> impl
         this.markers?.getSource()?.clear();
         //Add a new feature for each station we received
         for (let i = 0; i < stations.length; i++) {
-            console.log("STATION: " + stations[i]);
             this.addMarker(stations[i].locationLatitude, stations[i].locationLongitude);
         }
     }
 
     addMarker(latitude: number, longitude: number) {
-        console.log("ADDING MARKER TO " + latitude + " " + longitude + " - " + this.markers);
         const marker = new Feature(new Point(fromLonLat([longitude, latitude])));
         this.markers?.getSource()?.addFeature(marker);
     }
