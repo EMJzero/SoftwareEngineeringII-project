@@ -35,7 +35,7 @@ export default class CPMSAuthentication {
         return cookieVal.slice(0, firstSemicolonIdx);
     }
 
-    private static isJwtExpired(token: string) {
+    public static isJwtExpired(token: string) {
         let isJwtExpired = false;
         const { exp } = jwtDecode(token);
         const currentTime = new Date().getTime() / 1000;
