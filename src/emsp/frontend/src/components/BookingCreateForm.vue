@@ -10,9 +10,9 @@
       </div>
       <div class="form-section-25 mx-4 mb-2 px-4">
         <p class="text-grey-darken-1 font-semibold text-2xl">Charge Speed</p>
-        <div v-for="chargeSpeed in getUniqueChargeSpeeds()" class="bordered rounded-lg py-4 my-4 px-6" :class="{'border-blue-600': chargeSpeed === selectedChargeSpeed, 'border-gray-400': chargeSpeed !== selectedChargeSpeed}">
-          <input ref="inputButton" type="radio" :id="chargeSpeed" :name="chargeSpeedID" :checked="chargeSpeed === selectedChargeSpeed" @click="changeSelectedChargeSpeed(chargeSpeed)">
-          <label :for="chargeSpeed" class="text-white font-semibold text-lg px-4"> {{chargeSpeed}} </label>
+        <div v-for="chargeSpeed in getUniqueChargeSpeeds()" class="bordered rounded-lg py-4 my-4 px-6" :class="{'border-blue-600': chargeSpeed === selectedChargeSpeed && isChargeSpeedEnabled(chargeSpeed), 'border-gray-400': chargeSpeed !== selectedChargeSpeed && isChargeSpeedEnabled(chargeSpeed), 'border-gray-600': !isChargeSpeedEnabled(chargeSpeed)}">
+          <input ref="inputButton" type="radio" :disabled="!isChargeSpeedEnabled(chargeSpeed)" :id="chargeSpeed" :name="chargeSpeedID" :checked="chargeSpeed === selectedChargeSpeed" @click="changeSelectedChargeSpeed(chargeSpeed)">
+          <label :for="chargeSpeed" class="font-semibold text-lg px-4" :class="{'text-white': isChargeSpeedEnabled(chargeSpeed), 'text-gray-600': !isChargeSpeedEnabled(chargeSpeed)}"> {{chargeSpeed}} </label>
         </div>
       </div>
       <div class="form-section-50 mx-4 mb-2 px-4">
@@ -53,7 +53,7 @@ const date = ref();
 const dateValue = ref(new Date())
 let stationDetails = booking_create_controller.getRef();
 let selectedConnector = ref(getUniqueConnectors()[0]);
-let selectedChargeSpeed = ref(getUniqueChargeSpeeds()[0]);
+let selectedChargeSpeed = ref(getChargeSpeedsForSelectedSocketType()[0]);
 let stationAvailability = station_availability_controller.getRef();
 let selectedSlot = ref((stationAvailability.value ?? [])[0]);
 const connectorID = "bookedConnector";
@@ -82,8 +82,23 @@ function getUniqueChargeSpeeds(): string[] {
   return []
 }
 
+function getChargeSpeedsForSelectedSocketType(): string[] {
+  if (stationDetails.value?.stationData) {
+    return stationDetails.value?.stationData.sockets?.filter((socket) => socket.type.connector === selectedConnector.value).map((socket) => SocketType.getChargeSpeed(socket.type)) ?? [];
+  }
+  return []
+}
+
+function isChargeSpeedEnabled(speed: string): boolean {
+  return getChargeSpeedsForSelectedSocketType().find((s) => s === speed) != undefined;
+}
+
 async function changeSelectedConnector(connectorNew: string) {
   selectedConnector.value = connectorNew;
+  //Change the selection of the speed to be compatible with the connector
+  if (!isChargeSpeedEnabled(selectedChargeSpeed.value)) {
+    selectedChargeSpeed.value = getChargeSpeedsForSelectedSocketType()[0];
+  }
   await reloadDates();
 }
 
