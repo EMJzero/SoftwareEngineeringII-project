@@ -39,7 +39,7 @@ interface EnvVariables {
 
 // Default values for some of the env variables
 const defaults = {
-    PORT: 8000,
+    PORT: 8002,
     WS_PORT: 3000,
     BASE_URL: "/api/",
     SALT_ROUNDS: 1,
@@ -51,7 +51,7 @@ const defaults = {
     DB_HOST: "localhost",
     DB_USER: "root",
     DB_PASSWORD: "Doberman180",
-    DB_DATABASE: "cpms_db"
+    DB_DATABASE: "bank_db"
 };
 
 /**
