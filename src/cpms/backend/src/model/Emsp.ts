@@ -61,7 +61,7 @@ export class Emsp {
      * Recovers the URL of the notification endpoint of a known EMPS.
      * @param eMSPId
      */
-    public static async getNotificationEndpoint(eMSPId: number): Promise<string> {
+    /*public static async getNotificationEndpoint(eMSPId: number): Promise<string> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
@@ -71,5 +71,5 @@ export class Emsp {
         connection.release();
 
         return result[0].nep;
-    }
+    }*/
 }
