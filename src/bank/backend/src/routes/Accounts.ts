@@ -41,7 +41,7 @@ export default class AccountsRoute extends Route {
                 const isValid = await Account.checkAccount({
                     cardNumber,
                     owner: cardOwner,
-                    expiration,
+                    expiration: (expiration as string).replace("/", ""),
                     cvv
                 });
                 success(response, {
