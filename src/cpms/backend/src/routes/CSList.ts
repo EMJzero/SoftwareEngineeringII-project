@@ -18,7 +18,7 @@ export default class CSListRoute extends Route {
      */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const CSID: number = parseInt(request.query.CSID as string);
-        await CS.dumpDB();
+        //await CS.dumpDB();
         try {
             if (!CSID) {
                 const locationLatitude: number = parseFloat(request.query.locationLatitude as string);

@@ -51,6 +51,7 @@ export class CS {
         return result.map((cs) => new CS(cs.id, cs.name, cs.locationLatitude, cs.locationLongitude, cs.nominalPrice, cs.userPrice, cs.offerExpirationDate, null, cs.imageURL));
     }
 
+    //DEBUG ONLY!!!!!
     public static async dumpDB(): Promise<void> {
         const connection = await DBAccess.getConnection();
 
