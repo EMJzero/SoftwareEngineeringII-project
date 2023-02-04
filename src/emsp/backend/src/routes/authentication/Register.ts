@@ -5,6 +5,8 @@ import { hashSync } from "bcrypt";
 import env from "../../helper/env";
 import logger from "../../helper/logger";
 import { IUser, User } from "../../model/User";
+import {postReqHttp, StandardResponse} from "../../helper/misc";
+import {AxiosError, AxiosResponse} from "axios";
 
 export default class RegisterRoute extends Route {
     constructor() {
@@ -41,6 +43,28 @@ export default class RegisterRoute extends Route {
         const newUser: IUser = { id: 0 /*Ignored*/, username, password: hash, email, creditCardBillingName, creditCardNumber, creditCardCVV, creditCardExpiration };
         if (!User.checkUserFields(newUser)) {
             badRequest(response, "One of the parameters has the wrong encoding");
+            return;
+        }
+
+        const bankResponseRaw = await postReqHttp(env.PAYMENT_PROVIDER_URL, null, {
+            cardNumber: newUser.creditCardNumber,
+            cardOwner: newUser.creditCardBillingName,
+            cvv: newUser.creditCardCVV,
+            expiration: newUser.creditCardExpiration,
+            billable: 0,
+            command: "CHK"
+        });
+
+        if (bankResponseRaw.isError) {
+            const message = ((bankResponseRaw.res as AxiosError).response?.data as StandardResponse<Object>).message;
+            badRequest(response, message);
+            return;
+        }
+
+        const isValid = (bankResponseRaw.res as AxiosResponse).data.data.valid;
+
+        if (!isValid) {
+            badRequest(response, "Invalid credit card data");
             return;
         }
 
