@@ -289,7 +289,7 @@ export class SocketMachine {
 
     public getFullBatteryTimestamp(): number {
         if (this._state == 2 && this._connectedCar) {
-            return (this._chargeStartTime ?? Date.now()) + (((this._connectedCar.batteryCapacityKWh - this._connectedCar.remainingCapacityKWh) / this._currentPower) * 3600 * 1000);
+            return (this._chargeStartTime ?? Date.now()) + (((this._connectedCar._batteryCapacityKWh - this._connectedCar._remainingCapacityKWh) / this._currentPower) * 3600 * 1000);
         } else {
             throw "Cannot estimate time when no charge is ongoing!";
         }
@@ -352,10 +352,10 @@ export class SocketMachine {
  * @class
  */
 export class CarData {
-    private readonly _manufacturer: string;
-    private readonly _batteryCapacityKWh: number;
-    private _remainingCapacityKWh: number;
-    private readonly _maxAcceptedPowerKW: number;
+    readonly _manufacturer: string;
+    readonly _batteryCapacityKWh: number;
+    _remainingCapacityKWh: number;
+    readonly _maxAcceptedPowerKW: number;
 
     constructor(manufacturer: string, batteryCapacityKWh: number, remainingCapacityKWh: number, maxAcceptedPowerKW: number) {
         this._manufacturer = manufacturer;
