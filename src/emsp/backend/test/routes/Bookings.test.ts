@@ -112,6 +112,20 @@ describe("/bookings endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             //findByUserStub.resolves("response");
+            const res = await requester.get("/bookings?" +
+                "referenceDateDay=1" +
+                "&referenceDateMonth=1" +
+                "&referenceDateYear=2024" +
+                "&intervalDays=5");
+            expect(res).to.have.status(200);
+        });
+
+        it("should succeed when a valid combination of parameters is given are well defined #2", async () => {
+            DBStub.resolves(new Test1());
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            //findByUserStub.resolves("response");
             const res = await requester.get("/bookings");
             expect(res).to.have.status(200);
         });
@@ -306,7 +320,8 @@ class Test1 {
     public async execute(sql: string, values: any) : Promise<[any[], any[]]> {
         if(sql == "SELECT * FROM bookings WHERE userId = ? AND isActive" ||
             sql == "SELECT * FROM bookings WHERE userId = ? AND startDate >= ? AND endDate <= ?" ||
-            sql == "SELECT * FROM bookings WHERE userId = ? AND startDate >= curdate()")
+            sql == "SELECT * FROM bookings WHERE userId = ? AND startDate >= curdate()" ||
+            sql == "SELECT * FROM bookings WHERE userId = ? AND startDate >= ? AND endDate <= ? ORDER BY startDate")
             return [[{ id: 123,
                 userId: 1,
                 startDate: 10000000,
