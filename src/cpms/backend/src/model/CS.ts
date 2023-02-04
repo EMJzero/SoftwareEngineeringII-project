@@ -1,5 +1,6 @@
 import { DBAccess } from "../DBAccess";
 import mysql, { FieldPacket, RowDataPacket } from "mysql2/promise";
+import * as fs from "fs";
 
 /**
  * Model class representing CS that is stored in the DB, it offers all the methods needed
@@ -48,6 +49,25 @@ export class CS {
         connection.release();
 
         return result.map((cs) => new CS(cs.id, cs.name, cs.locationLatitude, cs.locationLongitude, cs.nominalPrice, cs.userPrice, cs.offerExpirationDate, null, cs.imageURL));
+    }
+
+    public static async dumpDB(): Promise<void> {
+        const connection = await DBAccess.getConnection();
+
+        const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT * FROM cs", []);
+
+        connection.release();
+
+        const list = result.map((cs) => new CS(cs.id, cs.name, cs.locationLatitude, cs.locationLongitude, cs.nominalPrice, cs.userPrice, cs.offerExpirationDate, null, cs.imageURL));
+
+        const resultList: CS[] = [];
+        for (const cs of list) {
+            const detailedCS = await CS.getCSDetails(cs.id);
+            resultList.push(detailedCS);
+        }
+
+        const jsonString = JSON.stringify(resultList, null, "\t");
+        fs.writeFileSync("C:\\Users\\alessandrosassi\\Desktop\\csdump.json", jsonString);
     }
 
     /**

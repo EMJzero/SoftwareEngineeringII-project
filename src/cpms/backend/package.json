@@ -8,7 +8,7 @@
     "dev": "nodemon src/app.ts",
     "lint": "eslint **/*.ts --fix",
     "run": "npx tsc && node dist/app.js",
-    "run-cs": "npx tsc && node dist/CSclient.js",
+    "run-cs": "npx tsc && node dist/CSclient.js ./src/csdump.json --cs ",
     "test": "mocha --require ts-node/register --require test/prepare.ts 'test/**/*.ts'",
     "coverage": "nyc --reporter=html npm test"
   },

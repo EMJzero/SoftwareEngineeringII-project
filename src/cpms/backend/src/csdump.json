@@ -1,0 +1,242 @@
+[
+	{
+		"id": 1,
+		"name": "Tokyo Tower Hub",
+		"locationLatitude": 35.702662,
+		"locationLongitude": 139.774413,
+		"nominalPrice": 12,
+		"userPrice": 8,
+		"offerExpirationDate": 1675429200000,
+		"sockets": [
+			{
+				"id": 1,
+				"type": {
+					"connector": "Type A",
+					"maxPower": 10
+				}
+			},
+			{
+				"id": 2,
+				"type": {
+					"connector": "Type A",
+					"maxPower": 10
+				}
+			},
+			{
+				"id": 3,
+				"type": {
+					"connector": "Type B",
+					"maxPower": 15
+				}
+			},
+			{
+				"id": 4,
+				"type": {
+					"connector": "Type B",
+					"maxPower": 15
+				}
+			}
+		],
+		"imageURL": "http://www.widest.com/wp-content/uploads/Tokyo-Tower-in-Tokyo-Japan.jpg"
+	},
+	{
+		"id": 2,
+		"name": "Akiba Bolt",
+		"locationLatitude": 35.702662,
+		"locationLongitude": 139.776447,
+		"nominalPrice": 11,
+		"userPrice": 11,
+		"offerExpirationDate": null,
+		"sockets": [],
+		"imageURL": "https://www.japan-guide.com/g18/3003_01.jpg"
+	},
+	{
+		"id": 3,
+		"name": "Deib",
+		"locationLatitude": 45.478611,
+		"locationLongitude": 9.232778,
+		"nominalPrice": 5,
+		"userPrice": 5,
+		"offerExpirationDate": null,
+		"sockets": [
+			{
+				"id": 5,
+				"type": {
+					"connector": "Type A",
+					"maxPower": 10
+				}
+			},
+			{
+				"id": 6,
+				"type": {
+					"connector": "Type C",
+					"maxPower": 8
+				}
+			},
+			{
+				"id": 7,
+				"type": {
+					"connector": "Type C",
+					"maxPower": 8
+				}
+			},
+			{
+				"id": 8,
+				"type": {
+					"connector": "CHAdeMO",
+					"maxPower": 50
+				}
+			}
+		],
+		"imageURL": "https://lh3.googleusercontent.com/p/AF1QipOYluQw6pCBFtNuBFmJ7Or_0-hh1VRwO_W3RWkU=s1360-w1360-h1020"
+	},
+	{
+		"id": 4,
+		"name": "Building 26",
+		"locationLatitude": 45.475833,
+		"locationLongitude": 9.234444,
+		"nominalPrice": 5.5,
+		"userPrice": 5.5,
+		"offerExpirationDate": null,
+		"sockets": [
+			{
+				"id": 9,
+				"type": {
+					"connector": "CHAdeMO",
+					"maxPower": 50
+				}
+			}
+		],
+		"imageURL": "https://lh3.googleusercontent.com/p/AF1QipO-0rEIQ-aLw_Q327T_gO7jHcuo-we0LokgYUTt=s1360-w1360-h1020"
+	},
+	{
+		"id": 5,
+		"name": "Linate 1",
+		"locationLatitude": 45.460278,
+		"locationLongitude": 9.278611,
+		"nominalPrice": 8,
+		"userPrice": 8,
+		"offerExpirationDate": null,
+		"sockets": [
+			{
+				"id": 10,
+				"type": {
+					"connector": "Type C",
+					"maxPower": 8
+				}
+			},
+			{
+				"id": 11,
+				"type": {
+					"connector": "Type C",
+					"maxPower": 8
+				}
+			}
+		],
+		"imageURL": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn.businesstraveller.com%2Fwp-content%2Fuploads%2Ffly-images%2F892488%2FMilan-Linate-916x515.jpg&f=1&nofb=1&ipt=9b47ff69c72bbe9b52c999f4eca95e4857e35c119688859d1f5f78e7a9524052&ipo=images"
+	},
+	{
+		"id": 6,
+		"name": "Linate 2",
+		"locationLatitude": 45.458056,
+		"locationLongitude": 9.282222,
+		"nominalPrice": 8,
+		"userPrice": 8,
+		"offerExpirationDate": null,
+		"sockets": [
+			{
+				"id": 12,
+				"type": {
+					"connector": "Type B",
+					"maxPower": 15
+				}
+			},
+			{
+				"id": 13,
+				"type": {
+					"connector": "Type C",
+					"maxPower": 8
+				}
+			}
+		],
+		"imageURL": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.wantedinmilan.com%2Fi%2Fpreview%2Fstorage%2Fuploads%2F2020%2F07%2FLinate_Milan-2.jpg&f=1&nofb=1&ipt=88816dd36313a030bfbe83994f9870a760f38fec8095ba11f486f6d14dc2b0a0&ipo=images"
+	},
+	{
+		"id": 7,
+		"name": "Duomo",
+		"locationLatitude": 45.464167,
+		"locationLongitude": 9.191667,
+		"nominalPrice": 3,
+		"userPrice": 3,
+		"offerExpirationDate": null,
+		"sockets": [
+			{
+				"id": 14,
+				"type": {
+					"connector": "Type A",
+					"maxPower": 10
+				}
+			}
+		],
+		"imageURL": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Flive.staticflickr.com%2F7285%2F16240496098_0b4afcd4d7.jpg&f=1&nofb=1&ipt=8a388ac607915b5813f8ebfa757a4580fe103245e98200450ae637d4ce3b47ee&ipo=images"
+	},
+	{
+		"id": 8,
+		"name": "CityLife",
+		"locationLatitude": 45.477778,
+		"locationLongitude": 9.155833,
+		"nominalPrice": 6,
+		"userPrice": 6,
+		"offerExpirationDate": null,
+		"sockets": [
+			{
+				"id": 15,
+				"type": {
+					"connector": "CHAdeMO",
+					"maxPower": 50
+				}
+			},
+			{
+				"id": 16,
+				"type": {
+					"connector": "CHAdeMO",
+					"maxPower": 50
+				}
+			},
+			{
+				"id": 17,
+				"type": {
+					"connector": "CHAdeMO",
+					"maxPower": 50
+				}
+			}
+		],
+		"imageURL": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia-cdn.tripadvisor.com%2Fmedia%2Fphoto-s%2F1a%2Ff9%2F8f%2F55%2Fphoto0jpg.jpg&f=1&nofb=1&ipt=3a996f9c9d653f4c5e8295cd72148c3961060b3728a63311c02921acb07444c8&ipo=images"
+	},
+	{
+		"id": 9,
+		"name": "Sempione",
+		"locationLatitude": 45.475833,
+		"locationLongitude": 9.172222,
+		"nominalPrice": 6,
+		"userPrice": 6,
+		"offerExpirationDate": null,
+		"sockets": [
+			{
+				"id": 18,
+				"type": {
+					"connector": "Type C",
+					"maxPower": 8
+				}
+			},
+			{
+				"id": 19,
+				"type": {
+					"connector": "Type C",
+					"maxPower": 8
+				}
+			}
+		],
+		"imageURL": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fak.jogurucdn.com%2Fmedia%2Fimage%2Fp25%2Fplace-2017-01-19-10-86ca57b11fffb3be112810151892ca6e.jpg&f=1&nofb=1&ipt=92d30b1254fd1a832295c8f6442b2f46e149e9ba9e684544e9403aa9b6f150f8&ipo=images"
+	}
+]

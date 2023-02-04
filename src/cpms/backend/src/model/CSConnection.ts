@@ -173,7 +173,8 @@ export default class CSConnection {
 export enum SocketType {
     Type1 = 50,
     Type2 = 30,
-    Type3 = 60
+    Type3 = 60,
+    Type4 = 90
 }
 
 /**
