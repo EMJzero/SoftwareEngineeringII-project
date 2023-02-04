@@ -12,11 +12,12 @@ import {Circle, Fill, Icon, Stroke, Style} from "ol/style";
 import markerPNG from "@/assets/images/marker.png";
 import {Feature, Geolocation} from "ol";
 import {useToast} from "vue-toastification";
-import {Geometry, Point} from "ol/geom";
+import {Geometry, LineString, Point} from "ol/geom";
 import type {Coordinate} from "ol/coordinate";
 import type {Units} from "ol/proj/Units"
 import {distance} from "ol/coordinate";
 import {getDistance} from "ol/sphere";
+import {containsCoordinate} from "ol/extent";
 
 let reference = ref<StationModel[] | null>(null);
 
@@ -31,6 +32,7 @@ class StationMapController extends GenericController<StationModel[] | null> impl
     geolocation: Geolocation = new Geolocation();
     lastLocationCenter: Coordinate = [0, 0];
     lastGeolocation: Coordinate = [139.839478, 35.652832];
+    lastZoom: number = 10;
     markers: Vector<SVector<Geometry>> | undefined;
 
     private readonly defaultCenter: Coordinate = [139.839478, 35.652832]; //Tokyo!
@@ -98,13 +100,24 @@ class StationMapController extends GenericController<StationModel[] | null> impl
         setInterval(async function () {
             const coordinates = self.geolocation.getPosition();
             const center = self.map.getView().getCenter() ?? coordinates;
+            let shouldUpdateStations = false;
             if (center && (center[0] != self.lastLocationCenter[0] || center[1] != self.lastLocationCenter[1])) {
                 const centerLonLat = toLonLat(center);
                 const lastLonLat = toLonLat(self.lastLocationCenter);
-                if (self.distanceBetweenPoints(lastLonLat, centerLonLat) > 2) {
-                    await self.updateCurrentLocation();
-                    self.lastLocationCenter = center;
+                const line = new LineString([fromLonLat(centerLonLat), fromLonLat(lastLonLat)]);
+                const distance = line.getLength();
+                const threshold = 1000 * Math.pow(15 / (self.map.getView().getZoom() ?? 10), 3);
+                if (distance > threshold) {
+                    shouldUpdateStations = true;
+                    self.lastLocationCenter = center ?? self.defaultCenter;
                 }
+            }
+            if (Math.abs((self.map.getView().getZoom() ?? self.lastZoom) - self.lastZoom) > 0.5) {
+                self.lastZoom = self.map.getView().getZoom() ?? self.lastZoom;
+                shouldUpdateStations = true;
+            }
+            if (shouldUpdateStations) {
+                await self.updateCurrentLocation();
             }
             if (coordinates && (coordinates[0] != self.lastGeolocation[0] || coordinates[1] != self.lastGeolocation[1])) {
                 const centerLonLat = toLonLat(coordinates);
@@ -158,7 +171,7 @@ class StationMapController extends GenericController<StationModel[] | null> impl
         const query = {
             latitude: currentPosition[1],
             longitude: currentPosition[0],
-            radius: Math.max(Math.abs(transformedViewportSize[0] - transformedViewportSize[2]), Math.abs(transformedViewportSize[1] - transformedViewportSize[3])),
+            radius: Math.max(Math.abs(transformedViewportSize[0] - transformedViewportSize[2]), Math.abs(transformedViewportSize[1] - transformedViewportSize[3])) * 0.5,
             priceMin: 0,
             priceMax: 999999
         }
