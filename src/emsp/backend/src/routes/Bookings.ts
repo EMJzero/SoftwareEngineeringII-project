@@ -132,8 +132,8 @@ export default class Bookings extends Route {
         });
 
         if (axiosResponseRaw.isError) {
-            const message = ((axiosResponseRaw.res as AxiosError).response?.data as StandardResponse<Object>).message;
-            internalServerError(response, message);
+            const message = ((axiosResponseRaw.res as AxiosError).response?.data as StandardResponse<Object>)?.message;
+            internalServerError(response, message ?? "Internal server error");
             return;
         }
 
