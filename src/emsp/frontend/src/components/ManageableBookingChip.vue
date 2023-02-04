@@ -14,7 +14,7 @@
     </div>
     <div class="button-container pt-8 pb-2">
       <button class="text-left rounded-lg pt-2 pb-4 px-9 text-lg font-medium text-white">  </button>
-      <button v-if="true || booking.isActive && isBookingLive()" class="rounded-lg py-2 px-9 text-lg font-medium text-white left-button" :class="{ 'bg-blue-600 hover:bg-blue-700': !booking.isWaiting, 'bg-grey hover:bg-grey-darken-1': booking.isWaiting }"
+      <button v-if="booking.isActive && isBookingLive()" class="rounded-lg py-2 px-9 text-lg font-medium text-white left-button" :class="{ 'bg-blue-600 hover:bg-blue-700': !booking.isWaiting, 'bg-grey hover:bg-grey-darken-1': booking.isWaiting }"
               @click="bookings_controller.stopChargeBooking(booking)">
         {{ booking.isWaiting ? "Connecting..." : 'Stop Charge' }}
       </button>
@@ -22,7 +22,7 @@
               @click="bookings_controller.startChargeBooking(booking)">
         {{ booking.isWaiting ? "Connecting..." : 'Start Charge' }}
       </button>
-      <button v-if="true || isBookingFuture() && !booking.isActive" class="rounded-lg bg-red-600 py-2 px-9 text-lg font-medium text-white hover:bg-red-700 right-button"
+      <button v-if="isBookingFuture() && !booking.isActive" class="rounded-lg bg-red-600 py-2 px-9 text-lg font-medium text-white hover:bg-red-700 right-button"
               @click="bookings_controller.deleteBooking(booking)">
         Delete
       </button>
