@@ -7,6 +7,7 @@ import type Socket from "@/model/socket_model";
 import {SocketType} from "@/model/socket_model";
 import station_availability_controller from "@/controllers/station_availability_controller";
 import type AvailableIntervalsModel from "@/model/available_intervals_model";
+import {useToast} from "vue-toastification";
 
 let reference = ref<StationDetailsModel | null>(null);
 
@@ -46,6 +47,11 @@ class BookingCreateController extends GenericController<StationDetailsModel | nu
     }
 
     async createBooking(connector: string, powerTier: string, day: Date, timeSlot: AvailableIntervalsModel): Promise<boolean> {
+        if (!connector || !powerTier || !day || !timeSlot) {
+            useToast().error("Cannot create a booking with missing parameters!");
+            return false;
+        }
+
         //Split the time slot string into start and end hours
         const startHr = timeSlot.startHour;
         const endHr = timeSlot.endHour;
