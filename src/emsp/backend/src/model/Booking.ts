@@ -53,7 +53,7 @@ export class Booking {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT * FROM bookings WHERE userId = ? AND (startDate >= UNIX_TIMESTAMP() * 1000 OR endDate >= UNIX_TIMESTAMP() * 1000)",
+            "SELECT * FROM bookings WHERE userId = ? AND (startDate >= UNIX_TIMESTAMP() * 1000 OR endDate >= UNIX_TIMESTAMP() * 1000) ORDER BY startDate",
             [userId]);
 
         connection.release();
@@ -130,13 +130,13 @@ export class Booking {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT start, end FROM availabilityautomanaged WHERE cpms = ? AND cs = ? AND socket = ? AND start <= ? UNION (SELECT ?, ? WHERE NOT EXISTS (SELECT * FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ?))",
-            [cpmsID, csID, socketID, startDate.valueOf(), startDate.valueOf(), endDate.valueOf(), cpmsID, csID, socketID]);
+            "SELECT start, end FROM availabilityautomanaged WHERE cpms = ? AND cs = ? AND socket = ? AND ((end >= ? AND end <= ?) OR (start >= ? AND start <= ?)) UNION (SELECT ?, ? WHERE NOT EXISTS (SELECT * FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ?))",
+            [cpmsID, csID, socketID, startDate.valueOf(), endDate.valueOf(), startDate.valueOf(), endDate.valueOf(), startDate.valueOf(), endDate.valueOf(), cpmsID, csID, socketID]);
 
         connection.release();
 
         // Here we exclude intervals that violate the env.TIME
-        return result.map((res) => new DateIntervalPerSocket(new Date(res.start), new Date(res.end)))
+        return result.map((res) => new DateIntervalPerSocket(new Date(Math.max(res.start, startDate.valueOf())), new Date(Math.min(res.end, endDate.valueOf()))))
             .filter((res) => res.endDate.valueOf() - res.startDate.valueOf() >= env.TIME_SLOT_SIZE * 60 * 1000);
     }
 
@@ -154,7 +154,7 @@ export class Booking {
         finalDate.setDate(finalDate.getDate() + intervalDays);
         console.log(referenceDate, finalDate);
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT * FROM bookings WHERE userId = ? AND startDate >= ? AND endDate <= ?",
+            "SELECT * FROM bookings WHERE userId = ? AND startDate >= ? AND endDate <= ? ORDER BY startDate",
             [userId,
                 referenceDate.valueOf(),
                 finalDate.valueOf()]);

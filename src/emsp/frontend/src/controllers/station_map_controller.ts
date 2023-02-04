@@ -29,8 +29,11 @@ class StationMapController extends GenericController<StationModel[] | null> impl
 
     map: Map = new Map();
     geolocation: Geolocation = new Geolocation();
-    lastGeolocation: Coordinate = [0, 0];
+    lastLocationCenter: Coordinate = [0, 0];
+    lastGeolocation: Coordinate = [139.839478, 35.652832];
     markers: Vector<SVector<Geometry>> | undefined;
+
+    private readonly defaultCenter: Coordinate = [139.839478, 35.652832]; //Tokyo!
 
     async generateMap(target: HTMLElement) {
         const self = this;
@@ -49,7 +52,7 @@ class StationMapController extends GenericController<StationModel[] | null> impl
             // the map view will initially show the whole world
             view: new View({
                 zoom: 10,
-                center: fromLonLat([139.839478, 35.652832]),
+                center: fromLonLat(this.defaultCenter),
                 constrainResolution: true
             }),
         });
@@ -86,7 +89,7 @@ class StationMapController extends GenericController<StationModel[] | null> impl
                     }),
                     stroke: new Stroke({
                         color: '#fff',
-                        width: 2,
+                        width: 3,
                     }),
                 }),
             })
@@ -95,15 +98,23 @@ class StationMapController extends GenericController<StationModel[] | null> impl
         setInterval(async function () {
             const coordinates = self.geolocation.getPosition();
             const center = self.map.getView().getCenter() ?? coordinates;
-            if (center && (center[0] != self.lastGeolocation[0] || center[1] != self.lastGeolocation[1])) {
+            if (center && (center[0] != self.lastLocationCenter[0] || center[1] != self.lastLocationCenter[1])) {
                 const centerLonLat = toLonLat(center);
-                const lastLonLat = toLonLat(self.lastGeolocation);
+                const lastLonLat = toLonLat(self.lastLocationCenter);
                 if (self.distanceBetweenPoints(lastLonLat, centerLonLat) > 2) {
                     await self.updateCurrentLocation();
-                    self.lastGeolocation = center;
+                    self.lastLocationCenter = center;
                 }
             }
-            positionFeature.setGeometry(coordinates ? new Point(coordinates) : undefined);
+            if (coordinates && (coordinates[0] != self.lastGeolocation[0] || coordinates[1] != self.lastGeolocation[1])) {
+                const centerLonLat = toLonLat(coordinates);
+                const lastLonLat = toLonLat(self.lastGeolocation);
+                if (self.distanceBetweenPoints(lastLonLat, centerLonLat) > 2) {
+                    self.map.getView().setCenter(coordinates);
+                    self.lastGeolocation = coordinates;
+                }
+            }
+            positionFeature.setGeometry(new Point(coordinates ?? fromLonLat(self.defaultCenter)));
         }, 1000);
 
         new Vector({
@@ -147,7 +158,7 @@ class StationMapController extends GenericController<StationModel[] | null> impl
         const query = {
             latitude: currentPosition[1],
             longitude: currentPosition[0],
-            radius: Math.max(Math.abs(transformedViewportSize[0] - transformedViewportSize[2]), Math.abs(transformedViewportSize[1] - transformedViewportSize[3])) * 0.75,
+            radius: Math.max(Math.abs(transformedViewportSize[0] - transformedViewportSize[2]), Math.abs(transformedViewportSize[1] - transformedViewportSize[3])),
             priceMin: 0,
             priceMax: 999999
         }

@@ -53,7 +53,7 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-04 10:48:16
+-- Dump completed on 2023-02-04 12:14:55
 CREATE DATABASE  IF NOT EXISTS `emsp_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `emsp_db`;
 -- MySQL dump 10.13  Distrib 8.0.32, for Win64 (x86_64)
@@ -97,7 +97,7 @@ CREATE TABLE `availabilityautomanaged` (
 
 LOCK TABLES `availabilityautomanaged` WRITE;
 /*!40000 ALTER TABLE `availabilityautomanaged` DISABLE KEYS */;
-INSERT INTO `availabilityautomanaged` VALUES (1,1,1,0,1675414800000),(1,1,1,1675461600000,5026378548000);
+INSERT INTO `availabilityautomanaged` VALUES (1,1,1,0,5026522989000),(1,1,2,0,5026518621000);
 /*!40000 ALTER TABLE `availabilityautomanaged` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -138,7 +138,7 @@ CREATE TABLE `bookings` (
   KEY `cpmsId_idx` (`cpmsId`),
   CONSTRAINT `cpmsId` FOREIGN KEY (`cpmsId`) REFERENCES `cpmses` (`id`),
   CONSTRAINT `userId` FOREIGN KEY (`userId`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -147,7 +147,6 @@ CREATE TABLE `bookings` (
 
 LOCK TABLES `bookings` WRITE;
 /*!40000 ALTER TABLE `bookings` DISABLE KEYS */;
-INSERT INTO `bookings` VALUES (27,4,1675414800000,1675461600000,0,1,1,1);
 /*!40000 ALTER TABLE `bookings` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -159,10 +158,28 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `blockbookinginsert` BEFORE INSERT ON `bookings` FOR EACH ROW begin
+    if (not exists(select * from availabilityautomanaged where cpms = new.cpmsId and cs = new.csId and socket = new.socketId and start <= new.startDate and end >= new.endDate) and exists(select * from availabilityautomanaged where cpms = new.cpmsId and cs = new.csId and socket = new.socketId)) then
+        signal sqlstate '45000' set message_text = 'Cannot create a new booking when the station is not available';
+    end if;
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `availabilityInsert` AFTER INSERT ON `bookings` FOR EACH ROW begin
     declare startTimestamp, endTimestamp bigint;
-    select start into startTimestamp from availabilityautomanaged where cpms = new.cpmsId and cs = new.csId and socket = new.socketId and start <= new.startDate;
-    select end into endTimestamp from availabilityautomanaged where cpms = new.cpmsId and cs = new.csId and socket = new.socketId and start = startTimestamp;
+    select start, end into startTimestamp, endTimestamp from availabilityautomanaged where cpms = new.cpmsId and cs = new.csId and socket = new.socketId and start <= new.startDate and end >= new.endDate;
 
     if (startTimestamp is null) then
         -- Clean insert of 2 new availability slots (before and after) for that station and socket
@@ -192,7 +209,7 @@ DELIMITER ;;
             where cpms = new.cpmsId and cs = new.csId and socket = new.socketId and start = startTimestamp;
 
             insert into availabilityautomanaged
-            values (new.cpmsId, new.csId, new.socketId, new.endDate, UNIX_TIMESTAMP() * 3000);
+            values (new.cpmsId, new.csId, new.socketId, new.endDate, endTimestamp);
         end if;
     end if;
 end */;;
@@ -288,7 +305,7 @@ CREATE TABLE `cpmses` (
 
 LOCK TABLES `cpmses` WRITE;
 /*!40000 ALTER TABLE `cpmses` DISABLE KEYS */;
-INSERT INTO `cpmses` VALUES (1,'CPMS1','http://127.0.0.1:8001/api','JinSakai',null);
+INSERT INTO `cpmses` VALUES (1,'CPMS1','http://127.0.0.1:8001/api','JinSakai','__session=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjoiZGExMGY1NTItNmM4Yi00MGZiLWJhMDUtNjhmYjhkOWQ0YWExIiwidXNlcm5hbWUiOiJlTWFsbCIsImlkIjoxLCJpYXQiOjE2NzU0NTg0MTEsImV4cCI6MTY3NTU0NDgxMX0.Kiw9-JW2C87ORcwpt0tCm3_PBWSQm-gEX9XmEp0B8Aw; Path=/; Expires=Sat, 04 Feb 2023 21:06:51 GMT; HttpOnly; Secure; SameSite=None');
 /*!40000 ALTER TABLE `cpmses` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -379,7 +396,7 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-04 10:48:16
+-- Dump completed on 2023-02-04 12:14:55
 CREATE DATABASE  IF NOT EXISTS `cpms_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `cpms_db`;
 -- MySQL dump 10.13  Distrib 8.0.32, for Win64 (x86_64)
@@ -517,4 +534,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-04 10:48:17
+-- Dump completed on 2023-02-04 12:14:55
