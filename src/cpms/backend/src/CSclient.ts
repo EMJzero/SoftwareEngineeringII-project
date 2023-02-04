@@ -44,54 +44,80 @@ if (socketsData) {
 }
 
 // WebSocket connection and initialization
+let client: WebSocket;// = new WebSocket("ws://localhost:3000");
+connect();
+let didOpen = false;
 
-const client = new WebSocket("ws://localhost:3000");
+function connect() {
+    client = new WebSocket("ws://localhost:3000");
 
-client.on("open", async () => {
-    // Send the current state on connection to be recognized
-    const msg = {
-        csId: CSID,
-        socketsIds: sockets.map((socket) => socket.socketId)
-    };
-    await client.send(JSON.stringify(msg));
+    client.on("open", async () => {
+        didOpen = true;
+        // Send the current state on connection to be recognized
+        const msg = {
+            csId: CSID,
+            socketsIds: sockets.map((socket) => socket.socketId)
+        };
+        await client.send(JSON.stringify(msg));
 
-    setInterval(async () => {
-        await sendStatus();
-    }, 2000);
-});
+        setInterval(async () => {
+            await sendStatus();
+        }, 2000);
 
-async function sendStatus() {
-    const msg = {
-        type: "socketsStatus",
-        sockets: sockets
-    };
-    await client.send(JSON.stringify(msg));
-}
+        rl.emit("line", "");
+    });
 
-client.on("message", async (message: string) => {
-    const msg = JSON.parse(message);
-    const msgId = msg.unique_id;
-    const socketIndex = sockets.findIndex((socket) => socket.socketId == msg.socketId);
-
-    if(msg.status != undefined && msg.status == "error") {
-        client.close();
-        console.log("Connection refused, goodbye...");
-        process.exit(0);
-    } else if(msg.request != undefined && msg.request == "startCharge") {
-        sockets[socketIndex].chargeCar(msg.maximumTimeoutDate, async () => await chargeTimeoutCallback(sockets[socketIndex]), msg.eMSPId);
-        await client.send(JSON.stringify({unique_id: msgId, status: true}));
-        console.log("Sockets updated, press ENTER to refresh prompt....");
-    } else if(msg.request != undefined && msg.request == "stopCharge") {
-        const chargeStartTime = sockets[socketIndex].chargeStartTime;
-        const billablePower = sockets[socketIndex].currentPower;
-        const notifiedEMSPId = sockets[socketIndex].activeeMSPId;
-        sockets[socketIndex].stopChargeCar();
-        await chargeEndedCallback(sockets[socketIndex], chargeStartTime ? Date.now() - chargeStartTime : 0, billablePower, notifiedEMSPId, msgId);
-        console.log("Sockets updated, press ENTER to refresh prompt....");
-    } else if (msg.status == "ok") {
-        await sendStatus();
+    async function sendStatus() {
+        const msg = {
+            type: "socketsStatus",
+            sockets: sockets
+        };
+        await client.send(JSON.stringify(msg));
     }
-});
+
+    client.on("message", async (message: string) => {
+        const msg = JSON.parse(message);
+        const msgId = msg.unique_id;
+        const socketIndex = sockets.findIndex((socket) => socket.socketId == msg.socketId);
+
+        if(msg.status != undefined && msg.status == "error") {
+            client.close();
+            console.log("Connection refused, goodbye...");
+            process.exit(0);
+        } else if(msg.request != undefined && msg.request == "startCharge") {
+            sockets[socketIndex].chargeCar(msg.maximumTimeoutDate, async () => await chargeTimeoutCallback(sockets[socketIndex]), msg.eMSPId);
+            await client.send(JSON.stringify({unique_id: msgId, status: true}));
+            console.log("Sockets updated, press ENTER to refresh prompt....");
+        } else if(msg.request != undefined && msg.request == "stopCharge") {
+            const chargeStartTime = sockets[socketIndex].chargeStartTime;
+            const billablePower = sockets[socketIndex].currentPower;
+            const notifiedEMSPId = sockets[socketIndex].activeeMSPId;
+            sockets[socketIndex].stopChargeCar();
+            await chargeEndedCallback(sockets[socketIndex], chargeStartTime ? Date.now() - chargeStartTime : 0, billablePower, notifiedEMSPId, msgId);
+            console.log("Sockets updated, press ENTER to refresh prompt....");
+        } else if (msg.status == "ok") {
+            await sendStatus();
+        }
+    });
+
+    let didTryReconnect = false;
+    client.on("close", () => {
+        //On connection close the CS should try to reconnect to the cpms
+        console.log("The CPMS did not respond. Trying to reconnect in 2 seconds...");
+        reconnect(2000);
+    });
+
+    client.on("error", () => {});
+
+    function reconnect(timeout: number) {
+        if (!didTryReconnect) {
+            didTryReconnect = true;
+            setTimeout(() => {
+                connect();
+            }, timeout);
+        }
+    }
+}
 
 async function chargeTimeoutCallback(socket: SocketMachine) {
     const socketIndex = sockets.findIndex((socketA) => socketA.socketId == socket.socketId);
