@@ -363,7 +363,7 @@ export class Booking {
         const connection = await DBAccess.getConnection();
 
         const [check]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT id FROM bookings WHERE ((startDate >= ? AND startDate <= ?) OR (endDate >= ? AND startDate <= ?)) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR (userId = ?))",
+            "SELECT id FROM bookings WHERE ((startDate >= ? AND startDate < ?) OR (endDate >= ? AND startDate < ?)) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR (userId = ?))",
             [startDate.valueOf(),
                 endDate.valueOf(),
                 startDate.valueOf(),
