@@ -45,7 +45,7 @@ const defaults = {
     SALT_ROUNDS: 1,
     JWT_SECRET: "this_is_an_insecure_secret",
     JWT_EXPIRE: 86400,
-    DEPLOYMENT_URL: "https://privtap.it",
+    DEPLOYMENT_URL: "https://cpms.it",
     FRONTEND_URL: "http://127.0.0.1:5174",
     LOG_LEVEL: "info",
     DB_HOST: "localhost",
