@@ -39,9 +39,14 @@ export class Booking {
      * Starts a regular timer that will clean up expired bookings regularly
       */
     public static startCleanupTimer() {
-        //TODO: Try to make FE tests work with the backend running
         const timerSchedule = 6 * 3600; //Seconds in 6 hrs;
         setInterval(async () => {
+            await Booking.cleanupAndBillFines();
+        }, timerSchedule * 1000);
+    }
+
+    static async cleanupAndBillFines() {
+        try {
             const usersToBill = await this.deleteExpiredBookingsAndUserWithCount();
             if (usersToBill.deleted) {
                 const paymentAmountPerSlot = 20 //20$ fine
@@ -49,8 +54,12 @@ export class Booking {
                     const totalFineAmount = paymentAmountPerSlot * numberOfBookings;
                     await CSNotification.billUser(userToBill, totalFineAmount, undefined);
                 }
+                return true;
             }
-        }, timerSchedule * 1000);
+            return false
+        } catch {
+            return false;
+        }
     }
 
     /**
@@ -396,10 +405,6 @@ export class Booking {
         const json: any = result;
 
         return json.affectedRows == 1;
-    }
-
-    private static secondsSinceEpoch(date: Date) {
-        return Math.round(date.valueOf() / 1000);
     }
 }
 

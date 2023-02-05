@@ -25,7 +25,7 @@ describe("/recharge-manager endpoint", () => {
     //let findActiveByUserStub: SinonStub;
     //let findByUserFilteredStub: SinonStub;
     //let findByUserStub: SinonStub;
-    //let findByIdStub: SinonStub;
+    let findByIdStub: SinonStub;
     //let createBookingStub: SinonStub;
     //let deleteBookingStub: SinonStub;
     //let findCurrentByUserStub: SinonStub;
@@ -101,6 +101,33 @@ describe("/recharge-manager endpoint", () => {
             //findByIdStub.resolves({ endpoint: "SaySomethingFunny" });
             CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             axiosGetStub.throws({ response: { data: { message: "Nothing " } } });
+            const res = await requester.get("/recharge-manager");
+            expect(res).to.have.status(500);
+        });
+
+        it("should report default message if the axios call fails badly", async () => {
+            DBStub.resolves(new Test3());
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            //findActiveByUserStub.resolves({ csId: 1, socketId: 1 });
+            //findByIdStub.resolves({ endpoint: "SaySomethingFunny" });
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            axiosGetStub.throws({ response: { data: null } });
+            const res = await requester.get("/recharge-manager");
+            expect(res).to.have.status(500);
+        });
+
+        it("should fail if the cpms is not found", async () => {
+            DBStub.resolves(new Test3());
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            findByIdStub = sandbox.stub(CPMS, "findById");
+            findByIdStub.resolves(null);
+            //findActiveByUserStub.resolves({ csId: 1, socketId: 1 });
+            //findByIdStub.resolves({ endpoint: "SaySomethingFunny" });
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             const res = await requester.get("/recharge-manager");
             expect(res).to.have.status(500);
         });
@@ -223,6 +250,23 @@ describe("/recharge-manager endpoint", () => {
             CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             //axiosGetStub.resolves( { status: 200, data: { data: { nothingHere: null } } } );
             axiosPostStub.resolves( { status: 200, data: { data: { nothingHere: null } } } );
+            const res = await requester.post("/recharge-manager").send({
+                bookingId: 1,
+                action: "start",
+            });
+            expect(res).to.have.status(500);
+        });
+
+        it("should fail if the cpms is not found", async () => {
+            DBStub.resolves(new Test3());
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            findByIdStub = sandbox.stub(CPMS, "findById");
+            findByIdStub.resolves(null);
+            //findActiveByUserStub.resolves({ csId: 1, socketId: 1 });
+            //findByIdStub.resolves({ endpoint: "SaySomethingFunny" });
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             const res = await requester.post("/recharge-manager").send({
                 bookingId: 1,
                 action: "start",

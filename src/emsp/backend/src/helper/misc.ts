@@ -82,22 +82,3 @@ export class StandardResponse<T extends Object> {
         this.data = data;
     }
 }
-
-/**
- * Make a delete http request to a specific url
- * @param url the url of the request
- * @param token use this if you want to put an auth token
- * @param query the object containing the field and the value of the query string
- */
-export async function deleteReqHttp(url: string, token: string, query: object): Promise<AxiosResponse | AxiosError> {
-    let res;
-    try {
-        const config = { headers: { "Cookie": [token] }, params: query };
-        // TODO: manage body
-        res = await axios.delete(url, config);
-        return res;
-    } catch (e) {
-        logger.error("Axios response status:", res != undefined ? res.status : "undefined");
-        return e as AxiosError;
-    }
-}

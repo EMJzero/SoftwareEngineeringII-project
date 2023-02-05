@@ -21,6 +21,7 @@ describe("/cs-notification endpoint", () => {
     let requester: ChaiHttp.Agent;
     let checkJWTStub: SinonStub;
     let axiosGetStub: SinonStub;
+    let authenticationStub: SinonStub;
     //let findActiveByUserStub: SinonStub;
     //let findByUserFilteredStub: SinonStub;
     //let findByUserStub: SinonStub;
@@ -72,9 +73,17 @@ describe("/cs-notification endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             const res = await requester.get("/cs-notification");
-            console.log(res.body);
             expect(res).to.have.status(200);
         });
+
+        it("should fail if the user is not authenticated", async () => {
+            DBStub.resolves(new Test1());
+            authenticationStub = sandbox.stub(Authentication, "authenticateRequest");
+            authenticationStub.returns(false);
+            const res = await requester.get("/cs-notification");
+            expect(res).to.have.status(401);
+        });
+
     });
 
     describe("POST /", () => {
@@ -154,7 +163,7 @@ describe("/cs-notification endpoint", () => {
 
     describe("DELETE /", () => {
 
-        it("should succeed if the bookingId is correct", async () => {
+        it("should fail if no booking is found", async () => {
             DBStub.throws("Ops...");
             checkJWTStub.returns(
                 { userId: 1, username: "userName" }
@@ -170,6 +179,14 @@ describe("/cs-notification endpoint", () => {
             );
             const res = await requester.delete("/cs-notification");
             expect(res).to.have.status(200);
+        });
+
+        it("should fail if the user is not authenticated", async () => {
+            DBStub.resolves(new Test1());
+            authenticationStub = sandbox.stub(Authentication, "authenticateRequest");
+            authenticationStub.returns(false);
+            const res = await requester.delete("/cs-notification");
+            expect(res).to.have.status(401);
         });
     });
 });

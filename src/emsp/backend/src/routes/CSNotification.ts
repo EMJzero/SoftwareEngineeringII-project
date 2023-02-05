@@ -1,6 +1,13 @@
 import Route from "../Route";
 import {Request, Response} from "express";
-import {badRequest, checkNaN, checkUndefinedParams, internalServerError, success} from "../helper/http";
+import {
+    badRequest,
+    checkNaN,
+    checkUndefinedParams,
+    internalServerError,
+    success,
+    unauthorizedUserError
+} from "../helper/http";
 import {CPMS} from "../model/CPMS";
 import {getReqHttp, postReqHttp} from "../helper/misc";
 import logger from "../helper/logger";
@@ -26,7 +33,10 @@ export default class CSNotification extends Route {
      */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const isAuthenticated = Authentication.authenticateRequest(request, response);
-        if (!isAuthenticated) return;
+        if (!isAuthenticated) {
+            unauthorizedUserError(response);
+            return;
+        }
 
         const userId = request.userId;
         try {
@@ -94,7 +104,10 @@ export default class CSNotification extends Route {
      */
     protected async httpDelete(request: Request, response: Response): Promise<void> {
         const isAuthenticated = Authentication.authenticateRequest(request, response);
-        if (!isAuthenticated) return;
+        if (!isAuthenticated) {
+            unauthorizedUserError(response);
+            return;
+        }
 
         const userId = request.userId;
         try {

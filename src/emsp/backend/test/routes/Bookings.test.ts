@@ -120,6 +120,20 @@ describe("/bookings endpoint", () => {
             expect(res).to.have.status(200);
         });
 
+        it("should succeed when a valid combination of parameters is given are well defined (active bookings)", async () => {
+            DBStub.resolves(new Test1());
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            //findByUserStub.resolves("response");
+            const res = await requester.get("/bookings?" +
+                "referenceDateDay=1" +
+                "&referenceDateMonth=1" +
+                "&referenceDateYear=2024" +
+                "&intervalDays=5&retrieveActiveBooking=1");
+            expect(res).to.have.status(200);
+        });
+
         it("should succeed when a valid combination of parameters is given are well defined #2", async () => {
             DBStub.resolves(new Test1());
             checkJWTStub.returns(
@@ -178,8 +192,8 @@ describe("/bookings endpoint", () => {
                 { userId: 1, username: "userName" }
             );
             const res = await requester.post("/bookings").send({
-                startUnixTime : new Date().valueOf() - 1000,
-                endUnixTime: new Date().valueOf() + 1000,
+                startUnixTime : new Date(2022, 12, 25, 12).valueOf(),
+                endUnixTime: new Date(2022, 12, 25, 13).valueOf(),
                 cpmsID: 1,
                 csID: 1,
                 socketID: 2
@@ -220,6 +234,25 @@ describe("/bookings endpoint", () => {
             expect(res).to.have.status(500);
         });
 
+        it("should fail when the axios call fails badly", async () => {
+            DBStub.resolves(new Test1());
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            DBStub.resolves(new Test1());
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
+            axiosGetStub.throws({ response: null });
+            const res = await requester.post("/bookings").send({
+                startUnixTime : new Date().valueOf() + 10000000,
+                endUnixTime: new Date().valueOf() + 10000000 + 2*60*60*1000,
+                cpmsID: 1,
+                csID: 1,
+                socketID: 2
+            });
+            expect(res).to.have.status(500);
+        });
+
         it("should fail when no CS are found", async () => {
             DBStub.resolves(new Test1());
             checkJWTStub.returns(
@@ -228,6 +261,44 @@ describe("/bookings endpoint", () => {
             //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
             CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
             axiosGetStub.resolves({ data: { data: {} } } );
+            const res = await requester.post("/bookings").send({
+                startUnixTime : new Date().valueOf() + 10000000,
+                endUnixTime: new Date().valueOf() + 10000000 + 2*60*60*1000,
+                cpmsID: 1,
+                csID: 1,
+                socketID: 2
+            });
+            expect(res).to.have.status(400);
+        });
+
+        it("should fail when an exception occurs in the DB", async () => {
+            DBStub.throws("DB Error!");
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
+            axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            //createBookingStub.resolves(true);
+            const res = await requester.post("/bookings").send({
+                startUnixTime : new Date().valueOf() + 10000000,
+                endUnixTime: new Date().valueOf() + 10000000 + 2*60*60*1000,
+                cpmsID: 1,
+                csID: 1,
+                socketID: 2
+            });
+            expect(res).to.have.status(500);
+        });
+
+        it("should fail when no owner CPMS was found", async () => {
+            DBStub.resolves(new Test3());
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
+            axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            //createBookingStub.resolves(true);
             const res = await requester.post("/bookings").send({
                 startUnixTime : new Date().valueOf() + 10000000,
                 endUnixTime: new Date().valueOf() + 10000000 + 2*60*60*1000,
@@ -255,6 +326,24 @@ describe("/bookings endpoint", () => {
                 socketID: 2
             });
             expect(res).to.have.status(400);
+        });
+
+        it("should fail if the insertion in the DB fails with an exception", async () => {
+            DBStub.resolves(new Test4());
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            //findByIdStub.resolves({ endpoint: "endpointPlaceholder" });
+            axiosGetStub.resolves({ data: { data: { CSList: "Not Undefined" } } } );
+            CPMSAuthenticationStub.resolves({ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" });
+            const res = await requester.post("/bookings").send({
+                startUnixTime : new Date().valueOf() + 10000000,
+                endUnixTime: new Date().valueOf() + 10000000 + 2*60*60*1000,
+                cpmsID: 1,
+                csID: 1,
+                socketID: 2
+            });
+            expect(res).to.have.status(500);
         });
 
         it("should succeed if every parametere is correct", async () => {
@@ -299,6 +388,18 @@ describe("/bookings endpoint", () => {
                 bookingId: 1
             });
             expect(res).to.have.status(400);
+        });
+
+        it("should fail with DB exceptions", async () => {
+            DBStub.throws("DB Error!");
+            checkJWTStub.returns(
+                { userId: 1, username: "userName" }
+            );
+            //deleteBookingStub.resolves(false);
+            const res = await requester.delete("/bookings").send({
+                bookingId: 1
+            });
+            expect(res).to.have.status(500);
         });
 
         it("should succeed if the bookingId is correct", async () => {
@@ -365,6 +466,64 @@ class Test2 {
             return [[], []];
         if(sql == "INSERT INTO bookings VALUES (default, ?, ?, ?, ?, ?, ?, ?)")
             return [({ affectedRows: 1 } as unknown as any[]), []];
+        if(sql == "DELETE FROM bookings WHERE userId = ? AND id = ?")
+            return [({ affectedRows: 1 } as unknown as any[]), []];
+        return [[], []];
+    }
+
+    public release() {
+        return;
+    }
+}
+
+class Test3 {
+    public async execute(sql: string, values: any) : Promise<[any[], any[]]> {
+        if(sql == "SELECT * FROM bookings WHERE userId = ? AND isActive" ||
+            sql == "SELECT * FROM bookings WHERE userId = ? AND startDate >= ? AND endDate <= ?" ||
+            sql == "SELECT * FROM bookings WHERE userId = ? AND startDate >= curdate()")
+            return [[{ id: 123,
+                userId: 1,
+                startDate: 10000000,
+                endDate: 17000000,
+                isActive: 1,
+                cpmsId: 1,
+                csId: 1,
+                socketId: 1 }], []];
+        if(sql == "SELECT * FROM cpmses WHERE id = ?")
+            return [[], []];
+        if(sql == "SELECT id FROM bookings WHERE ((startDate >= ? AND startDate <= ?) OR (endDate >= ? AND startDate <= ?)) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR (userId = ?))")
+            return [[], []];
+        if(sql == "INSERT INTO bookings VALUES (default, ?, ?, ?, ?, ?, ?, ?)")
+            throw "INSERTION ERROR!";
+        if(sql == "DELETE FROM bookings WHERE userId = ? AND id = ?")
+            return [({ affectedRows: 1 } as unknown as any[]), []];
+        return [[], []];
+    }
+
+    public release() {
+        return;
+    }
+}
+
+class Test4 {
+    public async execute(sql: string, values: any) : Promise<[any[], any[]]> {
+        if(sql == "SELECT * FROM bookings WHERE userId = ? AND isActive" ||
+            sql == "SELECT * FROM bookings WHERE userId = ? AND startDate >= ? AND endDate <= ?" ||
+            sql == "SELECT * FROM bookings WHERE userId = ? AND startDate >= curdate()")
+            return [[{ id: 123,
+                userId: 1,
+                startDate: 10000000,
+                endDate: 17000000,
+                isActive: 1,
+                cpmsId: 1,
+                csId: 1,
+                socketId: 1 }], []];
+        if(sql == "SELECT * FROM cpmses WHERE id = ?")
+            return [[{ id: 123, name: "CPMS1", APIendpoint: "http://test.com", APIkey: "nothing" }], []];
+        if(sql == "SELECT id FROM bookings WHERE ((startDate >= ? AND startDate <= ?) OR (endDate >= ? AND startDate <= ?)) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR (userId = ?))")
+            return [[], []];
+        if(sql == "INSERT INTO bookings VALUES (default, ?, ?, ?, ?, ?, ?, ?)")
+            throw "INSERTION ERROR!";
         if(sql == "DELETE FROM bookings WHERE userId = ? AND id = ?")
             return [({ affectedRows: 1 } as unknown as any[]), []];
         return [[], []];
