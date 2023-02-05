@@ -6,8 +6,8 @@ import app from "../../src/app";
 import { beforeEach } from "mocha";
 import Authentication from "../../src/helper/authentication";
 import CSConnection, { CSDB, SocketMachine } from "../../src/model/CSConnection";
-import {DBAccess} from "../../src/DBAccess";
-import {RowDataPacket} from "mysql2/promise";
+import { DBAccess } from "../../src/DBAccess";
+import { RowDataPacket } from "mysql2/promise";
 
 use(chaiHttp);
 use(sinonChai);

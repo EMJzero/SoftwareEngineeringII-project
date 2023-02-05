@@ -3,16 +3,16 @@ import chaiHttp = require("chai-http");
 import { createSandbox, SinonStub } from "sinon";
 import sinonChai = require("sinon-chai");
 import app from "../../src/app";
-import {afterEach, beforeEach} from "mocha";
+import { afterEach, beforeEach } from "mocha";
 import Authentication from "../../src/helper/authentication";
-import CSConnection, {CarData, CSDB, SocketMachine} from "../../src/model/CSConnection";
-import {DBAccess} from "../../src/DBAccess";
-import {RowDataPacket} from "mysql2/promise";
-import {CS} from "../../src/model/CS";
+import CSConnection, { CarData, CSDB, SocketMachine } from "../../src/model/CSConnection";
+import { DBAccess } from "../../src/DBAccess";
+import { RowDataPacket } from "mysql2/promise";
+import { CS } from "../../src/model/CS";
 import EventEmitter = require("events");
 import WebSocket = require("ws");
 import WSSync from "../../src/helper/websocket-sync";
-import {Emsp} from "../../src/model/Emsp";
+import { Emsp } from "../../src/model/Emsp";
 import axios from "axios";
 
 use(chaiHttp);
@@ -55,7 +55,7 @@ describe("CS model", () => {
             const conn2 = new CSConnection(2, socket);
             dummyDB.registerCS(conn1);
             dummyDB.registerCS(conn2);
-            dummyDB.unregisterCS(conn1)
+            dummyDB.unregisterCS(conn1);
             expect(dummyDB.getConnectionToCSWithID(2)).to.be.eql(conn2);
         });
 
@@ -80,7 +80,7 @@ describe("CS model", () => {
             const mockConnection = new CSConnection(1, new WebSocket(null));
             const res = await mockConnection.startCharge(1, 0, 1);
             expect(res).to.be.false;
-        })
+        });
 
         it("should not start a charge if the socket is not in teh correct state", async () => {
             const mockConnection = new CSConnection(1, new WebSocket(null));
@@ -105,7 +105,7 @@ describe("CS model", () => {
             const sendStub = sandbox.stub(mockConnection.websocket, "send").resolves();
             const messageStub = sandbox.stub(mockConnection.socketSync, "isWaiting").returns(false);
             const waitStub = sandbox.stub(mockConnection.socketSync, "hasMsgInWaitQueue").returns(true);
-            mockConnection.socketSync.handleMessage({unique_id: "CIAO", status: true, sockets: [sock2]});
+            mockConnection.socketSync.handleMessage({ unique_id: "CIAO", status: true, sockets: [sock2] });
             const res = await mockConnection.startCharge(1, 0, 1);
             expect(res).to.be.true;
         });
@@ -114,7 +114,7 @@ describe("CS model", () => {
             const mockConnection = new CSConnection(1, new WebSocket(null));
             const res = await mockConnection.stopCharge(1);
             expect(res).to.be.false;
-        })
+        });
 
         it("should not stop a charge if the socket is not in teh correct state", async () => {
             const mockConnection = new CSConnection(1, new WebSocket(null));
@@ -137,7 +137,7 @@ describe("CS model", () => {
             const sendStub = sandbox.stub(mockConnection.websocket, "send").resolves();
             const messageStub = sandbox.stub(mockConnection.socketSync, "isWaiting").returns(false);
             const waitStub = sandbox.stub(mockConnection.socketSync, "hasMsgInWaitQueue").returns(true);
-            mockConnection.socketSync.handleMessage({unique_id: "CIAO", status: true});
+            mockConnection.socketSync.handleMessage({ unique_id: "CIAO", status: true });
             const res = await mockConnection.stopCharge(1);
             expect(res).to.be.true;
         });
@@ -145,7 +145,7 @@ describe("CS model", () => {
         it("should bill whenever the charge ends", async () => {
             const mockConnection = new CSConnection(1, new WebSocket(null));
             const sock = new SocketMachine(1, 1, 50, 10 );
-            const sock2 = new SocketMachine(1, 1, 50, 10 )
+            const sock2 = new SocketMachine(1, 1, 50, 10 );
             sock.connectCar();
             sock.chargeCar(1000000, () => {}, 1);
             const socketStub = sandbox.stub(mockConnection, "sockets").returns([sock]);
@@ -153,12 +153,12 @@ describe("CS model", () => {
             const messageStub = sandbox.stub(mockConnection.socketSync, "isWaiting").returns(false);
             const waitStub = sandbox.stub(mockConnection.socketSync, "hasMsgInWaitQueue").returns(true);
             postStub.resolves({ status: 200, data: { data: { nothingHere: null } } });
-            DBStub.resolves(new Test1(false))
-            mockConnection.socketSync.handleMessage({unique_id: "CIAO", type: "chargeEnd", sockets: [sock2]});
+            DBStub.resolves(new Test1(false));
+            mockConnection.socketSync.handleMessage({ unique_id: "CIAO", type: "chargeEnd", sockets: [sock2] });
             const res = await mockConnection.stopCharge(1);
             socketStub.restore();
             expect(res).to.be.true;
-            expect(mockConnection.sockets()).to.be.eql([sock2])
+            expect(mockConnection.sockets()).to.be.eql([sock2]);
             expect(postStub).to.have.been.called;
         });
 
@@ -166,7 +166,7 @@ describe("CS model", () => {
             const clock = sandbox.useFakeTimers();
             const mockConnection = new CSConnection(1, new WebSocket(null));
             const sock = new SocketMachine(1, 1, 50, 10 );
-            const sock2 = new SocketMachine(1, 1, 50, 10 )
+            const sock2 = new SocketMachine(1, 1, 50, 10 );
             sock.connectCar();
             sock.chargeCar(1000000, () => {}, 1);
             const socketStub = sandbox.stub(mockConnection, "sockets").returns([sock]);
@@ -175,12 +175,12 @@ describe("CS model", () => {
             const waitStub = sandbox.stub(mockConnection.socketSync, "hasMsgInWaitQueue").returns(true);
             const intervalSpy = sandbox.stub(clock, "setInterval");
             postStub.throws({ response: { data: { message: "Nothing " } } });
-            DBStub.resolves(new Test1(false))
-            mockConnection.socketSync.handleMessage({unique_id: "CIAO", type: "chargeEnd", sockets: [sock2]});
+            DBStub.resolves(new Test1(false));
+            mockConnection.socketSync.handleMessage({ unique_id: "CIAO", type: "chargeEnd", sockets: [sock2] });
             const res = await mockConnection.stopCharge(1);
             socketStub.restore();
             expect(res).to.be.true;
-            expect(mockConnection.sockets()).to.be.eql([sock2])
+            expect(mockConnection.sockets()).to.be.eql([sock2]);
             expect(postStub).to.have.been.called;
             expect(intervalSpy).to.have.been.called;
         });
@@ -188,7 +188,7 @@ describe("CS model", () => {
         it("should bill whenever the charge ends remotely", async () => {
             const mockConnection = new CSConnection(1, new WebSocket(null));
             const sock = new SocketMachine(1, 1, 50, 10 );
-            const sock2 = new SocketMachine(1, 1, 50, 10 )
+            const sock2 = new SocketMachine(1, 1, 50, 10 );
             sock.connectCar();
             sock.chargeCar(1000000, () => {}, 1);
             const socketStub = sandbox.stub(mockConnection, "sockets").returns([sock]);
@@ -196,11 +196,11 @@ describe("CS model", () => {
             const messageStub = sandbox.stub(mockConnection.socketSync, "isWaiting").returns(false);
             const waitStub = sandbox.stub(mockConnection.socketSync, "hasMsgInWaitQueue").returns(true);
             postStub.resolves({ status: 200, data: { data: { nothingHere: null } } });
-            DBStub.resolves(new Test1(false))
-            mockConnection.socketSync.handleMessage({unique_id: "CIAO", type: "chargeEnd", sockets: [sock2]});
-            await CSConnection.webSocketListener(JSON.stringify({unique_id: "CIAO", type: "chargeEnd", sockets: [sock2]}), mockConnection);
+            DBStub.resolves(new Test1(false));
+            mockConnection.socketSync.handleMessage({ unique_id: "CIAO", type: "chargeEnd", sockets: [sock2] });
+            await CSConnection.webSocketListener(JSON.stringify({ unique_id: "CIAO", type: "chargeEnd", sockets: [sock2] }), mockConnection);
             socketStub.restore();
-            expect(mockConnection.sockets()).to.be.eql(JSON.parse(JSON.stringify([sock2])))
+            expect(mockConnection.sockets()).to.be.eql(JSON.parse(JSON.stringify([sock2])));
             expect(postStub).to.have.been.called;
         });
 
@@ -208,7 +208,7 @@ describe("CS model", () => {
             const clock = sandbox.useFakeTimers();
             const mockConnection = new CSConnection(1, new WebSocket(null));
             const sock = new SocketMachine(1, 1, 50, 10 );
-            const sock2 = new SocketMachine(1, 1, 50, 10 )
+            const sock2 = new SocketMachine(1, 1, 50, 10 );
             sock.connectCar();
             sock.chargeCar(1000000, () => {}, 1);
             const socketStub = sandbox.stub(mockConnection, "sockets").returns([sock]);
@@ -217,11 +217,11 @@ describe("CS model", () => {
             const waitStub = sandbox.stub(mockConnection.socketSync, "hasMsgInWaitQueue").returns(true);
             const intervalSpy = sandbox.stub(clock, "setInterval");
             postStub.throws({ response: { data: { message: "Nothing " } } });
-            DBStub.resolves(new Test1(false))
-            mockConnection.socketSync.handleMessage({unique_id: "CIAO", type: "chargeEnd", sockets: [sock2]});
-            await CSConnection.webSocketListener(JSON.stringify({unique_id: "CIAO", type: "chargeEnd", sockets: [sock2]}), mockConnection);
+            DBStub.resolves(new Test1(false));
+            mockConnection.socketSync.handleMessage({ unique_id: "CIAO", type: "chargeEnd", sockets: [sock2] });
+            await CSConnection.webSocketListener(JSON.stringify({ unique_id: "CIAO", type: "chargeEnd", sockets: [sock2] }), mockConnection);
             socketStub.restore();
-            expect(mockConnection.sockets()).to.be.eql(JSON.parse(JSON.stringify([sock2])))
+            expect(mockConnection.sockets()).to.be.eql(JSON.parse(JSON.stringify([sock2])));
             expect(postStub).to.have.been.called;
             expect(intervalSpy).to.have.been.called;
         });
@@ -229,14 +229,14 @@ describe("CS model", () => {
         it("Should correctly update the sockets whenever a status message arrives", async () => {
             const mockConnection = new CSConnection(1, new WebSocket(null));
             const sock = new SocketMachine(1, 1, 50, 10 );
-            const sock2 = new SocketMachine(1, 1, 50, 10 )
+            const sock2 = new SocketMachine(1, 1, 50, 10 );
             sock.connectCar();
             sock.chargeCar(1000000, () => {}, 1);
             const socketStub = sandbox.stub(mockConnection, "sockets").returns([sock]);
-            await CSConnection.webSocketListener(JSON.stringify({unique_id: "CIAO", type: "socketsStatus", sockets: [sock2]}), mockConnection);
+            await CSConnection.webSocketListener(JSON.stringify({ unique_id: "CIAO", type: "socketsStatus", sockets: [sock2] }), mockConnection);
             socketStub.restore();
             expect(mockConnection.sockets()).to.be.eql(JSON.parse(JSON.stringify([sock2])));
-        })
+        });
 
         it("Should correctly report the time remaining for a socket", async () => {
             const mockConnection = new CSConnection(1, new WebSocket(null));
@@ -251,7 +251,7 @@ describe("CS model", () => {
             const timeRemaining = mockConnection.getTimeRemaining(1);
             expect((timeRemaining ?? 0) - Date.now()).to.be.lessThanOrEqual(720000);
             expect(ref - (timeRemaining ?? 0)).to.be.greaterThanOrEqual(720000);
-        })
+        });
 
         it("Should correctly report undefined time if no socket is found", async () => {
             const mockConnection = new CSConnection(1, new WebSocket(null));
@@ -259,18 +259,18 @@ describe("CS model", () => {
             const ref = Date.now();
             const timeRemaining = mockConnection.getTimeRemaining(1);
             expect(timeRemaining).to.be.undefined;
-        })
+        });
     });
 
     describe("SocketMachine", async () => {
 
         beforeEach(() => {
             sandbox.useFakeTimers();
-        })
+        });
 
         afterEach(() => {
             sandbox.restore();
-        })
+        });
 
         it("Should correctly change the socket state when a car is connected", function () {
             const sock = new SocketMachine(1, 1, 10, 10 );
@@ -284,7 +284,7 @@ describe("CS model", () => {
             const sock = new SocketMachine(1, 1, 10, 10 );
             expect(sock.connectedCar).to.be.undefined;
             sock.connectCar();
-            let throws = false
+            let throws = false;
             try {
                 sock.connectCar();
             } catch {
@@ -306,7 +306,7 @@ describe("CS model", () => {
 
         it("Should avoid starting a charge if the state is incorrect",  () => {
             const sock = new SocketMachine(1, 1, 10, 10 );
-            let throws = false
+            let throws = false;
             try {
                 sock.chargeCar(10000, () => {}, 1);
             } catch {
@@ -328,7 +328,7 @@ describe("CS model", () => {
 
         it("Should avoid stopping a charge if the state is incorrect",  () => {
             const sock = new SocketMachine(1, 1, 10, 10 );
-            let throws = false
+            let throws = false;
             try {
                 sock.stopChargeCar();
             } catch {
@@ -351,7 +351,7 @@ describe("CS model", () => {
             const sock = new SocketMachine(1, 1, 10, 10 );
             sock.connectCar();
             sock.chargeCar(10000, () => {}, 1);
-            let throws = false
+            let throws = false;
             try {
                 sock.disconnectCar();
             } catch {
@@ -375,7 +375,7 @@ describe("CS model", () => {
         it("Should throw time remaining error if no charge is ongoing",  () => {
             const sock = new SocketMachine(1, 1, 10, 10 );
             sock.connectCar();
-            let throws = false
+            let throws = false;
             try {
                 sock.getSocketFreedTimeRemaining();
             } catch {
@@ -398,7 +398,7 @@ describe("CS model", () => {
         it("Should throw battery timestamp error if no charge is ongoing",  () => {
             const sock = new SocketMachine(1, 1, 10, 10 );
             sock.connectCar();
-            let throws = false
+            let throws = false;
             try {
                 sock.getFullBatteryTimestamp();
             } catch {

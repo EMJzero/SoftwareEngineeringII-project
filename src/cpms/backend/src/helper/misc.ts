@@ -1,5 +1,5 @@
 import { readdirSync, statSync } from "fs";
-import axios, {AxiosError, AxiosResponse} from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import logger from "./logger";
 
 
@@ -40,10 +40,10 @@ export async function postReqHttp(url: string, body: object, headers?: object): 
     let res;
     try {
         res = await axios.post(url, body, headers);
-        return {res, isError: false};
+        return { res, isError: false };
     } catch (e) {
         logger.error("Axios response status:", res ? res.status : "undefined");
-        return {res: e as AxiosError, isError: true};
+        return { res: e as AxiosError, isError: true };
     }
 }
 
@@ -58,10 +58,10 @@ export async function postReqHttpAuth(url: string, token: string, body: object):
     try {
         const config = token ? { headers: { "Authorization": `Bearer ${token}` } } : undefined;
         res = await axios.post(url, body, config);
-        return {res, isError: false};
+        return { res, isError: false };
     } catch (e) {
         logger.error("Axios response status:", res ? res.status : "undefined");
-        return {res: e as AxiosError, isError: true};
+        return { res: e as AxiosError, isError: true };
     }
 }
 

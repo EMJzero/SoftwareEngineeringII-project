@@ -1,8 +1,8 @@
 import WebSocket = require("ws");
-import {Emsp} from "./Emsp";
-import {postReqHttpAuth} from "../helper/misc";
+import { Emsp } from "./Emsp";
+import { postReqHttpAuth } from "../helper/misc";
 import logger from "../helper/logger";
-import {CS} from "./CS";
+import { CS } from "./CS";
 import WSSync from "../helper/websocket-sync";
 
 //const WebSocketSync = require("ws-sync-request");
@@ -148,7 +148,7 @@ export default class CSConnection {
             const emsp = await Emsp.findById(msg.notifiedEMSPId);
             const cs = await CS.getCSDetails(connection._id);
             if (emsp && cs) {
-                let affectedCSName = cs.name;
+                const affectedCSName = cs.name;
                 const axiosResponse = await postReqHttpAuth(emsp.notificationEndpoint, emsp.APIKey, {
                     issuerCPMSName: "CPMS1",
                     affectedCSId: connection._id,

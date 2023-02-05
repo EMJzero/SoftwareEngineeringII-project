@@ -6,9 +6,9 @@ import app from "../../src/app";
 import { beforeEach } from "mocha";
 import Authentication from "../../src/helper/authentication";
 import CSConnection, { CSDB, SocketMachine } from "../../src/model/CSConnection";
-import {DBAccess} from "../../src/DBAccess";
-import {RowDataPacket} from "mysql2/promise";
-import {CS} from "../../src/model/CS";
+import { DBAccess } from "../../src/DBAccess";
+import { RowDataPacket } from "mysql2/promise";
+import { CS } from "../../src/model/CS";
 
 use(chaiHttp);
 use(sinonChai);
@@ -31,7 +31,7 @@ describe("CS model", () => {
         DBStub.resolves(new Test1([], true));
         let thrown = false;
         try {
-            await CS.verifyCSandSockets(1, [1, 2, 3])
+            await CS.verifyCSandSockets(1, [1, 2, 3]);
         } catch (e) {
             thrown = true;
         }
@@ -79,13 +79,13 @@ describe("CS model", () => {
     it("should succeed to get CS details", async () => {
         DBStub.resolves(new Test2(false));
         const res = await CS.getCSDetails(1);
-        const expected = new CS(1, "1", 0, 0, 0, 0, 0, [{id: 1, type: {connector: "Conn 1", maxPower: 10}}, {id: 2, type: {connector: "Conn 2", maxPower: 20}}], "");
+        const expected = new CS(1, "1", 0, 0, 0, 0, 0, [{ id: 1, type: { connector: "Conn 1", maxPower: 10 } }, { id: 2, type: { connector: "Conn 2", maxPower: 20 } }], "");
         expect(res).to.be.eql(expected);
     });
 
     it("should fail to get CS list if the DB fails", async () => {
         DBStub.resolves(new Test2(true));
-        let throws = false
+        let throws = false;
         try {
             const res = await CS.getCSList(0, 0, 0, 0, 0);
         } catch {

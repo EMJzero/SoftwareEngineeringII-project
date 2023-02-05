@@ -5,7 +5,7 @@ import { Emsp } from "../../src/model/Emsp";
 import { Request, Response } from "express";
 import * as http_internal from "../../src/helper/http";
 import "../../src/app";
-import {SinonStub} from "sinon";
+import { SinonStub } from "sinon";
 
 const sandbox = sinon.createSandbox();
 

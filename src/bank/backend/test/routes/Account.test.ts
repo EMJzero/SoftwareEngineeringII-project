@@ -4,7 +4,6 @@ import { createSandbox, SinonStub } from "sinon";
 import sinonChai = require("sinon-chai");
 import app from "../../src/app";
 import { beforeEach } from "mocha";
-import {Account} from "../../src/model/Account";
 import { DBAccess } from "../../src/DBAccess";
 
 use(chaiHttp);
@@ -47,7 +46,7 @@ describe("/cs-manager endpoint", () => {
                 cvv: "123",
                 expiration: "1125",
                 command: "BILL"
-            })
+            });
             expect(res).to.have.status(400);
         });
 
@@ -60,7 +59,7 @@ describe("/cs-manager endpoint", () => {
                 expiration: "1125",
                 billable: 32,
                 command: "BILL"
-            })
+            });
             expect(res).to.have.status(500);
         });
 
@@ -72,7 +71,7 @@ describe("/cs-manager endpoint", () => {
                 cvv: "123",
                 expiration: "1125",
                 command: "CHK"
-            })
+            });
             expect(res).to.have.status(500);
         });
 
@@ -85,7 +84,7 @@ describe("/cs-manager endpoint", () => {
                 expiration: "1125",
                 billable: 32,
                 command: "BILL"
-            })
+            });
             expect(res).to.have.status(200);
         });
 
@@ -97,7 +96,7 @@ describe("/cs-manager endpoint", () => {
                 cvv: "123",
                 expiration: "1125",
                 command: "CHK"
-            })
+            });
             expect(res).to.have.status(200);
         });
     });
@@ -151,7 +150,7 @@ class Test2 {
             if (this.throws) {
                 throw "ERRRO";
             } else {
-                return [[{a: "b"}], []];
+                return [[{ a: "b" }], []];
             }
         return [[], []];
     }

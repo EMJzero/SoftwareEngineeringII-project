@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import {sleep} from "./misc";
+import { sleep } from "./misc";
 
 export default class WSSync {
 
@@ -17,8 +17,8 @@ export default class WSSync {
     static generateUUID(): string {
         let
             d = new Date().getTime(),
-            d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0;
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            d2 = ((typeof performance !== "undefined") && performance.now && (performance.now() * 1000)) || 0;
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
             let r = Math.random() * 16;
             if (d > 0) {
                 r = (d + r) % 16 | 0;
@@ -27,11 +27,11 @@ export default class WSSync {
                 r = (d2 + r) % 16 | 0;
                 d2 = Math.floor(d2 / 16);
             }
-            return (c == 'x' ? r : (r & 0x7 | 0x8)).toString(16);
+            return (c == "x" ? r : (r & 0x7 | 0x8)).toString(16);
         });
-    };
+    }
 
-    public async sendSync(object: any, timeoutMS: number = 5000): Promise<any> {
+    public async sendSync(object: any, timeoutMS = 5000): Promise<any> {
         const nextMessageId = WSSync.generateUUID();
         object["unique_id"] = nextMessageId;
         this._keepWaiting.set(nextMessageId, true);

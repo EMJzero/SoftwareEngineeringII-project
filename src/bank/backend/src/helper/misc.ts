@@ -1,6 +1,4 @@
 import { readdirSync, statSync } from "fs";
-import axios, {AxiosError, AxiosResponse} from "axios";
-import logger from "./logger";
 
 
 /**
