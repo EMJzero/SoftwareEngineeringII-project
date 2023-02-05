@@ -313,10 +313,10 @@ export class Booking {
         const connection = await DBAccess.getConnection();
         await connection.beginTransaction();
 
-        const [selectResult]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT DISTINCT u.*, count(*) as bookingsCount FROM users as u JOIN bookings as b on u.id = b.userId WHERE b.endDate < UNIX_TIMESTAMP() * 1000 GROUP BY u.id", [])
+        const [selectResult]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT DISTINCT u.*, count(*) as bookingsCount FROM users as u JOIN bookings as b on u.id = b.userId WHERE (b.endDate + 600000) < UNIX_TIMESTAMP() * 1000 GROUP BY u.id", [])
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "DELETE FROM bookings WHERE endDate < UNIX_TIMESTAMP() * 1000",
-            []);
+            "DELETE FROM bookings WHERE (endDate + 600000) < UNIX_TIMESTAMP() * 1000",
+            []); //10 mins of leeway to let the system process everything
 
         await connection.commit();
         connection.release();
