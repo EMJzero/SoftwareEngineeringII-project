@@ -20,6 +20,10 @@ export interface IStationAvailabilityController {
 class StationAvailabilityController extends GenericController<AvailableIntervalsModel[] | null> implements IStationAvailabilityController {
 
     async getAvailableSlots(cpmsId: number, stationId: number, socketId: number, date: Date): Promise<AvailableIntervalsModel[] | null> {
+        if (!date) {
+            this.setAvailableSlots(null, 0, new Date());
+            return null;
+        }
         const body = {
             stationID: stationId,
             socketID: socketId,

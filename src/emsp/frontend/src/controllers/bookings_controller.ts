@@ -19,6 +19,10 @@ export interface IBookingsController {
 class BookingsController extends GenericController<BookingModel[] | null> implements IBookingsController {
 
     async deleteBooking(booking: BookingModel): Promise<boolean> {
+        if ((booking.startDate <= Date.now() && booking.endDate >= Date.now()) || booking.isActive) {
+            return false;
+        }
+
         const res = await super.delete("/bookings", { body: {
             bookingId: booking.id
             }, message: "Booking deleted successfully!" });
@@ -33,11 +37,16 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
 
     async getBookings(): Promise<BookingModel[] | null> {
         const res = await super.get<BookingModel[]>("/bookings");
+        console.log(res);
         await this.setBookings(res);
         return res;
     }
 
     async startChargeBooking(booking: BookingModel): Promise<boolean> {
+        if (booking.startDate > Date.now() || booking.endDate < Date.now() || booking.isActive) {
+            return false;
+        }
+
         const body = {
             bookingId: booking.id,
             action: "start"
@@ -61,6 +70,10 @@ class BookingsController extends GenericController<BookingModel[] | null> implem
     }
 
     async stopChargeBooking(booking: BookingModel): Promise<boolean> {
+        if (booking.startDate > Date.now() || booking.endDate < Date.now() || !booking.isActive) {
+            return false;
+        }
+
         const body = {
             bookingId: booking.id,
             action: "stop"
