@@ -10,11 +10,11 @@ export default class WSSync {
 
     constructor(socket: WebSocket) {
         this.socket = socket;
-        this._nextMessageId = this.generateUUID();
+        this._nextMessageId = WSSync.generateUUID();
         this._keepWaiting = new Map();
     }
 
-    private generateUUID(): string {
+    static generateUUID(): string {
         let
             d = new Date().getTime(),
             d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0;
@@ -32,12 +32,12 @@ export default class WSSync {
     };
 
     public async sendSync(object: any, timeoutMS: number = 5000): Promise<any> {
-        const nextMessageId = this.generateUUID();
+        const nextMessageId = WSSync.generateUUID();
         object["unique_id"] = nextMessageId;
         this._keepWaiting.set(nextMessageId, true);
         await this.socket.send(JSON.stringify(object));
         const currentDateMS = Date.now();
-        while (this._keepWaiting.get(nextMessageId)) {
+        while (this.isWaiting(nextMessageId)) {
             await sleep(200);
             if (Date.now() - currentDateMS > timeoutMS) {
                 throw "Cannot contact the CS in time. Aborting...";
@@ -50,10 +50,14 @@ export default class WSSync {
     }
 
     public handleMessage(msg: any) {
-        if (this._keepWaiting.has(msg.unique_id)) {
+        if (this.hasMsgInWaitQueue(msg)) {
             this.rcvdMessages.set(msg.unique_id, msg);
             this._keepWaiting.set(msg.unique_id, false);
         }
+    }
+
+    public hasMsgInWaitQueue(msg: any) {
+        return this._keepWaiting.has(msg.unique_id);
     }
 
     public isWaiting(msgId: string): boolean {

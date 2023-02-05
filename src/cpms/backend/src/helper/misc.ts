@@ -32,23 +32,6 @@ export function checkURL(url: string): boolean {
 }
 
 /**
- * Make a get http request to a specific url
- * @param url the url of the request
- * @param parameters
- */
-export async function getReqHttp(url: string, parameters: object): Promise<{res: AxiosResponse | AxiosError, isError: boolean}> {
-    const config = { params: parameters };
-    let res;
-    try {
-        res = await axios.get(url, config);
-        return {res, isError: false};
-    } catch (e) {
-        logger.error("Axios response status:", res ? res.status : "undefined");
-        return {res: e as AxiosError, isError: true};
-    }
-}
-
-/**
  * Make a post http request to a specific url
  * @param url the url of the request
  * @param body the object containing the field and the value of the query string
@@ -91,24 +74,6 @@ export class StandardResponse<T extends Object> {
         this.status = status;
         this.message = message;
         this.data = data;
-    }
-}
-
-/**
- * Make a delete http request to a specific url
- * @param url the url of the request
- * @param query the object containing the field and the value of the query string
- */
-export async function deleteReqHttp(url: string, query: object): Promise<AxiosResponse | null> {
-    let res;
-    try {
-        const config = { params: query };
-        // TODO: manage body
-        res = await axios.delete(url, config);
-        return res;
-    } catch (e) {
-        logger.error("Axios response status:", res ? res.status : "undefined");
-        return null;
     }
 }
 

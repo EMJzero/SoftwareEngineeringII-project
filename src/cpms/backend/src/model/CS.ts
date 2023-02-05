@@ -52,7 +52,7 @@ export class CS {
     }
 
     //DEBUG ONLY!!!!!
-    public static async dumpDB(): Promise<void> {
+    /*public static async dumpDB(): Promise<void> {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT * FROM cs", []);
@@ -69,14 +69,14 @@ export class CS {
 
         const jsonString = JSON.stringify(resultList, null, "\t");
         fs.writeFileSync("C:\\Users\\alessandrosassi\\Desktop\\csdump.json", jsonString);
-    }
+    }*/
 
     /**
      * For the speficified CS, recovers from the DB all the data regarding it.
      *
      * @param CSID
      */
-    public static async getCSDetails(CSID: number): Promise<CS> {
+    public static async getCSDetails(CSID: number): Promise<CS | null> {
         const connection = await DBAccess.getConnection();
 
         //const [result, _]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT c.id, c.locationLatitude, c.locationLongitude, c.nominalPrice, c.userPrice, c.offerExpirationDate, s.id AS socketid, t.connector, t.maxpower FROM cs c JOIN cssockets s JOIN socketstype t ON c.id = s.csid AND s.typeid = t.id WHERE c.id = ?",
@@ -86,6 +86,10 @@ export class CS {
             [CSID]);
         const [resultSockets]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT s.id, t.connector, t.maxpower FROM cssockets s JOIN socketstype t ON s.typeid = t.id WHERE s.csid = ?",
             [CSID]);
+
+        if (resultCS.length == 0 || !resultCS) {
+            return null;
+        }
 
         const cs = new CS(resultCS[0].id, resultCS[0].name, resultCS[0].locationLatitude, resultCS[0].locationLongitude, resultCS[0].nominalPrice, resultCS[0].userPrice, resultCS[0].offerExpirationDate,
             resultSockets.map((socket) => new Socket(socket.id, new SocketType(socket.connector, socket.maxpower))), resultCS[0].imageURL);

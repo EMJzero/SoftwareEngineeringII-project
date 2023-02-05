@@ -63,14 +63,14 @@ export default class CSManagerRoute extends Route {
             return;
         }
 
-        const issuerEMSP = Emsp.findById(issuerEMSPId);
-        if (!issuerEMSP) {
-            badRequest(response, "No issuer eMSP was found!");
-            return;
-        }
-
         let result = false;
         try {
+            const issuerEMSP = await Emsp.findById(issuerEMSPId);
+            if (!issuerEMSP) {
+                badRequest(response, "No issuer eMSP was found!");
+                return;
+            }
+
             if (chargeCommand == CSChargeCommand.startCharge) {
                 result = await csConnection.startCharge(socketID, maximumTimeoutDate, issuerEMSPId);
             } else if (chargeCommand == "stop") {
@@ -86,7 +86,6 @@ export default class CSManagerRoute extends Route {
         }
 
         if (!result) {
-            console.log("UNSUCCESSFUL");
             internalServerError(response, "Operation returned unsuccessful");
             return;
         }
