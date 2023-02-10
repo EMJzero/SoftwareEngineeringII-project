@@ -5,6 +5,7 @@ import { Emsp } from "../../src/model/Emsp";
 import { Request, Response } from "express";
 import * as http_internal from "../../src/helper/http";
 import "../../src/app";
+import { SinonStub } from "sinon";
 
 const sandbox = sinon.createSandbox();
 
@@ -25,8 +26,13 @@ describe("Authentication helper module", () => {
     };
 
     let responseCode = 0;
+    let checkJWTStub: SinonStub;
 
     before(async () => {
+        sandbox.stub(http_internal, "success").callsFake(() => {
+            responseCode = 200;
+        });
+
         sandbox.stub(http_internal, "unauthorizedUserError").callsFake(() => {
             responseCode = 401;
         });
@@ -44,8 +50,8 @@ describe("Authentication helper module", () => {
         expect(Authentication.createJWT(testUser.name, testUser.id)).to.be.not.undefined;
     });
 
-    it("should check a JWT secret in request", () => {
-        const token = Authentication.createJWT(testUser.name, testUser.id);
+    /*it("should check a JWT secret in request", () => {
+        const token = Authentication.createJWT(testUser);
         const mockRequest = {
             body: {},
             cookies: {
@@ -56,8 +62,9 @@ describe("Authentication helper module", () => {
         Authentication.checkAuthentication(mockRequest, mockResponse, () => {
             expect(mockResponse.statusCode).to.be.not.equal(401);
             expect(mockResponse.statusCode).to.be.not.equal(500);
+            expect(mockRequest.userId).to.be.equal(testUser.id);
         });
-    });
+    });*/
 
     it("should throw unauthenticated error without JWT token", () => {
         const mockRequest = {
@@ -69,30 +76,89 @@ describe("Authentication helper module", () => {
             console.log("Next");
         });
         expect(responseCode).to.be.equal(401);
+        expect(mockRequest.mspId).to.be.undefined;
     });
 
     it("should throw unauthenticated error with wrong JWT token", () => {
         const mockRequest = {
             body: {},
-            cookies: { _jwt: "A non-JWT string" }
+            cookies: { __session: "A non-JWT string" }
         } as Request;
 
         Authentication.checkAuthentication(mockRequest, mockResponse as Response, () => {
             console.log("Next");
         });
         expect(responseCode).to.be.equal(401);
+        expect(mockRequest.mspId).to.be.undefined;
     });
 
     it("should throw unauthenticated error with JWT token without user_id string", () => {
         const mockRequest = {
             body: {},
-            cookies: { _jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8c7UutxCZwhe71a7pyVjNPYou5Xp6TGrjhETFuIB11o" }
+            cookies: { __session: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8c7UutxCZwhe71a7pyVjNPYou5Xp6TGrjhETFuIB11o" }
         } as Request;
 
         Authentication.checkAuthentication(mockRequest, mockResponse as Response, () => {
             console.log("Next");
         });
         expect(responseCode).to.be.equal(401);
+        expect(mockRequest.mspId).to.be.undefined;
+    });
+
+    it("should not authenticate when the validator throws", () => {
+        const mockRequest = {
+            body: {},
+            cookies: { __session: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8c7UutxCZwhe71a7pyVjNPYou5Xp6TGrjhETFuIB11o" }
+        } as Request;
+        checkJWTStub = sandbox.stub(Authentication, "checkJWT");
+        checkJWTStub.throws("Any error (never happens)");
+
+        Authentication.checkAuthentication(mockRequest, mockResponse as Response, () => {
+            console.log("Next");
+        });
+        expect(responseCode).to.be.equal(500);
+        expect(mockRequest.mspId).to.be.undefined;
+        checkJWTStub.restore();
+    });
+
+    it("should authenticate with a valid token", () => {
+        const mockRequest = {
+            body: {},
+            cookies: { __session: Authentication.createJWT(testUser.name, testUser.id) }
+        } as Request;
+
+        Authentication.checkAuthentication(mockRequest, mockResponse as Response, () => {
+            console.log("Next");
+            responseCode = 200;
+        });
+        expect(responseCode).to.be.equal(200);
+        expect(mockRequest.mspId).to.be.eql(testUser.id);
+        expect(mockRequest.mspName).to.be.eql(testUser.name);
+    });
+
+    it("should not authenticate if the token can't be decoded", () => {
+        const mockRequest = {
+            body: {},
+            cookies: { __session: "SomethingThatIsNotAToken" }
+        } as Request;
+
+        Authentication.checkAuthentication(mockRequest, mockResponse as Response, () => {
+            console.log("Next");
+            responseCode = 200;
+        });
+        expect(responseCode).to.be.equal(401);
+        expect(mockRequest.mspId).to.be.undefined;
+        expect(mockRequest.mspName).to.be.undefined;
+    });
+
+    it("should correctly set the session cookie if authentication succeeds", () => {
+        const mockRequest = {
+            body: {},
+            cookies: { __session: Authentication.createJWT(testUser.name, testUser.id) }
+        } as Request;
+
+        expect(Authentication.setAuthenticationCookie(mockResponse as Response, testUser.name, testUser.id)).to.be.true;
+        expect(mockResponse.cookie).to.have.been.called;
     });
 
     /*it("should throw internal user error", () => {

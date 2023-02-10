@@ -2,6 +2,7 @@ import {DBAccess} from "../DBAccess";
 import {FieldPacket, RowDataPacket} from "mysql2/promise";
 import env from "../helper/env";
 import {IUser} from "./User";
+import CSNotification from "../routes/CSNotification";
 
 // Simple template for Bookings. Currently extracts all bookings of a user, need to complete with all other methods
 // You should also send the socket info when retrieving the booking data before sending it to the client
@@ -38,10 +39,27 @@ export class Booking {
      * Starts a regular timer that will clean up expired bookings regularly
       */
     public static startCleanupTimer() {
-        const timerSchedule = 24 * 3600; //Seconds in a day;
+        const timerSchedule = 6 * 3600; //Seconds in 6 hrs;
         setInterval(async () => {
-            await this.deleteExpiredBookings();
+            await Booking.cleanupAndBillFines();
         }, timerSchedule * 1000);
+    }
+
+    static async cleanupAndBillFines() {
+        try {
+            const usersToBill = await this.deleteExpiredBookingsAndUserWithCount();
+            if (usersToBill.deleted) {
+                const paymentAmountPerSlot = 20 //20$ fine
+                for (const [userToBill, numberOfBookings] of usersToBill.usersWithCount) {
+                    const totalFineAmount = paymentAmountPerSlot * numberOfBookings;
+                    await CSNotification.billUser(userToBill, totalFineAmount, undefined);
+                }
+                return true;
+            }
+            return false
+        } catch {
+            return false;
+        }
     }
 
     /**
@@ -300,18 +318,35 @@ export class Booking {
      * Deletes all expired bookings
      *
      */
-    public static async deleteExpiredBookings(): Promise<boolean> {
+    public static async deleteExpiredBookingsAndUserWithCount(): Promise<{ deleted: boolean, usersWithCount: [IUser, number][] }> {
         const connection = await DBAccess.getConnection();
+        await connection.beginTransaction();
 
+        const [selectResult]: [RowDataPacket[], FieldPacket[]] = await connection.execute("SELECT DISTINCT u.*, count(*) as bookingsCount FROM users as u JOIN bookings as b on u.id = b.userId WHERE (b.endDate + 600000) < UNIX_TIMESTAMP() * 1000 GROUP BY u.id", [])
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "DELETE FROM bookings WHERE endDate < UNIX_TIMESTAMP()",
-            []);
+            "DELETE FROM bookings WHERE (endDate + 600000) < UNIX_TIMESTAMP() * 1000",
+            []); //10 mins of leeway to let the system process everything
 
+        await connection.commit();
         connection.release();
 
         const json: any = result;
 
-        return json.affectedRows == 1;
+        return {
+            deleted: json.affectedRows >= 1,
+            usersWithCount: selectResult.map((userAndCount) => {
+                return [{
+                    id: userAndCount.id,
+                    creditCardBillingName: userAndCount.paymentCardOwnerName,
+                    creditCardCVV: userAndCount.paymentCardCvv,
+                    creditCardExpiration: userAndCount.paymentCardExpirationDate,
+                    creditCardNumber: userAndCount.paymentCardNumber,
+                    email: userAndCount.email,
+                    password: userAndCount.password,
+                    username: userAndCount.userName
+                }, userAndCount.bookingsCount]
+            })
+        };
     }
 
     /**
@@ -328,7 +363,7 @@ export class Booking {
         const connection = await DBAccess.getConnection();
 
         const [check]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT id FROM bookings WHERE ((startDate >= ? AND startDate <= ?) OR (endDate >= ? AND startDate <= ?)) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR (userId = ?))",
+            "SELECT id FROM bookings WHERE ((startDate >= ? AND startDate < ?) OR (endDate >= ? AND startDate < ?)) AND ((cpmsId = ? AND csId = ? AND socketId = ?) OR (userId = ?))",
             [startDate.valueOf(),
                 endDate.valueOf(),
                 startDate.valueOf(),
@@ -370,10 +405,6 @@ export class Booking {
         const json: any = result;
 
         return json.affectedRows == 1;
-    }
-
-    private static secondsSinceEpoch(date: Date) {
-        return Math.round(date.valueOf() / 1000);
     }
 }
 

@@ -1,7 +1,7 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import Route from "../Route";
-import {checkNaN, checkUndefinedParams, internalServerError, success} from "../helper/http";
-import {Account} from "../model/Account";
+import { checkNaN, checkUndefinedParams, internalServerError, success } from "../helper/http";
+import { Account } from "../model/Account";
 import logger from "../helper/logger";
 
 export default class AccountsRoute extends Route {
@@ -16,7 +16,7 @@ export default class AccountsRoute extends Route {
         const cvv = request.body.cvv;
         const expiration = request.body.expiration;
         const billable = request.body.billable;
-        const command = request.body.command
+        const command = request.body.command;
 
         console.log(cardNumber, cardOwner, cvv, expiration, billable, command);
 

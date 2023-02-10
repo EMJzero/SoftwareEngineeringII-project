@@ -1,8 +1,8 @@
-import * as WebSocket from "ws";
-import {Emsp} from "./Emsp";
-import {postReqHttpAuth} from "../helper/misc";
+import WebSocket = require("ws");
+import { Emsp } from "./Emsp";
+import { postReqHttpAuth } from "../helper/misc";
 import logger from "../helper/logger";
-import {CS} from "./CS";
+import { CS } from "./CS";
 import WSSync from "../helper/websocket-sync";
 
 //const WebSocketSync = require("ws-sync-request");
@@ -25,7 +25,7 @@ export class CSDB {
     }
 
     public unregisterCS(connection: CSConnection) {
-        this.connections.splice(this.connections.indexOf(connection), 1);
+        this.connections = this.connections.filter((connectionA) => connection != connectionA);
     }
 
     public getConnectionToCSWithID(csID: number): CSConnection | undefined {
@@ -64,6 +64,10 @@ export default class CSConnection {
                     eMSPId: eMSPId
                 };
                 const response = await this.synchronousSocket.sendSync(request);
+                if (response.sockets) {
+                    response.sockets.forEach((socket: any) => Object.setPrototypeOf(socket, SocketMachine.prototype));
+                    this._sockets = response.sockets;
+                }
                 //this._websocket.send(JSON.stringify(request));
                 return response.status;
             } else {
@@ -97,11 +101,23 @@ export default class CSConnection {
     }
 
     public getTimeRemaining(socketID: number): number | undefined {
-        return (this.sockets()).find((sc) => sc.socketId == socketID)?.getSocketFreedTimeRemaining();
+        try {
+            return (this.sockets()).find((sc) => sc.socketId == socketID)?.getSocketFreedTimeRemaining();
+        } catch {
+            return undefined;
+        }
     }
 
     get id(): number {
         return this._id;
+    }
+
+    get socketSync(): WSSync {
+        return this.synchronousSocket;
+    }
+
+    get websocket(): WebSocket {
+        return this._websocket;
     }
 
     public getSocket(socketId: number): SocketMachine | undefined {
@@ -128,29 +144,27 @@ export default class CSConnection {
 
     private static async handleNotificationAndBilling(connection: CSConnection, msg: any) {
         //Contact the eMSP that made the request
-        const emsp = await Emsp.findById(msg.notifiedEMSPId);
-        const cs = await CS.getCSDetails(connection._id);
-        if (emsp) {
-            let affectedCSName = "Unknown";
-            try {
-                const cs = await CS.getCSDetails(connection._id);
-                affectedCSName = cs.name;
-            } catch (e) {
-                console.log(e);
+        try {
+            const emsp = await Emsp.findById(msg.notifiedEMSPId);
+            const cs = await CS.getCSDetails(connection._id);
+            if (emsp && cs) {
+                const affectedCSName = cs.name;
+                const axiosResponse = await postReqHttpAuth(emsp.notificationEndpoint, emsp.APIKey, {
+                    issuerCPMSName: "CPMS1",
+                    affectedCSId: connection._id,
+                    affectedCSName: affectedCSName,
+                    affectedSocketId: msg.affectedSocketId,
+                    totalBillableAmount: Math.ceil(msg.billableDurationHours * cs.userPrice * msg.billablePower * 100) / 100
+                });
+                if (axiosResponse.isError) {
+                    logger.error("An error occurred while contacting the EMSP. Retrying in 5s...");
+                    const timeout = setInterval(() => {
+                        CSConnection.retryEMSPPost(emsp, timeout);
+                    }, 5000);
+                }
             }
-            const axiosResponse = await postReqHttpAuth(emsp.notificationEndpoint, emsp.APIKey, {
-                issuerCPMSName: "CPMS1",
-                affectedCSId: connection._id,
-                affectedCSName: affectedCSName,
-                affectedSocketId: msg.affectedSocketId,
-                totalBillableAmount: Math.ceil(msg.billableDurationHours * cs.userPrice * msg.billablePower * 100) / 100
-            });
-            if (axiosResponse.isError) {
-                logger.error("An error occurred while contacting the EMSP. Retrying in 5s...");
-                const timeout = setInterval(() => {
-                    CSConnection.retryEMSPPost(emsp, timeout);
-                }, 5000);
-            }
+        } catch (e) {
+            console.log(e);
         }
     }
 
@@ -297,7 +311,7 @@ export class SocketMachine {
     }
 
     public fullyChargeCar() {
-        this.connectedCar.fullyCharge();
+        this.connectedCar?.fullyCharge();
     }
 
     private getCarData(): CarData {

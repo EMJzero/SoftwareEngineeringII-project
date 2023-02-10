@@ -50,17 +50,6 @@ export abstract class GenericController<T> {
             return null;
         }
     }
-    protected async put<T>(path: string, config?: { body?: object, message?: string }): Promise<T | null> {
-        try {
-            const res = await axiosInstance.put(path, config?.body);
-            if (config?.message != undefined)
-                useToast().success(config.message);
-            return res.data.data as T;
-        } catch (error) {
-            axiosCatch(error);
-            return null;
-        }
-    }
 
     abstract getRef(): Ref.Ref<T>;
 }

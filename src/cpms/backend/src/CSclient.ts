@@ -4,6 +4,7 @@ import * as CS from "./model/CSConnection";
 import * as readline from "readline";
 import WebSocket = require("ws");
 import * as fs from "fs";
+import { sleep } from "./helper/misc";
 
 /**
  * This class is a mockup of a CS connecting to the CPMS's backend via websockets,
@@ -26,7 +27,7 @@ if (args[1] === "--cs") {
     }
 }
 const csdump = args[0];
-const socketDB = JSON.parse(fs.readFileSync(csdump, 'utf8')) as CSModel.CS[];
+const socketDB = JSON.parse(fs.readFileSync(csdump, "utf8")) as CSModel.CS[];
 
 const csData = socketDB.find((cs) => cs.id == CSID);
 const socketsData = csData?.sockets;
@@ -40,7 +41,7 @@ let sockets: SocketMachine[] = [
 if (socketsData) {
     sockets = socketsData.map((socketData) => {
         return new SocketMachine(CSID, socketData.id, socketData.type.maxPower, socketData.type.maxPower);
-    })
+    });
 }
 
 // WebSocket connection and initialization
@@ -58,7 +59,14 @@ function connect() {
             csId: CSID,
             socketsIds: sockets.map((socket) => socket.socketId)
         };
-        await client.send(JSON.stringify(msg));
+        try {
+            await client.send(JSON.stringify(msg));
+        } catch {
+            while (client.readyState == 0) {
+                sleep(500);
+            }
+            await client.send(JSON.stringify(msg));
+        }
 
         setInterval(async () => {
             await sendStatus();
@@ -68,11 +76,15 @@ function connect() {
     });
 
     async function sendStatus() {
-        const msg = {
-            type: "socketsStatus",
-            sockets: sockets
-        };
-        await client.send(JSON.stringify(msg));
+        try {
+            const msg = {
+                type: "socketsStatus",
+                sockets: sockets
+            };
+            await client.send(JSON.stringify(msg));
+        } catch {
+            console.log("Cannot send data to the CPMS. Skipping packet...");
+        }
     }
 
     client.on("message", async (message: string) => {
@@ -86,7 +98,7 @@ function connect() {
             process.exit(0);
         } else if(msg.request != undefined && msg.request == "startCharge") {
             sockets[socketIndex].chargeCar(msg.maximumTimeoutDate, async () => await chargeTimeoutCallback(sockets[socketIndex]), msg.eMSPId);
-            await client.send(JSON.stringify({unique_id: msgId, status: true}));
+            await client.send(JSON.stringify({ unique_id: msgId, status: true, sockets: sockets }));
             console.log("Sockets updated, press ENTER to refresh prompt....");
         } else if(msg.request != undefined && msg.request == "stopCharge") {
             const chargeStartTime = sockets[socketIndex].chargeStartTime;
@@ -173,12 +185,12 @@ rl.on("line", (input) => {
                         socket.disconnectCar();
                 });
                 break;
-            case "fullyCharge":
+            /*case "fullyCharge":
                 sockets.forEach((socket) => {
                     if (socket.socketId == parseInt(inputs[1]))
                         socket.fullyChargeCar();
                 });
-                break;
+                break;*/
             default:
                 console.log("Invalid command...\n");
             }

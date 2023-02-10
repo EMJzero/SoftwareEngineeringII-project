@@ -34,6 +34,7 @@ class StationMapController extends GenericController<StationModel[] | null> impl
     lastGeolocation: Coordinate = [139.839478, 35.652832];
     lastZoom: number = 10;
     markers: Vector<SVector<Geometry>> | undefined;
+    updateTimer?: any;
 
     private readonly defaultCenter: Coordinate = [139.839478, 35.652832]; //Tokyo!
 
@@ -97,7 +98,7 @@ class StationMapController extends GenericController<StationModel[] | null> impl
             })
         );
 
-        setInterval(async function () {
+        this.updateTimer = setInterval(async function () {
             const coordinates = self.geolocation.getPosition();
             const center = self.map.getView().getCenter() ?? coordinates;
             let shouldUpdateStations = false;
@@ -200,6 +201,14 @@ class StationMapController extends GenericController<StationModel[] | null> impl
 
     distanceBetweenPoints(latlng1: Coordinate, latlng2: Coordinate): number {
         return getDistance(latlng1, latlng2) / 1000;
+    }
+
+    deinit() {
+        clearInterval(this.updateTimer);
+        this.geolocation.setTracking(false);
+        this.lastLocationCenter = [0, 0];
+        this.lastGeolocation = [139.839478, 35.652832];
+        this.lastZoom = 10;
     }
 
     /**

@@ -1,6 +1,4 @@
 import express, { Express } from "express";
-import * as WebSocket from "ws";
-import * as http from "http";
 import { getFilesInDir } from "./helper/misc";
 import { join } from "path";
 import requestLogger from "morgan";

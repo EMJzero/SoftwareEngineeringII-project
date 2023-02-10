@@ -1,11 +1,18 @@
 import Route from "../Route";
 import {Request, Response} from "express";
-import {badRequest, checkNaN, checkUndefinedParams, internalServerError, success} from "../helper/http";
+import {
+    badRequest,
+    checkNaN,
+    checkUndefinedParams,
+    internalServerError,
+    success,
+    unauthorizedUserError
+} from "../helper/http";
 import {CPMS} from "../model/CPMS";
 import {getReqHttp, postReqHttp} from "../helper/misc";
 import logger from "../helper/logger";
 import CPMSAuthentication from "../helper/CPMSAuthentication";
-import {User} from "../model/User";
+import {IUser, User} from "../model/User";
 import {Booking} from "../model/Booking";
 import {use} from "chai";
 import {Notification} from "../model/Notification";
@@ -26,7 +33,10 @@ export default class CSNotification extends Route {
      */
     protected async httpGet(request: Request, response: Response): Promise<void> {
         const isAuthenticated = Authentication.authenticateRequest(request, response);
-        if (!isAuthenticated) return;
+        if (!isAuthenticated) {
+            unauthorizedUserError(response);
+            return;
+        }
 
         const userId = request.userId;
         try {
@@ -74,17 +84,7 @@ export default class CSNotification extends Route {
             const user = await Booking.findUserWithActive(csId, ownerCPMS.id, socketId);
             //Add a notification - frontend will query them to display
             if (user) {
-                console.log("BILLING USER ", user?.user.username, "AMOUNT", totalBillableAmount);
-                const response = await postReqHttp(env.PAYMENT_PROVIDER_URL, null, {
-                    cardNumber: user.user.creditCardNumber,
-                    cardOwner: user.user.creditCardBillingName,
-                    cvv: user.user.creditCardCVV,
-                    expiration: user.user.creditCardExpiration,
-                    billable: totalBillableAmount,
-                    command: "BILL"
-                });
-
-                await Notification.registerNotification(user.user.id, "Your recharge at \"" + csName + "\" ended, and you've been charged $" + totalBillableAmount);
+                await CSNotification.billUser(user.user, totalBillableAmount, csName);
                 await Booking.deleteBooking(user.user.id, user.bookingId);
             }
         } catch (e) {
@@ -104,7 +104,10 @@ export default class CSNotification extends Route {
      */
     protected async httpDelete(request: Request, response: Response): Promise<void> {
         const isAuthenticated = Authentication.authenticateRequest(request, response);
-        if (!isAuthenticated) return;
+        if (!isAuthenticated) {
+            unauthorizedUserError(response);
+            return;
+        }
 
         const userId = request.userId;
         try {
@@ -114,5 +117,19 @@ export default class CSNotification extends Route {
             logger.error("Could not clear notifications: " + e);
             internalServerError(response, "Could not clear notifications");
         }
+    }
+
+    static async billUser(user: IUser, totalBillableAmount: number, stationName: number | undefined) {
+        const response = await postReqHttp(env.PAYMENT_PROVIDER_URL, null, {
+            cardNumber: user.creditCardNumber,
+            cardOwner: user.creditCardBillingName,
+            cvv: user.creditCardCVV,
+            expiration: user.creditCardExpiration,
+            billable: totalBillableAmount,
+            command: "BILL"
+        });
+
+        const message = stationName ? "Your recharge at \"" + stationName + "\" ended, and you've been charged $" + totalBillableAmount : "You were fined for expired booking. The fine amount was $" + totalBillableAmount;
+        await Notification.registerNotification(user.id, message);
     }
 }

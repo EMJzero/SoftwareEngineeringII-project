@@ -107,6 +107,38 @@ describe("/register endpoint", () => {
             expect(res).to.have.status(400);
         });
 
+        it ("should fail if the bank is unavailable", async () => {
+            DBStub.resolves(new Test1());
+            //registerNewUserStub.resolves(false);
+            axiosPostStub.throws( { response: { data: { message: "Nothing " } } } );
+            const res = await requester.post("/register").send({
+                username : "someUsername",
+                email: "someEmail@gmail.com",
+                password: "This1s4S3CurePaw0d",
+                creditCardNumber: "7598531254886325",
+                creditCardCVV: "789",
+                creditCardExpiration: "11/28",
+                creditCardBillingName: "someOwner NamedOwny"
+            });
+            expect(res).to.have.status(400);
+        });
+
+        it ("should fail if the bank is unavailable (null error)", async () => {
+            DBStub.resolves(new Test1());
+            //registerNewUserStub.resolves(false);
+            axiosPostStub.throws( { response: null } );
+            const res = await requester.post("/register").send({
+                username : "someUsername",
+                email: "someEmail@gmail.com",
+                password: "This1s4S3CurePaw0d",
+                creditCardNumber: "7598531254886325",
+                creditCardCVV: "789",
+                creditCardExpiration: "11/28",
+                creditCardBillingName: "someOwner NamedOwny"
+            });
+            expect(res).to.have.status(400);
+        });
+
         it ("should fail if the registration of the user in the DB fails", async () => {
             DBStub.resolves(new Test1());
             //registerNewUserStub.resolves(false);

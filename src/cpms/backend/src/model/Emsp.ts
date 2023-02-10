@@ -11,7 +11,7 @@ import { FieldPacket, RowDataPacket } from "mysql2/promise";
 export class Emsp {
     id: number;
     APIKey: string;
-    notificationEndpoint: string
+    notificationEndpoint: string;
 
     constructor(id: number, APIKey: string, notificationEndpoint: string) {
         this.id = id;
