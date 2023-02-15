@@ -148,7 +148,7 @@ export class Booking {
         const connection = await DBAccess.getConnection();
 
         const [result]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
-            "SELECT start, end FROM availabilityautomanaged WHERE cpms = ? AND cs = ? AND socket = ? AND ((end >= ? AND end <= ?) OR (start >= ? AND start <= ?)) UNION (SELECT ?, ? WHERE NOT EXISTS (SELECT * FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ?))",
+            "SELECT start, end FROM availabilityautomanaged WHERE cpms = ? AND cs = ? AND socket = ? AND ((end >= ? OR end <= ?) OR (start >= ? OR start <= ?)) UNION (SELECT ?, ? WHERE NOT EXISTS (SELECT * FROM bookings WHERE cpmsId = ? AND csId = ? AND socketId = ?))",
             [cpmsID, csID, socketID, startDate.valueOf(), endDate.valueOf(), startDate.valueOf(), endDate.valueOf(), startDate.valueOf(), endDate.valueOf(), cpmsID, csID, socketID]);
 
         connection.release();

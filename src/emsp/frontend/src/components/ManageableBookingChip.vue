@@ -4,7 +4,7 @@
       <div style="">
         <p class="text-left text-2xl font-bold text-white"> {{ booking.name }} </p>
         <p class="text-left text-sm font-weight-regular text-white"> {{ booking.socketSpeed }} </p>
-        <p class="text-left text-sm font-weight-regular text-white">Socket: {{ booking.socketType }} </p>
+        <p class="text-left text-sm font-weight-regular text-white">Socket: {{ booking.socketType }} (#: {{ booking.socketId }}) </p>
         <p class="text-left text-sm font-weight-regular text-white pt-5">Starts: {{ getStartDate() }} </p>
         <p class="text-left text-sm font-weight-regular text-white">Ends: {{ getEndDate() }} </p>
       </div>
